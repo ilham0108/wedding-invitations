@@ -9,6 +9,7 @@
 
     <title>{{ $invitation->meta['title'] }}</title>
     <meta name="description" content="{{ $invitation->meta['description'] }}">
+    <x-favicon />
     <meta name="robots" content="{{ $invitation->meta['indexable'] ? 'index, follow' : 'noindex, nofollow' }}">
     @if ($invitation->meta['canonical'])
         <link rel="canonical" href="{{ $invitation->meta['canonical'] }}">

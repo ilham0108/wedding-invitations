@@ -11,6 +11,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ $title ? $title.' · '.config('app.name') : config('app.name') }}</title>
+    <x-favicon />
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,600|playfair-display:400,500,600&display=swap" rel="stylesheet">

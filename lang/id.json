@@ -1316,5 +1316,14 @@
     "Set a password": "Buat kata sandi",
     "Set password": "Simpan kata sandi",
     "You sign in with Google. Set a password to also log in with your email.": "Anda masuk dengan Google. Buat kata sandi agar bisa juga masuk memakai email.",
-    "This cannot be undone from your account.": "Tindakan ini tidak dapat dibatalkan dari akun Anda."
+    "This cannot be undone from your account.": "Tindakan ini tidak dapat dibatalkan dari akun Anda.",
+    "Site icon": "Ikon situs",
+    "site icon": "ikon situs",
+    "Shown in browser tabs, bookmarks and on phone home screens, including invitation pages. Square PNG, at least 512 × 512 px.": "Tampil di tab browser, bookmark, dan layar utama ponsel, termasuk halaman undangan. PNG persegi, minimal 512 × 512 px.",
+    "Current site icon": "Ikon situs saat ini",
+    "Upload site icon": "Unggah ikon situs",
+    "Remove the site icon?": "Hapus ikon situs?",
+    "Non-square images are cropped to the center.": "Gambar yang tidak persegi akan dipotong di bagian tengah.",
+    "Site icon saved.": "Ikon situs disimpan.",
+    "Site icon removed.": "Ikon situs dihapus."
 }

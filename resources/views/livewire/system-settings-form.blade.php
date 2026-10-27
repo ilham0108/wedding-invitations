@@ -24,6 +24,31 @@
         </div>
     </x-ui.card>
 
+    <x-ui.card :title="__($definitions['favicon']['label'])" :description="__($definitions['favicon']['help'])">
+        <div class="flex items-center gap-4">
+            <div class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-paper">
+                @if ($faviconUrl)
+                    <img src="{{ $faviconUrl }}" alt="{{ __('Current site icon') }}" class="h-full w-full object-cover">
+                @else
+                    <i class="fa-regular fa-image text-xl text-muted" aria-hidden="true"></i>
+                @endif
+            </div>
+
+            <div class="min-w-0 space-y-2">
+                <x-ui.upload-progress>
+                    <input type="file" accept="image/png,image/jpeg,image/webp" wire:model="favicon" aria-label="{{ __('Upload site icon') }}"
+                        class="block text-sm text-ink-soft file:mr-3 file:rounded-lg file:border-0 file:bg-paper file:px-3 file:py-2 file:text-sm file:font-medium file:text-ink hover:file:bg-sage-soft">
+                </x-ui.upload-progress>
+                @if ($faviconUrl)
+                    <x-ui.button type="button" variant="ghost" size="sm" class="text-red-600" wire:click="removeFavicon"
+                        data-confirm="{{ __('Remove the site icon?') }}">{{ __('Remove') }}</x-ui.button>
+                @endif
+            </div>
+        </div>
+        <p class="mt-3 text-xs text-muted">{{ __('Non-square images are cropped to the center.') }}</p>
+        @error('favicon')<p class="mt-1 text-sm font-medium text-red-600">{{ $message }}</p>@enderror
+    </x-ui.card>
+
     <x-ui.card :title="__('Registration')">
         <label class="flex items-start justify-between gap-4">
             <span>

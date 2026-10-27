@@ -30,11 +30,13 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentWebhookController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicInvitationController;
+use App\Http\Controllers\SiteManifestController;
 use App\Http\Controllers\TemplatePreviewController;
 use App\Http\Controllers\WhatsAppWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
+Route::get('/site.webmanifest', SiteManifestController::class)->name('site.manifest');
 Route::get('/page/{page:slug}', [PageController::class, 'show'])->name('pages.show');
 
 Route::get('/templates/{template}/preview', TemplatePreviewController::class)->name('templates.preview');
