@@ -19,6 +19,9 @@
     // Desktop side panel: its own content when set, otherwise the cover's.
     $panel = $cover['config'] ?? [];
     $panelPhoto = ($panel['desktop_image'] ?? null) ?: $photo;
+    // Focal points picked in the editor (cover fields background_image_focus / desktop_image_focus).
+    $photoPosition = \App\Support\PhotoStyle::background($cover['config']['background_image_focus'] ?? null);
+    $panelPosition = filled($panel['desktop_image'] ?? null) ? \App\Support\PhotoStyle::background($panel['desktop_image_focus'] ?? null) : $photoPosition;
     $panelSubtitle = filled($panel['desktop_subtitle'] ?? null) ? $panel['desktop_subtitle'] : ($panel['subtitle'] ?? '');
     $panelTitle = filled($panel['desktop_title'] ?? null) ? $panel['desktop_title'] : $names;
     $navItems = $sections->filter(fn (array $section): bool => isset($navIcons[$section['type']]))->unique('type')->take(5);
@@ -31,7 +34,7 @@
         'mg--align-left' => $cover && ($cover['config']['alignment'] ?? 'center') === 'left',
     ])>
     <aside class="mg-hero mg-hero--text-{{ $panel['desktop_text_position'] ?? 'center' }}" aria-hidden="true">
-        <div @class(['mg-photo', 'mg-kenburns' => ($panel['background_motion'] ?? 'none') === 'none', 'inv-bg-motion--'.($panel['background_motion'] ?? 'none')]) @if ($panelPhoto) style="background-image: {{ \App\Support\CssUrl::wrap($panelPhoto) }}" @endif></div>
+        <div @class(['mg-photo', 'mg-kenburns' => ($panel['background_motion'] ?? 'none') === 'none', 'inv-bg-motion--'.($panel['background_motion'] ?? 'none')]) @if ($panelPhoto) style="background-image: {{ \App\Support\CssUrl::wrap($panelPhoto) }}; {{ $panelPosition }}" @endif></div>
         <span class="mg-frame mg-frame--top"></span>
         <div class="mg-hero__text">
             @if (filled($panelSubtitle))
@@ -48,7 +51,7 @@
 
     @if ($cover)
         <div class="mg-cover" data-mg-cover>
-            <div class="mg-photo inv-bg-motion--{{ $cover['config']['background_motion'] }}" @if ($photo) style="background-image: {{ \App\Support\CssUrl::wrap($photo) }}" @endif></div>
+            <div class="mg-photo inv-bg-motion--{{ $cover['config']['background_motion'] }}" @if ($photo) style="background-image: {{ \App\Support\CssUrl::wrap($photo) }}; {{ $photoPosition }}" @endif></div>
             @if (filled($cover['config']['subtitle']))
                 <span class="mg-tag">{{ $cover['config']['subtitle'] }}</span>
             @endif

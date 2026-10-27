@@ -4,9 +4,12 @@ namespace App\Services;
 
 use App\Models\Invitation;
 use App\Models\InvitationSetting;
+use App\Models\InvitationTemplate;
 use App\Models\Media;
 use App\Models\MusicTrack;
+use App\Models\User;
 use App\Rules\AudioFile;
+use App\Services\Subscription\SubscriptionLimitService;
 use App\Support\AudioFormat;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
@@ -58,11 +61,61 @@ class MusicService
     }
 
     /**
-     * Whether any invitation has picked this track (enabled or not).
+     * Whether any invitation or template has picked this track (enabled or not).
      */
     public function isInUse(MusicTrack $track): bool
     {
-        return InvitationSetting::query()->where('music', 'like', '%'.$track->ulid.'%')->exists();
+        return InvitationSetting::query()->where('music', 'like', '%'.$track->ulid.'%')->exists()
+            || InvitationTemplate::query()->where('music', 'like', '%'.$track->ulid.'%')->exists();
+    }
+
+    /**
+     * A template's default music in canonical form: a library track that exists, or [] for none.
+     * Unknown tracks (e.g. in a package imported from another site) are dropped.
+     *
+     * @param  array<string, mixed>|null  $music
+     * @return array{track?: string, start_at?: int, loop?: bool}
+     */
+    public function normalizeTemplateMusic(?array $music): array
+    {
+        $normalized = $this->normalize([...($music ?? []), 'enabled' => true, 'source' => 'library']);
+
+        if ($normalized['track'] === null || ! MusicTrack::query()->where('ulid', $normalized['track'])->exists()) {
+            return [];
+        }
+
+        return ['track' => $normalized['track'], 'start_at' => $normalized['start_at'], 'loop' => $normalized['loop']];
+    }
+
+    /**
+     * What the template preview plays, or null when the template has no music.
+     *
+     * @return array{url: string, start_at: int, loop: bool}|null
+     */
+    public function forTemplate(InvitationTemplate $template): ?array
+    {
+        $music = $template->music ?? [];
+        $url = isset($music['track']) ? MusicTrack::query()->where('ulid', $music['track'])->first()?->url() : null;
+
+        return $url === null ? null : ['url' => $url, 'start_at' => (int) ($music['start_at'] ?? 0), 'loop' => (bool) ($music['loop'] ?? true)];
+    }
+
+    /**
+     * The music setting a new invitation starts with: the template's song, unless the owner's
+     * plan does not include it (premium song), the song was removed or hidden.
+     *
+     * @return array{enabled: bool, source: string, track: ?string, upload: ?string, start_at: int, loop: bool}|null
+     */
+    public function initialForInvitation(InvitationTemplate $template, User $owner): ?array
+    {
+        $music = $template->music ?? [];
+        $track = isset($music['track']) ? MusicTrack::query()->active()->where('ulid', $music['track'])->first() : null;
+
+        if ($track === null || ! app(SubscriptionLimitService::class)->canUseMusicTrack($owner, $track)) {
+            return null;
+        }
+
+        return $this->normalize([...$music, 'enabled' => true, 'source' => 'library', 'track' => $track->ulid]);
     }
 
     /**

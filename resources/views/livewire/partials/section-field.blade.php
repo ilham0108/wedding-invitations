@@ -6,6 +6,13 @@
     $value = data_get($config, $path);
     $inputId = 'field-'.str_replace('.', '-', $path);
     $inputClass = 'block w-full rounded-lg border-line text-sm focus:border-sage focus:ring-sage';
+
+    // A focal point field ("{key}_focus") belongs to the image field next to it and needs that photo.
+    if ($field['type'] === 'focus') {
+        $focusImage = data_get($config, preg_replace('/[^.]+$/', $field['image'], $path));
+        $shownForLayout = $shownForLayout && filled($focusImage);
+        $focusPoint = array_map('intval', explode(' ', str_replace('%', '', \App\Support\PhotoStyle::focus($value) ?? '50% 50%')));
+    }
 @endphp
 
 @if ($shownForLayout)
@@ -74,6 +81,40 @@
             @error('uploads.'.$path)
                 <p class="text-xs font-medium text-red-600">{{ $message }}</p>
             @enderror
+            @break
+
+        @case('focus')
+            {{-- Click or drag on the photo; the small previews show how common crops keep that point. --}}
+            <div class="space-y-2" x-data="{
+                    point: @js($focusPoint),
+                    dragging: false,
+                    place(event) {
+                        const box = this.$refs.photo.getBoundingClientRect();
+                        const clamp = (value) => Math.round(Math.min(100, Math.max(0, value)));
+                        this.point = [clamp((event.clientX - box.left) / box.width * 100), clamp((event.clientY - box.top) / box.height * 100)];
+                    },
+                    save() { $wire.set('config.{{ $path }}', this.point[0] + '% ' + this.point[1] + '%') },
+                    get position() { return this.point[0] + '% ' + this.point[1] + '%' },
+                }">
+                <div class="relative inline-block max-w-full cursor-crosshair touch-none select-none overflow-hidden rounded-lg border border-line"
+                    x-on:pointerdown="dragging = true; $el.setPointerCapture($event.pointerId); place($event)"
+                    x-on:pointermove="dragging && place($event)"
+                    x-on:pointerup="if (dragging) { dragging = false; save() }"
+                    x-on:pointercancel="dragging = false">
+                    <img x-ref="photo" id="{{ $inputId }}" src="{{ $focusImage }}" alt="" draggable="false" class="block max-h-56 w-auto max-w-full">
+                    <span class="pointer-events-none absolute h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-white/30 shadow-[0_0_0_2px_rgba(0,0,0,0.35)]"
+                        x-bind:style="'left: ' + point[0] + '%; top: ' + point[1] + '%'"></span>
+                </div>
+                <div class="flex items-end gap-2" aria-hidden="true">
+                    @foreach (['aspect-square w-12', 'aspect-[4/3] w-16', 'aspect-[4/5] w-12', 'aspect-[16/9] w-20'] as $previewClass)
+                        <img src="{{ $focusImage }}" alt="" class="{{ $previewClass }} rounded border border-line object-cover" x-bind:style="'object-position: ' + position">
+                    @endforeach
+                </div>
+                <p class="text-xs text-muted">
+                    {{ __('Click or drag on the photo to choose the part that stays visible when it is cropped.') }}
+                    <button type="button" x-on:click="point = [50, 50]; save()" class="font-medium text-sage hover:text-ink">{{ __('Reset to center') }}</button>
+                </p>
+            </div>
             @break
 
         @case('images')

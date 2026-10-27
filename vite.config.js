@@ -13,6 +13,8 @@ export default defineConfig({
                 // Design packs (config/invitation.php > designs.*.assets)
                 'resources/css/designs/mocha-glass.css',
                 'resources/js/designs/mocha-glass.js',
+                'resources/css/designs/botanical-cream.css',
+                'resources/js/designs/botanical-cream.js',
             ],
             refresh: true,
         }),

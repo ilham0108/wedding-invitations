@@ -133,7 +133,11 @@ resources/css/designs/{key}.css, resources/js/designs/{key}.js
 ```
 
 - Bagian tanpa file di `sections/` otomatis memakai tampilan klasik (`App\Services\Invitation\DesignRegistry`).
-  Di Mocha Glass, tampilan klasik itu dibungkus kartu kaca (`native = false`).
+  Di Mocha Glass, tampilan klasik itu dibungkus kartu kaca (`native = false`); di Botanical Cream dalam kartu krem.
+- Paket yang ada: **Mocha Glass** (dari `undangan.html`) dan **Botanical Cream** (dari mockup "Ilham & Aisyah":
+  monogram otomatis dari judul sampul, menu bawah berlabel + menu lengkap, ikon acara dipilih dari judulnya,
+  galeri "Lihat Semua Foto", ucapan per halaman). Ilustrasi bawaannya: `ornament-cream-blossom-corner.svg`
+  dan `frame-round-cream-wreath.svg`.
 - Pakai variabel tema (`var(--inv-primary)`, `var(--inv-surface)`, `var(--inv-font-heading)`, …) agar admin
   tetap bisa mengganti warna dan font di Builder.
 - Form RSVP dan ucapan **wajib** memakai `invitation.partials.rsvp-form` / `invitation.partials.wishes-form`

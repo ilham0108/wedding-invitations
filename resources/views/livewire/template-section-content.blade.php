@@ -13,6 +13,13 @@
         </span>
     </p>
 
+    @if ($hasSampleValues)
+        <x-ui.button type="button" variant="secondary" size="sm" icon="fa-regular fa-copy" class="w-full" wire:click="copyFromDefaults"
+            data-confirm="{{ __('Replace the sample content of this section with its default content?') }}" data-confirm-variant="default">
+            {{ __('Copy from default content') }}
+        </x-ui.button>
+    @endif
+
     @error('config')
         <p class="text-xs font-medium text-red-600">{{ $message }}</p>
     @enderror

@@ -16,7 +16,7 @@
     x-on:template-preview-refresh.window="refresh()"
     x-on:builder-section-selected.window="window.previewFrame.scrollTo($refs.frame, $event.detail.anchor)"
     x-on:template-draft-updated.window="refresh()"
-    class="flex h-[calc(100svh-4rem)] flex-col">
+    class="flex h-[calc(100svh-4rem)] flex-col overflow-clip">
 
     {{-- Toolbar --}}
     <div class="flex flex-wrap items-center gap-3 border-b border-line bg-white px-4 py-3">
@@ -56,9 +56,10 @@
         </div>
     </div>
 
+    {{-- Each panel is positioned so absolute children (sr-only inputs) stay inside its scroll area; otherwise they stretch the page and the editor scrolls up, leaving a blank strip below. --}}
     <div class="relative grid min-h-0 flex-1 lg:grid-cols-[260px_minmax(0,1fr)_380px]">
         {{-- Left: section structure --}}
-        <aside class="min-h-0 overflow-y-auto border-r border-line bg-paper p-3 lg:block"
+        <aside class="relative min-h-0 overflow-y-auto border-r border-line bg-paper p-3 lg:block"
             x-bind:class="{ 'max-lg:hidden': mobilePanel !== 'sections' }">
             <div class="mb-2 flex items-center justify-between px-1">
                 <p class="text-xs font-semibold uppercase tracking-wide text-muted">{{ __('Sections') }}</p>
@@ -116,7 +117,7 @@
         </aside>
 
         {{-- Center: live preview of the draft --}}
-        <div class="flex min-h-0 flex-col items-center gap-3 overflow-auto bg-[#e9e7e1] p-4 lg:p-6"
+        <div class="relative flex min-h-0 flex-col items-center gap-3 overflow-auto bg-[#e9e7e1] p-4 lg:p-6"
             x-bind:class="{ 'max-lg:hidden': mobilePanel !== 'preview' }">
             <div class="flex rounded-lg border border-line bg-white p-0.5 text-xs" role="group" aria-label="{{ __('Preview content') }}">
                 @foreach (['default_configuration' => __('Default content'), 'sample_content' => __('Sample content')] as $group => $groupLabel)
@@ -131,10 +132,10 @@
         </div>
 
         {{-- Right: properties --}}
-        <aside class="min-h-0 overflow-y-auto border-l border-line bg-white max-lg:fixed max-lg:inset-x-0 max-lg:bottom-14 max-lg:z-40 max-lg:max-h-[70svh] max-lg:rounded-t-2xl max-lg:shadow-2xl lg:block"
+        <aside class="min-h-0 overflow-y-auto border-l border-line bg-white lg:relative max-lg:fixed max-lg:inset-x-0 max-lg:bottom-14 max-lg:z-40 max-lg:max-h-[70svh] max-lg:rounded-t-2xl max-lg:shadow-2xl lg:block"
             x-bind:class="{ 'max-lg:hidden': mobilePanel !== 'edit' }">
             <div class="sticky top-0 z-10 flex border-b border-line bg-white" role="tablist">
-                @foreach (['section' => __('Section'), 'theme' => __('Theme')] as $key => $label)
+                @foreach (['section' => __('Section'), 'theme' => __('Theme'), 'music' => __('Music')] as $key => $label)
                     <button type="button" role="tab" wire:click="$set('panel', '{{ $key }}')"
                         @class(['flex-1 border-b-2 px-3 py-3 text-sm font-medium', 'border-ink text-ink' => $panel === $key, 'border-transparent text-muted hover:text-ink' => $panel !== $key])>{{ $label }}</button>
                 @endforeach
@@ -224,6 +225,8 @@
                         @endif
                     </div>
                     @include('livewire.partials.theme-panel')
+                @elseif ($panel === 'music')
+                    @include('livewire.partials.template-music-panel')
                 @elseif ($selectedSection)
                     <div class="space-y-5">
                         <h2 class="font-display text-xl text-ink">{{ __($registry->label($selectedSection['type'])) }}</h2>

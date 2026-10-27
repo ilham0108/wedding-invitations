@@ -39,7 +39,7 @@ class IllustrationLibraryTest extends TestCase
         $this->seed(IllustrationSeeder::class);
         $this->seed(IllustrationSeeder::class);
 
-        $this->assertSame(21, Illustration::query()->count());
+        $this->assertSame(23, Illustration::query()->count());
 
         foreach (Illustration::query()->get() as $illustration) {
             $this->assertFileExists(public_path($illustration->path));

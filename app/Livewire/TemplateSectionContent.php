@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Livewire\Concerns\EditsSectionFields;
+use App\Livewire\Concerns\Notifies;
 use App\Models\Illustration;
 use App\Models\InvitationTemplate;
 use App\Services\IllustrationService;
@@ -29,7 +30,7 @@ use Livewire\WithFileUploads;
  */
 class TemplateSectionContent extends Component
 {
-    use EditsSectionFields, WithFileUploads;
+    use EditsSectionFields, Notifies, WithFileUploads;
 
     public const GROUPS = ['default_configuration', 'sample_content'];
 
@@ -97,6 +98,28 @@ class TemplateSectionContent extends Component
     }
 
     /**
+     * Sample content only: drop this section's sample values. Sample content falls back to the
+     * default content, so the section then shows exactly the default content.
+     */
+    public function copyFromDefaults(): void
+    {
+        Gate::authorize('templates.manage');
+        abort_unless($this->group === 'sample_content', 404);
+
+        $definition = $this->draft()->update($this->template(), Auth::user(), function (array $definition): array {
+            unset($definition['sample_content'][$this->type]);
+
+            return $definition;
+        });
+
+        $this->config = $this->base($definition);
+        $this->resetErrorBag();
+        $this->savedAt = now()->format('H:i:s');
+        $this->dispatch('template-draft-updated');
+        $this->notify('success', __('Default content copied to the sample content.'));
+    }
+
+    /**
      * Gallery "Set cover": use a photo as the cover background in the same content group.
      */
     public function setAsCover(string $path, int $index): void
@@ -122,6 +145,8 @@ class TemplateSectionContent extends Component
     {
         return view('livewire.template-section-content', [
             'fields' => $registry->fields($this->type),
+            'hasSampleValues' => $this->group === 'sample_content'
+                && ($this->draft()->definition($this->template(), Auth::user())['sample_content'][$this->type] ?? []) !== [],
             'designFeatures' => $this->designFeatures(),
             ...$this->pickerViewData($illustrations),
         ]);

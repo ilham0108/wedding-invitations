@@ -8,14 +8,16 @@
     $cover = collect($invitation->sections)->firstWhere('type', 'cover');
     $config = $cover['config'] ?? [];
     $isSplit = $layout === 'split';
-    $photo = ($isSplit ? ($config['desktop_image'] ?? null) : null) ?: ($config['background_image'] ?? null);
+    $usesPanelPhoto = $isSplit && filled($config['desktop_image'] ?? null);
+    $photo = $usesPanelPhoto ? $config['desktop_image'] : ($config['background_image'] ?? null);
+    $photoPosition = \App\Support\PhotoStyle::background($usesPanelPhoto ? ($config['desktop_image_focus'] ?? null) : ($config['background_image_focus'] ?? null));
     $subtitle = filled($config['desktop_subtitle'] ?? null) ? $config['desktop_subtitle'] : ($config['subtitle'] ?? '');
     $title = filled($config['desktop_title'] ?? null) ? $config['desktop_title'] : (($config['title'] ?? '') ?: $invitation->title);
 @endphp
 
 <aside @class(['inv-aside', 'inv-aside--photo' => filled($photo), 'inv-aside--text-'.($config['desktop_text_position'] ?? 'center') => $isSplit]) aria-hidden="true">
     @if (filled($photo))
-        <div class="inv-aside__photo" style="background-image: {{ \App\Support\CssUrl::wrap($photo) }}"></div>
+        <div class="inv-aside__photo" style="background-image: {{ \App\Support\CssUrl::wrap($photo) }}; {{ $photoPosition }}"></div>
     @endif
 
     @if ($isSplit)

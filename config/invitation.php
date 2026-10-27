@@ -17,6 +17,8 @@
 | A field with "variants" is only shown in the editors for those layouts.
 | A field with "admin_only" => true is only shown in the template builder: clients
 | keep the template's value and cannot change it (SectionSettings).
+| An image field with "focus" => true gets a "{key}_focus" field (type "focus",
+| "x% y%") where the editor picks the part of a cropped photo that stays visible.
 |
 */
 
@@ -29,7 +31,7 @@ return [
             ['key' => 'title', 'label' => 'Title', 'type' => 'text'],
             ['key' => 'subtitle', 'label' => 'Subtitle', 'type' => 'text'],
             ['key' => 'date_text', 'label' => 'Date text', 'type' => 'text'],
-            ['key' => 'background_image', 'label' => 'Background image', 'type' => 'image', 'illustrations' => 'cover'],
+            ['key' => 'background_image', 'label' => 'Background image', 'type' => 'image', 'illustrations' => 'cover', 'focus' => true],
             ['key' => 'background_motion', 'label' => 'Background motion', 'type' => 'select', 'options' => ['none' => 'Still', 'zoom-out' => 'Slow zoom-out on open', 'drift' => 'Slow continuous zoom']],
             ['key' => 'overlay', 'label' => 'Dark overlay on image', 'type' => 'toggle'],
             ['key' => 'frame_style', 'label' => 'Frame style', 'type' => 'select', 'variants' => ['framed'], 'options' => ['blur' => 'Blur (frosted glass)', 'transparent' => 'Transparent (outline only)', 'solid' => 'Solid']],
@@ -37,7 +39,7 @@ return [
             ['key' => 'button_label', 'label' => 'Button label', 'type' => 'text'],
             // Desktop side panel (designs with the "desktop_panel" feature); empty fields reuse the cover's.
             // Admin only (the owner's choice, 2026-10-25): the template sets the panel, clients only fill the cover.
-            ['key' => 'desktop_image', 'label' => 'Desktop panel: background image', 'type' => 'image', 'illustrations' => 'cover', 'admin_only' => true, 'feature' => 'desktop_panel'],
+            ['key' => 'desktop_image', 'label' => 'Desktop panel: background image', 'type' => 'image', 'illustrations' => 'cover', 'admin_only' => true, 'feature' => 'desktop_panel', 'focus' => true],
             ['key' => 'desktop_subtitle', 'label' => 'Desktop panel: subtitle', 'type' => 'text', 'admin_only' => true, 'feature' => 'desktop_panel'],
             ['key' => 'desktop_title', 'label' => 'Desktop panel: title', 'type' => 'text', 'admin_only' => true, 'feature' => 'desktop_panel'],
             ['key' => 'desktop_text', 'label' => 'Desktop panel: text', 'type' => 'textarea', 'admin_only' => true, 'feature' => 'desktop_panel'],
@@ -56,7 +58,7 @@ return [
                 ['key' => 'role', 'label' => 'Role (e.g. The Groom, 7 years old, Speaker)', 'type' => 'text'],
                 ['key' => 'parents', 'label' => 'Parents / organization', 'type' => 'text'],
                 ['key' => 'description', 'label' => 'Description', 'type' => 'textarea'],
-                ['key' => 'photo', 'label' => 'Photo', 'type' => 'image', 'illustrations' => 'person'],
+                ['key' => 'photo', 'label' => 'Photo', 'type' => 'image', 'illustrations' => 'person', 'focus' => true],
                 ['key' => 'instagram', 'label' => 'Instagram URL', 'type' => 'url'],
                 ['key' => 'tiktok', 'label' => 'TikTok URL', 'type' => 'url'],
                 ['key' => 'facebook', 'label' => 'Facebook URL', 'type' => 'url'],
@@ -90,12 +92,20 @@ return [
         ],
         'story' => [
             $heading,
+            // Proportions of the entry photos (App\Support\PhotoStyle::RATIOS); "original" shows them uncropped.
+            ['key' => 'photo_ratio', 'label' => 'Photo shape', 'type' => 'select', 'options' => ['default' => 'Design default', 'original' => 'Original (not cropped)', 'landscape' => 'Landscape 4:3', 'square' => 'Square 1:1', 'portrait' => 'Portrait 4:5']],
             ['key' => 'entries', 'label' => 'Story entries', 'type' => 'repeater', 'max' => 20, 'fields' => [
                 ['key' => 'date', 'label' => 'Date or year', 'type' => 'text'],
                 ['key' => 'title', 'label' => 'Title', 'type' => 'text'],
                 ['key' => 'description', 'label' => 'Description', 'type' => 'textarea'],
-                ['key' => 'image', 'label' => 'Image', 'type' => 'image', 'illustrations' => 'story'],
+                // Marker on the timeline (config "story_icons").
+                ['key' => 'icon', 'label' => 'Icon', 'type' => 'select', 'options' => [
+                    'heart' => 'Heart', 'chat' => 'Conversation', 'ring' => 'Ring', 'home' => 'Home', 'star' => 'Star',
+                    'plane' => 'Travel', 'calendar' => 'Calendar', 'camera' => 'Photo', 'graduation' => 'Graduation', 'gift' => 'Gift',
+                ]],
+                ['key' => 'image', 'label' => 'Image', 'type' => 'image', 'illustrations' => 'story', 'focus' => true],
             ]],
+            ['key' => 'closing_quote', 'label' => 'Closing quote', 'type' => 'textarea'],
         ],
         'timeline' => [
             $heading,
@@ -194,7 +204,7 @@ return [
     */
     'common_fields' => [
         // Shown behind the page while this section is on screen; see invitation.partials.scroll-backdrop.
-        ['key' => 'background_photo', 'label' => 'Background photo (changes while scrolling)', 'type' => 'image', 'illustrations' => 'cover', 'except' => ['cover']],
+        ['key' => 'background_photo', 'label' => 'Background photo (changes while scrolling)', 'type' => 'image', 'illustrations' => 'cover', 'focus' => true, 'except' => ['cover']],
         // How much of the theme color covers that photo; see invitation.partials.backdrop-attributes.
         ['key' => 'background_overlay', 'label' => 'Background photo: overlay', 'type' => 'select', 'admin_only' => true, 'except' => ['cover'], 'options' => ['strong' => 'Strong (78%)', 'medium' => 'Medium (55%)', 'light' => 'Light (30%)', 'none' => 'None (photo only)']],
     ],
@@ -234,7 +244,7 @@ return [
             'label' => 'Story',
             'icon' => 'fa-solid fa-book-open',
             'variants' => ['default'],
-            'defaults' => ['heading' => 'Our Story', 'entries' => []],
+            'defaults' => ['heading' => 'Our Story', 'photo_ratio' => 'default', 'entries' => [], 'closing_quote' => ''],
         ],
         'timeline' => [
             'label' => 'Timeline',
@@ -312,6 +322,20 @@ return [
     /*
     | Icons for health protocol items (Font Awesome classes, never user input).
     */
+    // Story entry markers (story field "icon").
+    'story_icons' => [
+        'heart' => 'fa-regular fa-heart',
+        'chat' => 'fa-regular fa-comments',
+        'ring' => 'fa-solid fa-ring',
+        'home' => 'fa-solid fa-house',
+        'star' => 'fa-regular fa-star',
+        'plane' => 'fa-solid fa-plane',
+        'calendar' => 'fa-regular fa-calendar-check',
+        'camera' => 'fa-solid fa-camera-retro',
+        'graduation' => 'fa-solid fa-graduation-cap',
+        'gift' => 'fa-solid fa-gift',
+    ],
+
     'health_protocol_icons' => [
         'healthy' => 'fa-solid fa-heart-pulse',
         'clean' => 'fa-solid fa-hands-bubbles',
@@ -415,6 +439,13 @@ return [
             'fonts' => ['Cormorant Garamond', 'Amiri'],
             'assets' => ['resources/css/designs/mocha-glass.css', 'resources/js/designs/mocha-glass.js'],
             // A photo panel beside the invitation on wide screens, with its own content and ornaments.
+            'features' => ['desktop_panel'],
+        ],
+        'botanical-cream' => [
+            'label' => 'Botanical Cream',
+            'description' => 'Soft cream pages with botanical line art: a cover photo fading into the page, script names with a monogram, icon cards, a story timeline, and a labelled bottom menu with a full menu. Desktop shows a photo panel beside the invitation.',
+            'fonts' => ['Cormorant Garamond', 'Great Vibes', 'Amiri'],
+            'assets' => ['resources/css/designs/botanical-cream.css', 'resources/js/designs/botanical-cream.js'],
             'features' => ['desktop_panel'],
         ],
     ],

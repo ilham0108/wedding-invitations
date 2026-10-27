@@ -2,6 +2,7 @@
 
 namespace App\Services\Invitation;
 
+use App\Support\PhotoStyle;
 use InvalidArgumentException;
 
 /**
@@ -127,7 +128,39 @@ class SectionRegistry
     {
         $this->definition($type);
 
-        return [...config("invitation.fields.{$type}", []), ...$this->commonFields($type)];
+        return $this->withFocusFields([...config("invitation.fields.{$type}", []), ...$this->commonFields($type)]);
+    }
+
+    /**
+     * Put a "{key}_focus" field (the photo's focal point) right after every image field marked "focus".
+     * It shares the image field's visibility rules (admin_only, feature, variants).
+     *
+     * @param  array<int, array<string, mixed>>  $fields
+     * @return array<int, array<string, mixed>>
+     */
+    private function withFocusFields(array $fields): array
+    {
+        $expanded = [];
+
+        foreach ($fields as $field) {
+            if ($field['type'] === 'repeater') {
+                $field['fields'] = $this->withFocusFields($field['fields']);
+            }
+
+            $expanded[] = $field;
+
+            if ($field['type'] === 'image' && ! empty($field['focus'])) {
+                $expanded[] = [
+                    'key' => "{$field['key']}_focus",
+                    'label' => 'Photo position',
+                    'type' => 'focus',
+                    'image' => $field['key'],
+                    ...array_intersect_key($field, array_flip(['admin_only', 'feature', 'variants'])),
+                ];
+            }
+        }
+
+        return $expanded;
     }
 
     /**
@@ -247,6 +280,7 @@ class SectionRegistry
                 'url' => $rules[$path] = ['nullable', 'url:http,https', 'max:2048'],
                 'number' => $rules[$path] = ['nullable', 'numeric', 'between:'.($field['min'] ?? PHP_INT_MIN).','.($field['max'] ?? PHP_INT_MAX)],
                 'image' => $rules[$path] = ['nullable', 'string', 'max:2048', $mediaPath],
+                'focus' => $rules[$path] = ['nullable', 'string', 'regex:/^(100|\d{1,2})% (100|\d{1,2})%$/'],
                 default => null,
             };
 
@@ -310,6 +344,7 @@ class SectionRegistry
                 'toggle' => (bool) $value,
                 'number' => is_numeric($value) ? (float) $value : null,
                 'images', 'colors' => array_values(array_filter((array) $value, 'is_string')),
+                'focus' => PhotoStyle::focus($value) ?? '',
                 'repeater' => array_values(array_map(
                     fn (mixed $item): array => $this->sanitizeFields($field['fields'], is_array($item) ? $item : []),
                     (array) $value,

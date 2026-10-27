@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <!-- Cream blossoms with soft leaves for a bottom-left corner (mirror it for the right). Transparent background. -->
+  <defs>
+    <g id="petal">
+      <path d="M0 0C-14-10-16-34 0-46 16-34 14-10 0 0Z"/>
+    </g>
+    <g id="blossom">
+      <g fill="#fbf7ef" stroke="#b6a184" stroke-width="2">
+        <use href="#petal"/>
+        <use href="#petal" transform="rotate(72)"/>
+        <use href="#petal" transform="rotate(144)"/>
+        <use href="#petal" transform="rotate(216)"/>
+        <use href="#petal" transform="rotate(288)"/>
+      </g>
+      <g stroke="#cbb78f" stroke-width="1.4" stroke-linecap="round">
+        <path d="M0 0v-22M0 0l21-7M0 0l13 18M0 0l-13 18M0 0l-21-7"/>
+      </g>
+      <circle r="8" fill="#d8c08f"/>
+      <circle r="3.5" fill="#b3955f"/>
+    </g>
+    <g id="leaf">
+      <path d="M0 0C18-6 40-6 58 4 40 14 18 12 0 0Z" fill="#cdbfa9" stroke="#a6957b" stroke-width="1.6"/>
+      <path d="M2 1C20 2 38 3 56 4" fill="none" stroke="#a6957b" stroke-width="1.2"/>
+    </g>
+  </defs>
+
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <path d="M0 360C60 330 110 290 150 230M30 400C80 350 160 320 240 330M0 300C40 260 60 200 60 140" fill="none" stroke="#a6957b" stroke-width="2.2"/>
+    <use href="#leaf" transform="translate(60 330) rotate(-40)"/>
+    <use href="#leaf" transform="translate(100 300) rotate(-70)"/>
+    <use href="#leaf" transform="translate(150 330) rotate(-10)"/>
+    <use href="#leaf" transform="translate(200 328) rotate(10) scale(0.9)"/>
+    <use href="#leaf" transform="translate(40 250) rotate(-100) scale(0.9)"/>
+    <use href="#leaf" transform="translate(58 180) rotate(-80) scale(0.8)"/>
+    <use href="#leaf" transform="translate(130 250) rotate(-120) scale(0.75)"/>
+    <use href="#blossom" transform="translate(110 360) scale(1.25)"/>
+    <use href="#blossom" transform="translate(40 320) scale(0.95) rotate(20)"/>
+    <use href="#blossom" transform="translate(185 372) scale(0.8) rotate(-15)"/>
+    <use href="#blossom" transform="translate(150 225) scale(0.6) rotate(30)"/>
+    <use href="#blossom" transform="translate(60 140) scale(0.55) rotate(-25)"/>
+    <g fill="#e6d8bf" stroke="#b6a184" stroke-width="1.4">
+      <circle cx="240" cy="330" r="7"/>
+      <circle cx="252" cy="318" r="5"/>
+      <circle cx="226" cy="318" r="5"/>
+      <circle cx="60" cy="118" r="5"/>
+      <circle cx="72" cy="128" r="4"/>
+    </g>
+  </g>
+</svg>

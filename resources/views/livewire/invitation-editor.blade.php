@@ -8,7 +8,7 @@
     }"
     x-on:invitation-updated.window="refresh($event.detail.section)"
     x-on:section-selected.window="window.previewFrame.scrollTo($refs.frame, $event.detail.ulid)"
-    class="flex h-[calc(100svh-4rem)] flex-col">
+    class="flex h-[calc(100svh-4rem)] flex-col overflow-clip">
 
     {{-- Toolbar --}}
     <div class="flex flex-wrap items-center gap-3 border-b border-line bg-white px-4 py-3">
@@ -60,15 +60,16 @@
         @enderror
     </div>
 
+    {{-- Each panel is positioned so absolute children (sr-only inputs) stay inside its scroll area; otherwise they stretch the page and the editor scrolls up, leaving a blank strip below. --}}
     <div class="relative grid min-h-0 flex-1 lg:grid-cols-[260px_minmax(0,1fr)_380px]">
         {{-- Left: sections --}}
-        <aside class="min-h-0 overflow-y-auto border-r border-line bg-paper p-3 lg:block"
+        <aside class="relative min-h-0 overflow-y-auto border-r border-line bg-paper p-3 lg:block"
             x-bind:class="{ 'max-lg:hidden': mobilePanel !== 'sections' }">
             <livewire:section-manager :invitation-ulid="$invitationUlid" :selected="$selectedSection" wire:key="section-manager" />
         </aside>
 
         {{-- Center: live preview --}}
-        <div class="flex min-h-0 items-start justify-center overflow-auto bg-[#e9e7e1] p-4 lg:p-6"
+        <div class="relative flex min-h-0 items-start justify-center overflow-auto bg-[#e9e7e1] p-4 lg:p-6"
             x-bind:class="{ 'max-lg:hidden': mobilePanel !== 'preview' }">
             <div class="h-full w-full overflow-hidden rounded-2xl border border-line bg-white shadow-soft transition-all"
                 x-bind:style="{ maxWidth: { mobile: '400px', tablet: '780px', desktop: '100%' }[device] }">
@@ -77,7 +78,7 @@
         </div>
 
         {{-- Right: properties (bottom sheet on mobile) --}}
-        <aside class="min-h-0 overflow-y-auto border-l border-line bg-white max-lg:fixed max-lg:inset-x-0 max-lg:bottom-14 max-lg:z-40 max-lg:max-h-[70svh] max-lg:rounded-t-2xl max-lg:shadow-2xl lg:block"
+        <aside class="min-h-0 overflow-y-auto border-l border-line bg-white lg:relative max-lg:fixed max-lg:inset-x-0 max-lg:bottom-14 max-lg:z-40 max-lg:max-h-[70svh] max-lg:rounded-t-2xl max-lg:shadow-2xl lg:block"
             x-bind:class="{ 'max-lg:hidden': mobilePanel !== 'edit' }">
             <div class="sticky top-0 z-10 flex border-b border-line bg-white" role="tablist">
                 @foreach (array_filter(['section' => __('Section'), 'theme' => $canCustomizeTheme ? __('Theme') : null, 'music' => __('Music'), 'settings' => __('Settings')]) as $key => $label)

@@ -90,8 +90,9 @@ class DesignCoverageTest extends TestCase
                         $source .= $this->sourceWithIncludes($designs->pageView($design));
                     }
 
-                    // Common fields (e.g. background_photo) are rendered by the page frame, not the section views.
-                    $own = array_diff($this->fieldKeys($sections->fields($type), $variant), array_column(config('invitation.common_fields'), 'key'));
+                    // Common fields (e.g. background_photo and its focal point) are rendered by the page frame, not the section views.
+                    $common = array_column(config('invitation.common_fields'), 'key');
+                    $own = array_diff($this->fieldKeys($sections->fields($type), $variant), [...$common, ...array_map(fn (string $key): string => "{$key}_focus", $common)]);
 
                     foreach ($own as $key) {
                         $names = [$key, ...(self::DERIVED[$key] ?? [])];

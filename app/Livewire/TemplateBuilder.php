@@ -6,11 +6,13 @@ use App\Enums\IllustrationCategory;
 use App\Livewire\Concerns\Notifies;
 use App\Models\Illustration;
 use App\Models\InvitationTemplate;
+use App\Models\MusicTrack;
 use App\Services\Invitation\DecorationResolver;
 use App\Services\Invitation\DesignRegistry;
 use App\Services\Invitation\Ornaments;
 use App\Services\Invitation\SectionRegistry;
 use App\Services\Invitation\ThemeResolver;
+use App\Services\MusicService;
 use App\Services\Template\TemplateDraft;
 use App\Services\Template\TemplateSchema;
 use App\Services\Template\TemplateService;
@@ -25,7 +27,7 @@ use Livewire\Component;
 
 /**
  * Admin template builder (rules.md section 51): section structure, layouts, backgrounds,
- * theme, default and sample content, with a live preview of the unsaved draft.
+ * theme, default and sample content, default music, with a live preview of the unsaved draft.
  * Changes stay in a TemplateDraft until the admin saves them.
  */
 class TemplateBuilder extends Component
@@ -68,6 +70,9 @@ class TemplateBuilder extends Component
     public string $ornamentTarget = 'ornaments';
 
     public bool $hasChanges = false;
+
+    /** @var array{track: ?string, start_at: int, loop: bool} Default music; the song changes through chooseMusic() only. */
+    public array $music = [];
 
     public function mount(InvitationTemplate $template): void
     {
@@ -303,6 +308,38 @@ class TemplateBuilder extends Component
         $this->setOrnaments($this->selectedIndex(), $this->sections[$source][$this->ornamentList()] ?? []);
     }
 
+    /**
+     * Default music: played on the template preview and given to new invitations
+     * (unless the owner's plan does not include the song).
+     */
+    public function chooseMusic(string $trackUlid): void
+    {
+        $track = MusicTrack::query()->active()->where('ulid', $trackUlid)->firstOrFail();
+
+        $this->persistMusic([...$this->storedMusic(), 'track' => $track->ulid]);
+    }
+
+    public function removeMusic(): void
+    {
+        $this->persistMusic([]);
+    }
+
+    /**
+     * Only the start time and repeat switch are bound to inputs.
+     */
+    public function updatedMusic(): void
+    {
+        $stored = $this->storedMusic();
+
+        if ($stored === []) {
+            $this->music = $this->musicState([]);
+
+            return;
+        }
+
+        $this->persistMusic([...$stored, 'start_at' => (int) ($this->music['start_at'] ?? 0), 'loop' => (bool) ($this->music['loop'] ?? true)]);
+    }
+
     #[On('template-draft-updated')]
     public function draftUpdated(): void
     {
@@ -372,6 +409,9 @@ class TemplateBuilder extends Component
             'ornamentList' => $this->ornamentList(),
             'hasDesktopPanel' => $this->hasDesktopPanel(),
             'hasDesktopLayouts' => app(DesignRegistry::class)->hasDesktopLayouts($this->design),
+            'musicTracks' => $this->panel === 'music' ? app(MusicService::class)->library() : collect(),
+            'selectedTrack' => $this->music['track'] ? MusicTrack::query()->where('ulid', $this->music['track'])->first() : null,
+            'maxStartAt' => (int) config('invitation.music.max_start_at'),
             // Label and a small text sample of each decoration choice.
             'dividers' => ['line' => ['Line', '———'], 'dots' => ['Dots', '• • •'], 'flourish' => ['Flourish', '~◆~'], 'none' => ['None', '∅']],
             'textures' => ['none' => 'None', 'paper' => 'Paper', 'linen' => 'Linen', 'grain' => 'Grain'],
@@ -415,6 +455,7 @@ class TemplateBuilder extends Component
         $this->design = app(DesignRegistry::class)->resolve($definition['design'] ?? null);
         $this->decoration = app(DecorationResolver::class)->resolve($definition['decoration'] ?? []);
         $this->theme = app(ThemeResolver::class)->resolve($definition['theme'] ?? []);
+        $this->music = $this->musicState($definition['music'] ?? []);
         $this->hasChanges = $draft->hasChanges($template, Auth::user());
     }
 
@@ -462,6 +503,32 @@ class TemplateBuilder extends Component
         abort_if($this->selected === null, 404);
 
         return $this->sectionIndex($this->selected);
+    }
+
+    /**
+     * @param  array<string, mixed>  $music
+     */
+    private function persistMusic(array $music): void
+    {
+        $this->persist(fn (array $definition): array => [...$definition, 'music' => $music]);
+        $this->music = $this->musicState($this->storedMusic());
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function storedMusic(): array
+    {
+        return app(TemplateDraft::class)->definition($this->template(), Auth::user())['music'] ?? [];
+    }
+
+    /**
+     * @param  array<string, mixed>  $music
+     * @return array{track: ?string, start_at: int, loop: bool}
+     */
+    private function musicState(array $music): array
+    {
+        return ['track' => $music['track'] ?? null, 'start_at' => (int) ($music['start_at'] ?? 0), 'loop' => (bool) ($music['loop'] ?? true)];
     }
 
     private function persistTheme(): void

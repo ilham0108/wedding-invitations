@@ -33,6 +33,7 @@ class InvitationTemplate extends Model
         'theme',
         'decoration',
         'sample_content',
+        'music',
         'is_premium',
         'status',
         'sort_order',
@@ -118,6 +119,7 @@ class InvitationTemplate extends Model
             'decoration' => $this->decoration ?? [],
             'default_configuration' => $this->default_configuration ?? [],
             'sample_content' => $this->sample_content ?? [],
+            'music' => $this->music ?? [],
         ];
     }
 
@@ -146,6 +148,7 @@ class InvitationTemplate extends Model
             'theme' => 'array',
             'decoration' => 'array',
             'sample_content' => 'array',
+            'music' => 'array',
             'is_premium' => 'boolean',
             'status' => TemplateStatus::class,
         ];

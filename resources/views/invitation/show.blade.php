@@ -1,6 +1,6 @@
 <x-layouts.invitation :invitation="$invitation">
     @isset($previewLabel)
-        <div class="sticky top-0 z-[200] flex items-center justify-between gap-3 bg-black/80 px-4 py-2 text-xs text-white backdrop-blur">
+        <div class="inv-preview-bar sticky top-0 z-[200] flex items-center justify-between gap-3 bg-black/80 px-4 py-2 text-xs text-white backdrop-blur">
             <span class="truncate"><i class="fa-regular fa-eye mr-1" aria-hidden="true"></i>{{ $previewLabel }}</span>
             <span class="flex shrink-0 gap-3">
                 @isset($backUrl)

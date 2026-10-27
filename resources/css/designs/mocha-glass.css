@@ -462,15 +462,20 @@
 
 .mg-section--cover { padding-top: 40px; padding-bottom: 40px; }
 
+/* The first screen ends above the fixed bottom menu (.mg-nav: 14px offset + 54px tall + a gap),
+   and the guest line sits at its bottom, so the menu never covers "To: ...". */
 .mg-home {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: calc(100svh - 80px);
+    min-height: calc(100svh - 40px - 84px);
     text-align: center;
 }
 
-.mg-home .mg-guest { margin-top: 3rem; }
+.mg-home .mg-guest { margin-top: auto; padding-top: 3rem; }
+
+/* The 40px "Template preview" bar above the page pushes the first screen down. */
+body:has(.inv-preview-bar) .mg-home { min-height: calc(100svh - 40px - 84px - 40px); }
 
 .mg-countdown {
     display: flex;
@@ -688,11 +693,18 @@
     border-radius: 20px;
 }
 
+.mg-story__quote {
+    margin-top: 1.6rem;
+    font-style: italic;
+}
+
 .mg-story__img {
     width: 100%;
-    aspect-ratio: 16 / 7;
+    aspect-ratio: 4 / 3;
     border-radius: 14px;
     object-fit: cover;
+    /* Faces are usually in the upper part of a photo; the editor's focal point overrides this. */
+    object-position: 50% 30%;
 }
 
 .mg-story__date {

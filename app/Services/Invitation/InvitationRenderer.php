@@ -192,6 +192,7 @@ class InvitationRenderer
             ],
             countdownTarget: $this->countdownTarget($sections, self::PREVIEW_TIMEZONE),
             isPreview: true,
+            music: $this->music->forTemplate($template),
             interaction: [
                 'token' => null,
                 'rsvp' => ['open' => true, 'action' => null, 'max_guests' => 5, 'meal_options' => [], 'existing' => null],
@@ -256,7 +257,11 @@ class InvitationRenderer
                     'socials' => $this->socialLinks($person),
                 ]),
             ],
-            'story' => [...$config, 'entries' => $this->mapList($config['entries'] ?? [], fn (array $entry): array => [...$entry, 'image' => $this->safeUrl($entry['image'] ?? null)])],
+            'story' => [...$config, 'entries' => $this->mapList($config['entries'] ?? [], fn (array $entry): array => [
+                ...$entry,
+                'image' => $this->safeUrl($entry['image'] ?? null),
+                'icon_class' => config('invitation.story_icons')[$entry['icon'] ?? ''] ?? config('invitation.story_icons.heart'),
+            ])],
             'gallery' => [...$config, 'images' => array_values(array_filter(array_map(fn (mixed $url): ?string => $this->safeUrl($url), Arr::wrap($config['images'] ?? []))))],
             // The invitation video section only embeds YouTube and Vimeo players.
             'video' => [...$config, ...$this->streamingEmbed((string) ($config['url'] ?? ''))],

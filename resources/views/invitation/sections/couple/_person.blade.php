@@ -2,6 +2,7 @@
     @if ($person['photo'])
         @include('invitation.partials.framed-photo', [
             'src' => $person['photo'],
+            'focus' => $person['photo_focus'] ?? null,
             'alt' => $person['name'] ?? '',
             'imageClass' => 'mx-auto mb-5 h-40 w-40 object-cover inv-rounded',
             'imageStyle' => 'border-radius: 9999px;',

@@ -4,7 +4,8 @@
     @if (! $hasImage) style="background: radial-gradient(ellipse at top, var(--inv-surface), var(--inv-bg) 70%);" @endif>
     @if ($hasImage)
         <img src="{{ $config['background_image'] }}" alt="" fetchpriority="high" decoding="async"
-            class="absolute inset-0 h-full w-full object-cover inv-bg-motion--{{ $config['background_motion'] }}">
+            class="absolute inset-0 h-full w-full object-cover inv-bg-motion--{{ $config['background_motion'] }}"
+            style="{{ \App\Support\PhotoStyle::image($config['background_image_focus'] ?? null) }}">
         @if ($config['overlay'])
             <div class="absolute inset-0 bg-black/45"></div>
         @endif

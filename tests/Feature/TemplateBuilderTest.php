@@ -7,6 +7,7 @@ use App\Livewire\TemplateSectionContent;
 use App\Models\InvitationTemplate;
 use App\Models\User;
 use App\Services\Invitation\InvitationService;
+use App\Services\Template\TemplateDraft;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -162,6 +163,40 @@ class TemplateBuilderTest extends TestCase
 
         $preview('sample_content')->assertSee('Sampai jumpa di hari bahagia kami.')->assertSee('Romeo &amp; Juliet', false);
         $preview('default_configuration')->assertDontSee('Sampai jumpa di hari bahagia kami.')->assertDontSee('Romeo &amp; Juliet', false)->assertSee('Terima Kasih');
+    }
+
+    public function test_sample_content_of_a_section_can_be_copied_from_the_default_content(): void
+    {
+        $this->template->update([
+            'default_configuration' => ['cover' => ['title' => 'Nama Mempelai', 'subtitle' => 'The Wedding of']],
+            'sample_content' => ['cover' => ['title' => 'Romeo & Juliet'], 'closing' => ['heading' => 'Sampai Jumpa']],
+        ]);
+
+        Livewire::actingAs($this->admin)
+            ->test(TemplateSectionContent::class, ['templateUlid' => $this->template->ulid, 'type' => 'cover', 'group' => 'sample_content'])
+            ->assertSet('config.title', 'Romeo & Juliet')
+            ->assertSee(__('Copy from default content'))
+            ->call('copyFromDefaults')
+            ->assertSet('config.title', 'Nama Mempelai')
+            ->assertSet('config.subtitle', 'The Wedding of')
+            ->assertDispatched('template-draft-updated')
+            ->assertDispatched('notify', type: 'success')
+            ->assertDontSee(__('Copy from default content'));
+
+        $draft = app(TemplateDraft::class)->definition($this->template, $this->admin);
+
+        $this->assertArrayNotHasKey('cover', $draft['sample_content']);
+        $this->assertSame(['heading' => 'Sampai Jumpa'], $draft['sample_content']['closing']);
+        $this->assertSame('Romeo & Juliet', $this->template->fresh()->sample_content['cover']['title']);
+    }
+
+    public function test_default_content_cannot_be_copied_onto_itself(): void
+    {
+        Livewire::actingAs($this->admin)
+            ->test(TemplateSectionContent::class, ['templateUlid' => $this->template->ulid, 'type' => 'cover', 'group' => 'default_configuration'])
+            ->assertDontSee(__('Copy from default content'))
+            ->call('copyFromDefaults')
+            ->assertNotFound();
     }
 
     public function test_content_fields_are_validated(): void

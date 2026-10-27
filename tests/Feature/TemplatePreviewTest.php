@@ -17,7 +17,7 @@ class TemplatePreviewTest extends TestCase
         $this->seed([TemplateCategorySeeder::class, InvitationTemplateSeeder::class]);
 
         $templates = InvitationTemplate::query()->get();
-        $this->assertCount(6, $templates);
+        $this->assertCount(7, $templates);
 
         foreach ($templates as $template) {
             $this->get('/templates/'.$template->slug.'/preview')

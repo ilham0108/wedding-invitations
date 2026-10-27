@@ -7,6 +7,7 @@ use App\Services\Invitation\DesignRegistry;
 use App\Services\Invitation\Ornaments;
 use App\Services\Invitation\SectionRegistry;
 use App\Services\Invitation\ThemeResolver;
+use App\Services\MusicService;
 use Closure;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -14,7 +15,7 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * The single gatekeeper for a template's configuration: section structure, theme,
- * decoration, defaults and sample content. Seeders, the admin builder and
+ * decoration, defaults, sample content and default music. Seeders, the admin builder and
  * template import all pass definitions through validate() before saving.
  */
 class TemplateSchema
@@ -41,7 +42,7 @@ class TemplateSchema
      * {type, variant, background} with explicit values, and unknown keys are dropped.
      *
      * @param  array<string, mixed>  $definition
-     * @return array{schema_version: int, design: string, schema: array{sections: array<int, array{type: string, variant: string, background: string}>}, theme: array<string, string>, decoration: array<string, string>, default_configuration: array<string, array<string, mixed>>, sample_content: array<string, array<string, mixed>>}
+     * @return array{schema_version: int, design: string, schema: array{sections: array<int, array{type: string, variant: string, background: string}>}, theme: array<string, string>, decoration: array<string, string>, default_configuration: array<string, array<string, mixed>>, sample_content: array<string, array<string, mixed>>, music: array<string, mixed>}
      *
      * @throws ValidationException
      */
@@ -74,6 +75,7 @@ class TemplateSchema
             'decoration' => $this->decoration($input['decoration']),
             'default_configuration' => $this->pruneConfiguration($input['default_configuration']),
             'sample_content' => $this->pruneConfiguration($input['sample_content']),
+            'music' => app(MusicService::class)->normalizeTemplateMusic(is_array($definition['music'] ?? null) ? $definition['music'] : null),
         ];
     }
 

@@ -193,6 +193,100 @@ class InvitationTemplateSeeder extends Seeder
                 ],
             ],
             $this->mochaGlass(),
+            $this->botanicalCream(),
+        ];
+    }
+
+    /**
+     * Second design pack, built from the "Ilham & Aisyah" cream botanical mockup.
+     *
+     * @return array<string, mixed>
+     */
+    private function botanicalCream(): array
+    {
+        $corners = [
+            ['image' => '/illustrations/ornament-cream-blossom-corner.svg', 'x' => 0, 'y' => 100, 'width' => 38, 'anchor' => 'bottom-left', 'layer' => 'back', 'enter' => 'fade-up', 'motion' => 'sway'],
+            ['image' => '/illustrations/ornament-cream-blossom-corner.svg', 'x' => 100, 'y' => 100, 'width' => 38, 'anchor' => 'bottom-right', 'flip' => true, 'layer' => 'back', 'enter' => 'fade-up', 'motion' => 'sway', 'delay' => 0.3],
+        ];
+
+        return [
+            'slug' => 'botanical-cream',
+            'name' => 'Botanical Cream',
+            'category' => 'wedding',
+            'description' => 'Halaman krem lembut dengan ilustrasi bunga: foto sampul yang memudar, nama bergaya tulisan tangan dengan monogram, kartu acara berikon, linimasa kisah, serta menu bawah berlabel.',
+            'is_premium' => true,
+            'design' => 'botanical-cream',
+            'decoration' => ['animation' => 'fade-up', 'animation_speed' => 'normal'],
+            'theme' => [
+                'primary_color' => '#6b5444', 'secondary_color' => '#b49a7c', 'background_color' => '#f7f1e8',
+                'surface_color' => '#fffdf9', 'text_color' => '#4b3a2f',
+                'font_heading' => 'Cormorant Garamond', 'font_body' => 'Lora',
+                'button_style' => 'pill', 'border_radius' => 'large', 'section_spacing' => 'normal',
+            ],
+            'schema' => ['sections' => [
+                ['type' => 'cover', 'ornaments' => $corners],
+                'quote',
+                'countdown',
+                ['type' => 'couple', 'variant' => 'stacked', 'ornaments' => $corners],
+                ['type' => 'event', 'variant' => 'cards'],
+                'maps',
+                ['type' => 'story', 'ornaments' => $corners],
+                ['type' => 'gallery', 'variant' => 'grid'],
+                'rsvp',
+                'gift',
+                'wishes',
+                ['type' => 'closing', 'background' => 'primary'],
+            ]],
+            'default_configuration' => [
+                'cover' => ['subtitle' => 'The Wedding of', 'button_label' => 'Gulir ke bawah'],
+                'countdown' => ['heading' => 'Menuju Hari Bahagia'],
+                'couple' => ['heading' => 'Mempelai', 'photo_shape' => 'circle', 'photo_frame' => '/illustrations/frame-round-cream-wreath.svg', 'photo_frame_inset' => 12],
+                'event' => ['heading' => 'Acara Pernikahan'],
+                'maps' => ['heading' => 'Lokasi'],
+                'story' => ['heading' => 'Kisah Cinta'],
+                'gallery' => ['heading' => 'Galeri Foto'],
+                'rsvp' => ['heading' => 'Konfirmasi Kehadiran', 'description' => ''],
+                'gift' => ['heading' => 'Amplop Digital', 'description' => ''],
+                'wishes' => ['heading' => 'Ucapan & Doa', 'description' => 'Tulis ucapan dan doa terbaik untuk kami…'],
+                'closing' => ['heading' => 'Terima Kasih', 'message' => 'Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.'],
+            ],
+            'sample_content' => [
+                'cover' => ['title' => 'Ilham & Aisyah', 'date_text' => 'Sabtu, 12 Desember 2026', 'background_image' => '/images/demo/cover.svg'],
+                'quote' => [
+                    'text' => 'Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri, agar kamu cenderung dan merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa kasih dan sayang.',
+                    'author' => 'QS. Ar-Rum: 21',
+                ],
+                'couple' => ['people' => [
+                    ['name' => 'Ilham Pambudi Utomo', 'parents' => 'Putra pertama dari Bapak Lorem Ipsum & Ibu Dolor Sit Amet', 'photo' => '/illustrations/person-groom-suit.svg', 'instagram' => 'https://instagram.com/'],
+                    ['name' => 'Aisyah Nur Rahma', 'parents' => 'Putri pertama dari Bapak Lorem Ipsum & Ibu Dolor Sit Amet', 'photo' => '/illustrations/person-bride-hijab.svg', 'instagram' => 'https://instagram.com/'],
+                ]],
+                'event' => ['events' => [
+                    ['title' => 'Akad Nikah', 'date' => '2026-12-12', 'start_time' => '08:00', 'end_time' => '10:00', 'venue' => 'Masjid Agung Prambanan', 'address' => 'Sleman, Yogyakarta'],
+                    ['title' => 'Resepsi', 'date' => '2026-12-12', 'start_time' => '11:00', 'end_time' => '14:00', 'venue' => 'Pendopo Prambanan', 'address' => 'Sleman, Yogyakarta', 'maps_url' => 'https://maps.google.com/?q=Candi+Prambanan', 'add_to_calendar' => true],
+                ]],
+                'maps' => [
+                    'venue' => 'Pendopo Prambanan', 'address' => 'Jl. Raya Solo - Yogyakarta, Bokoharjo, Prambanan, Sleman, Yogyakarta',
+                    'maps_url' => 'https://maps.google.com/?q=Candi+Prambanan', 'latitude' => -7.752, 'longitude' => 110.4915,
+                ],
+                'story' => [
+                    'entries' => [
+                        ['icon' => 'heart', 'title' => 'Pertemuan', 'date' => '2020', 'description' => 'Berawal dari pertemuan yang tak disengaja, namun memberikan kesan mendalam.'],
+                        ['icon' => 'chat', 'title' => 'Pendekatan', 'date' => '2021', 'description' => 'Kami mulai saling mengenal dan menemukan banyak kesamaan.'],
+                        ['icon' => 'ring', 'title' => 'Lamaran', 'date' => '2025', 'description' => 'Dengan penuh keyakinan, kami melangkah lebih serius dalam ikatan pertunangan.'],
+                        ['icon' => 'home', 'title' => 'Menuju Halal', 'date' => '2026', 'description' => 'InsyaAllah, kami akan menempuh ibadah terpanjang bersama dalam ikatan suci pernikahan.'],
+                    ],
+                    'closing_quote' => 'Perjalanan ini bukan tentang siapa yang datang lebih dulu, tapi tentang siapa yang tetap tinggal hingga akhirnya kita sampai di titik ini.',
+                ],
+                'gallery' => ['images' => ['/images/demo/gallery-1.svg', '/images/demo/gallery-2.svg', '/images/demo/gallery-3.svg', '/images/demo/gallery-4.svg', '/illustrations/gallery-bouquet.svg', '/illustrations/gallery-doves.svg', '/illustrations/gallery-cake.svg']],
+                'gift' => ['accounts' => [
+                    ['type' => 'bank', 'provider' => 'Bank BCA', 'account_number' => '1234567890', 'account_name' => 'Ilham Pambudi Utomo'],
+                ]],
+                'closing' => [
+                    'signature' => 'Wassalamu\'alaikum Warahmatullahi Wabarakatuh — Kami yang berbahagia, Ilham & Aisyah',
+                    'background_photo' => '/images/demo/gallery-4.svg',
+                    'background_overlay' => 'medium',
+                ],
+            ],
         ];
     }
 

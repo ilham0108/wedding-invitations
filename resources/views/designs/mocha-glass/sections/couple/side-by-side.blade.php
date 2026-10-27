@@ -6,7 +6,7 @@
         @foreach ($config['people'] as $person)
             <div class="mg-person mg-person--compact inv-animate">
                 @if ($person['photo'])
-                    @include('invitation.partials.framed-photo', ['src' => $person['photo'], 'alt' => $person['name'] ?? '', 'imageClass' => 'mg-portrait', 'wrapperClass' => 'mg-portrait-shape'])
+                    @include('invitation.partials.framed-photo', ['src' => $person['photo'], 'focus' => $person['photo_focus'] ?? null, 'alt' => $person['name'] ?? '', 'imageClass' => 'mg-portrait', 'wrapperClass' => 'mg-portrait-shape'])
                 @endif
                 @include('designs.mocha-glass.partials.person-text')
             </div>

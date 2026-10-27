@@ -9,6 +9,7 @@ use App\Models\Invitation;
 use App\Models\InvitationTemplate;
 use App\Models\User;
 use App\Services\AuditLogger;
+use App\Services\MusicService;
 use App\Services\Subscription\SubscriptionLimitService;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
@@ -22,11 +23,12 @@ class InvitationService
         private ThemeResolver $themes,
         private AuditLogger $auditLogger,
         private Ornaments $ornaments,
+        private MusicService $music,
     ) {}
 
     /**
      * Create a draft invitation whose sections are copied from the template blueprint.
-     * Template defaults, design, theme and decoration are copied once; afterwards the invitation
+     * Template defaults, design, theme, decoration and music are copied once; afterwards the invitation
      * owns its data, so later template edits never change existing invitations.
      *
      * @param  array{title: string, event_type: string, timezone: string, event_date?: ?string, event_time?: ?string, venue?: ?string}  $data
@@ -48,6 +50,7 @@ class InvitationService
                 'design' => $template->design ?? DesignRegistry::DEFAULT,
                 'template_theme' => $template->theme ?? [],
                 'decoration' => $template->decoration ?? [],
+                'music' => $this->music->initialForInvitation($template, $user),
             ]);
 
             $templateDefaults = $template->default_configuration ?? [];
