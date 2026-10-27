@@ -2,9 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Enums\InvitationStatus;
 use App\Livewire\SystemSettingsForm;
+use App\Models\InvitationTemplate;
 use App\Models\User;
 use App\Services\FaviconService;
+use App\Services\Invitation\InvitationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -65,6 +68,23 @@ class FaviconTest extends TestCase
             ->assertJsonPath('name', config('app.name'))
             ->assertJsonPath('icons.0.src', $favicon->url(192))
             ->assertJsonPath('icons.1.sizes', '512x512');
+    }
+
+    public function test_invitation_pages_use_the_site_icon(): void
+    {
+        app(FaviconService::class)->replace(UploadedFile::fake()->image('icon.png', 512, 512), User::factory()->superAdmin()->create());
+
+        $invitation = app(InvitationService::class)->createFromTemplate(User::factory()->client()->create(), InvitationTemplate::factory()->create(), [
+            'title' => 'John & Jane',
+            'event_type' => 'wedding',
+            'timezone' => 'Asia/Jakarta',
+            'event_date' => '2030-06-12',
+            'event_time' => '10:00',
+            'venue' => 'Grand Ballroom',
+        ]);
+        $invitation->forceFill(['status' => InvitationStatus::Published, 'published_at' => now()])->save();
+
+        $this->get('/invitation/'.$invitation->slug)->assertOk()->assertSee(app(FaviconService::class)->url(32), false);
     }
 
     public function test_replacing_and_removing_cleans_up_old_files(): void
