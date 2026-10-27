@@ -1,0 +1,150 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply bg-paper font-sans text-ink antialiased;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+}
+
+/*
+| Chart tokens (dataviz reference palette, validated on the white card surface:
+| categorical slots 1–2 pass CVD ΔE 24.7 and ≥3:1 contrast). Light mode only,
+| because the dashboard itself has no dark theme yet.
+*/
+.viz-root {
+    --viz-series-1: #2a78d6;
+    --viz-series-2: #eb6834;
+    --viz-neutral: #c3c2b7;
+    --viz-sequential: #2a78d6;
+    --viz-grid: #ecebe6;
+}
+
+@layer components {
+    .nav-item {
+        @apply flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-ink-soft transition-colors hover:bg-sage-soft hover:text-ink;
+    }
+
+    .nav-item-active {
+        @apply bg-white text-ink shadow-soft;
+    }
+
+    .nav-item-disabled {
+        @apply cursor-not-allowed text-muted/60 hover:bg-transparent hover:text-muted/60;
+    }
+
+    /* Markdown pages from the admin CMS (Page::html()). */
+    .cms-prose {
+        @apply text-[15px] leading-7 text-ink-soft;
+    }
+
+    .cms-prose > * + * {
+        @apply mt-4;
+    }
+
+    .cms-prose h2 {
+        @apply mt-10 font-display text-2xl text-ink;
+    }
+
+    .cms-prose h3 {
+        @apply mt-8 text-lg font-semibold text-ink;
+    }
+
+    .cms-prose ul {
+        @apply list-disc space-y-1.5 pl-6;
+    }
+
+    .cms-prose ol {
+        @apply list-decimal space-y-1.5 pl-6;
+    }
+
+    .cms-prose a {
+        @apply font-medium text-sage underline underline-offset-2;
+    }
+
+    .cms-prose strong {
+        @apply font-semibold text-ink;
+    }
+
+    .cms-prose blockquote {
+        @apply border-l-2 border-line pl-4 italic;
+    }
+
+    .cms-prose hr {
+        @apply my-8 border-line;
+    }
+}
+
+/*
+| Marketing site (layouts.marketing, marketing.*): botanical look, olive on warm cream, a light
+| serif for headings. Motion is skipped for visitors who asked for reduced motion.
+*/
+@layer components {
+    .mk-serif {
+        font-family: 'Cormorant Garamond', 'Playfair Display', serif;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+    }
+
+    .mk-eyebrow {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: #7d7a6c;
+    }
+
+    /* "*word*" in admin headlines. */
+    .mk-em {
+        font-style: italic;
+        color: #4a573f;
+    }
+
+    .mk-icon-circle {
+        display: flex;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        background: #e8e5da;
+        color: #4a573f;
+    }
+
+    /* Soft photographic stand-in when no hero photo is uploaded. */
+    .mk-hero-fallback {
+        background:
+            radial-gradient(28rem 22rem at 70% 35%, rgb(255 255 255 / 0.9), transparent 65%),
+            radial-gradient(30rem 26rem at 20% 85%, rgb(232 229 218 / 0.9), transparent 70%),
+            linear-gradient(160deg, #f1ece3, #e7e1d5);
+    }
+
+    .mk-rise {
+        animation: mk-rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    }
+
+    .mk-rise-2 { animation-delay: 0.12s; }
+    .mk-rise-3 { animation-delay: 0.24s; }
+
+    .mk-float {
+        animation: mk-float 7s ease-in-out infinite;
+    }
+
+    @keyframes mk-rise {
+        from { opacity: 0; transform: translateY(18px); }
+        to { opacity: 1; transform: none; }
+    }
+
+    @keyframes mk-float {
+        0%, 100% { transform: translateY(0) rotate(-4deg); }
+        50% { transform: translateY(-10px) rotate(-4deg); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .mk-rise, .mk-float { animation: none; }
+    }
+}

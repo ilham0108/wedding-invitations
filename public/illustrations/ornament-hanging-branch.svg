@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <!-- Leafy branch hanging from a top-left corner (mirror it for the right). Transparent background. -->
+  <path d="M0 20C90 30 170 70 230 140c40 45 60 100 70 160" stroke="#6b5442" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <path d="M120 60c10 50 0 95-25 130M200 110c25 35 30 75 20 115" stroke="#6b5442" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <g fill="#5f7d58">
+    <ellipse cx="40" cy="50" rx="34" ry="12" transform="rotate(35 40 50)"/>
+    <ellipse cx="80" cy="25" rx="30" ry="11" transform="rotate(-20 80 25)"/>
+    <ellipse cx="110" cy="105" rx="32" ry="12" transform="rotate(70 110 105)"/>
+    <ellipse cx="150" cy="70" rx="30" ry="11" transform="rotate(-10 150 70)"/>
+    <ellipse cx="95" cy="170" rx="30" ry="11" transform="rotate(100 95 170)"/>
+    <ellipse cx="200" cy="105" rx="30" ry="11" transform="rotate(20 200 105)"/>
+    <ellipse cx="230" cy="185" rx="30" ry="11" transform="rotate(80 230 185)"/>
+    <ellipse cx="265" cy="160" rx="28" ry="10" transform="rotate(30 265 160)"/>
+    <ellipse cx="285" cy="240" rx="28" ry="10" transform="rotate(75 285 240)"/>
+    <ellipse cx="300" cy="300" rx="26" ry="10" transform="rotate(95 300 300)"/>
+  </g>
+  <g fill="#7f9c76">
+    <ellipse cx="60" cy="85" rx="26" ry="10" transform="rotate(60 60 85)"/>
+    <ellipse cx="175" cy="45" rx="26" ry="10" transform="rotate(-35 175 45)"/>
+    <ellipse cx="215" cy="230" rx="26" ry="10" transform="rotate(110 215 230)"/>
+    <ellipse cx="320" cy="210" rx="24" ry="9" transform="rotate(20 320 210)"/>
+  </g>
+  <g fill="#f4e9d8">
+    <circle cx="130" cy="135" r="9"/><circle cx="245" cy="125" r="8"/><circle cx="300" cy="265" r="8"/><circle cx="60" cy="30" r="7"/>
+  </g>
+</svg>

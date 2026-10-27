@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="400" height="500">
+  <!-- Gold arch photo frame; pair with the "Arch" photo shape. The opening fits a photo inset 12%. -->
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e9d39a"/>
+      <stop offset="0.5" stop-color="#b8904a"/>
+      <stop offset="1" stop-color="#8a6a32"/>
+    </linearGradient>
+  </defs>
+  <g fill="none" stroke="url(#gold)" stroke-linejoin="round">
+    <path d="M44 444V212a156 156 0 0 1 312 0v232Z" stroke-width="10"/>
+    <path d="M30 458V212a170 170 0 0 1 340 0v246Z" stroke-width="3"/>
+  </g>
+  <!-- keystone -->
+  <g fill="url(#gold)">
+    <path d="M200 18c9 12 21 19 35 21-12 5-24 5-35 0-11 5-23 5-35 0 14-2 26-9 35-21Z"/>
+    <circle cx="200" cy="50" r="6"/>
+  </g>
+  <!-- base plinth -->
+  <g fill="url(#gold)">
+    <rect x="18" y="458" width="364" height="10" rx="3"/>
+    <rect x="34" y="472" width="332" height="5" rx="2.5"/>
+    <circle cx="200" cy="488" r="5"/>
+  </g>
+</svg>

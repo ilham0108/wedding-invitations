@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="400" height="500">
+  <!-- Gold oval photo frame. The opening (transparent) fits a photo inset 12% on every side. -->
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e9d39a"/>
+      <stop offset="0.5" stop-color="#b8904a"/>
+      <stop offset="1" stop-color="#8a6a32"/>
+    </linearGradient>
+  </defs>
+  <g fill="none" stroke="url(#gold)">
+    <ellipse cx="200" cy="250" rx="157" ry="195" stroke-width="11"/>
+    <ellipse cx="200" cy="250" rx="172" ry="210" stroke-width="3"/>
+    <ellipse cx="200" cy="250" rx="180" ry="218" stroke-width="1.5" stroke-dasharray="2 7" stroke-linecap="round"/>
+  </g>
+  <!-- crest on top -->
+  <g fill="url(#gold)">
+    <path d="M200 8c10 14 24 22 40 24-14 6-28 6-40 0-12 6-26 6-40 0 16-2 30-10 40-24Z"/>
+    <path d="M200 30c-30 4-58-6-80 6 24 2 44 12 56 26-18-6-34-6-50 2 22 2 40 6 54 2 8 0 14-4 20-8 6 4 12 8 20 8 14 4 32 0 54-2-16-8-32-8-50-2 12-14 32-24 56-26-22-12-50-2-80-6Z"/>
+    <circle cx="200" cy="44" r="7"/>
+  </g>
+  <!-- small ornament at the bottom -->
+  <g fill="url(#gold)">
+    <path d="M200 492c-8-12-20-18-34-20 12-5 24-4 34 1 10-5 22-6 34-1-14 2-26 8-34 20Z"/>
+    <path d="M200 462c-22-2-44 4-60 14 20-1 38 2 52 8 3 1 6 1 8 0 14-6 32-9 52-8-16-10-38-16-60-14Z"/>
+    <circle cx="200" cy="458" r="5"/>
+  </g>
+  <!-- side beads -->
+  <g fill="url(#gold)">
+    <circle cx="22" cy="250" r="6"/><circle cx="378" cy="250" r="6"/>
+    <circle cx="34" cy="226" r="3"/><circle cx="34" cy="274" r="3"/>
+    <circle cx="366" cy="226" r="3"/><circle cx="366" cy="274" r="3"/>
+  </g>
+</svg>

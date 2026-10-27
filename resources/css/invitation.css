@@ -1,0 +1,616 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+| Every value comes from CSS variables written by ThemeResolver, so one
+| stylesheet serves all templates and themes.
+*/
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body.inv-body {
+        background: var(--inv-bg);
+        color: var(--inv-text);
+        font-family: var(--inv-font-body);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+}
+
+@layer components {
+    .inv-heading {
+        font-family: var(--inv-font-heading);
+        font-weight: 500;
+        line-height: 1.15;
+    }
+
+    .inv-section {
+        padding-block: var(--inv-spacing);
+    }
+
+    .inv-section--muted {
+        background: var(--inv-surface);
+    }
+
+    .inv-section--primary {
+        background: var(--inv-primary);
+        color: var(--inv-on-primary);
+    }
+
+    .inv-container {
+        @apply mx-auto w-full max-w-3xl px-5 sm:px-8;
+    }
+
+    .inv-muted {
+        opacity: 0.72;
+    }
+
+    .inv-accent {
+        color: var(--inv-secondary);
+    }
+
+    .inv-divider {
+        @apply mx-auto my-6 h-px w-16;
+        background: var(--inv-secondary);
+    }
+
+    .inv-card {
+        background: var(--inv-surface);
+        border-radius: var(--inv-radius);
+        border: 1px solid color-mix(in srgb, var(--inv-text) 10%, transparent);
+    }
+
+    .inv-section--muted .inv-card {
+        background: var(--inv-bg);
+    }
+
+    .inv-section--primary .inv-card {
+        background: color-mix(in srgb, var(--inv-on-primary) 10%, transparent);
+        border-color: color-mix(in srgb, var(--inv-on-primary) 20%, transparent);
+    }
+
+    .inv-rounded {
+        border-radius: var(--inv-radius);
+    }
+
+    .inv-btn {
+        @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium transition;
+        border-radius: var(--inv-radius);
+        background: var(--inv-primary);
+        color: var(--inv-on-primary);
+        border: 1px solid var(--inv-primary);
+    }
+
+    .inv-btn:hover {
+        filter: brightness(1.08);
+    }
+
+    .inv-btn-outline .inv-btn {
+        background: transparent;
+        color: var(--inv-primary);
+    }
+
+    .inv-btn-pill .inv-btn {
+        border-radius: 9999px;
+    }
+
+    .inv-section--primary .inv-btn {
+        background: var(--inv-on-primary);
+        color: var(--inv-primary);
+        border-color: var(--inv-on-primary);
+    }
+}
+
+/*
+| Portrait shape and frame (couple "photo_shape" / "photo_frame", invitation.partials.framed-photo).
+| Unframed, the block has a fixed ratio and the photo fills it. Framed, the frame image sets the
+| size and the photo fills its opening, inset by --inv-photo-inset on every side.
+*/
+.inv-photo {
+    position: relative;
+}
+
+.inv-photo:not(.inv-photo--framed) { aspect-ratio: 4 / 5; }
+.inv-photo--circle:not(.inv-photo--framed) { aspect-ratio: 1; }
+
+.inv-photo__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Images do not stretch between insets like boxes do, so the size is spelled out. */
+.inv-photo--framed .inv-photo__image {
+    inset: var(--inv-photo-inset, 12%);
+    width: calc(100% - 2 * var(--inv-photo-inset, 12%));
+    height: calc(100% - 2 * var(--inv-photo-inset, 12%));
+}
+
+.inv-photo__frame {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: auto;
+    pointer-events: none;
+}
+
+.inv-photo--rounded .inv-photo__image { border-radius: 1.25rem; }
+.inv-photo--circle .inv-photo__image,
+.inv-photo--oval .inv-photo__image { border-radius: 50%; }
+/* Huge radii are scaled down to half the width: a semicircular top on any ratio. */
+.inv-photo--arch .inv-photo__image { border-radius: 9999px 9999px 0 0; }
+
+/*
+| Entrance animations (template decoration "animation" / "animation_speed").
+| Elements with .inv-animate start hidden only when JavaScript runs (html.inv-js) and an
+| animation is chosen; invitation.js adds .is-shown when they scroll into view.
+*/
+.inv-animate {
+    transition-property: opacity, transform;
+    transition-duration: var(--inv-animation-duration, 0.9s);
+    transition-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+[data-inv-speed='slow'] { --inv-animation-duration: 1.4s; }
+[data-inv-speed='fast'] { --inv-animation-duration: 0.5s; }
+
+.inv-js [data-inv-animation='fade'] .inv-animate:not(.is-shown) {
+    opacity: 0;
+}
+
+.inv-js [data-inv-animation='fade-up'] .inv-animate:not(.is-shown) {
+    opacity: 0;
+    transform: translateY(32px);
+}
+
+.inv-js [data-inv-animation='zoom'] .inv-animate:not(.is-shown) {
+    opacity: 0;
+    transform: scale(0.92);
+}
+
+.inv-js [data-inv-animation='slide'] .inv-animate:not(.is-shown) {
+    opacity: 0;
+    transform: translateX(-48px);
+}
+
+.inv-js [data-inv-animation='slide'] .inv-animate[data-inv-side='right']:not(.is-shown) {
+    transform: translateX(48px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-animate {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+}
+
+/*
+| Framed cover styles (cover field "frame_style"). Class names are built in Blade
+| ("inv-frame--{style}"), so they live outside @layer where Tailwind would purge them.
+*/
+.inv-frame {
+    border-radius: var(--inv-radius);
+}
+
+.inv-frame--solid {
+    background: var(--inv-surface);
+    color: var(--inv-text);
+    border: 1px solid color-mix(in srgb, var(--inv-text) 10%, transparent);
+}
+
+.inv-frame--blur {
+    background: color-mix(in srgb, var(--inv-surface) 18%, transparent);
+    border: 1px solid color-mix(in srgb, #fff 35%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+
+.inv-frame--transparent {
+    background: transparent;
+    border: 1px solid currentColor;
+}
+
+/*
+| Background photos that change while scrolling (invitation.partials.scroll-backdrop).
+*/
+.inv-backdrop {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* Classic design: behind the whole page, tinted with the theme background so text stays readable. */
+.inv-backdrop--page {
+    position: fixed;
+    z-index: -1;
+}
+
+/* Section field "background_overlay", set on the root by invitation.js for the photo on screen. */
+.inv-backdrop--page::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--inv-bg);
+    opacity: 0.78;
+    transition: opacity 1s ease;
+}
+
+.inv-backdrop--page[data-overlay='medium']::after { opacity: 0.55; }
+.inv-backdrop--page[data-overlay='light']::after { opacity: 0.3; }
+.inv-backdrop--page[data-overlay='none']::after { opacity: 0; }
+
+/*
+| A section that paints its own color (Latar "Lembut"/"Utama") lets its background photo show through,
+| tinted by its own overlay choice (invitation.partials.backdrop-attributes).
+*/
+[data-inv-tint] { --inv-tint: 78%; }
+[data-inv-tint='medium'] { --inv-tint: 55%; }
+[data-inv-tint='light'] { --inv-tint: 30%; }
+[data-inv-tint='none'] { --inv-tint: 0%; }
+
+.inv-section--muted[data-inv-tint] { background: color-mix(in srgb, var(--inv-surface) var(--inv-tint), transparent); }
+.inv-section--primary[data-inv-tint] { background: color-mix(in srgb, var(--inv-primary) var(--inv-tint), transparent); }
+
+.inv-backdrop__layer {
+    position: absolute;
+    inset: 0;
+    background-position: center;
+    background-size: cover;
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+.inv-backdrop__layer.is-active {
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-backdrop__layer { transition: none; }
+}
+
+/*
+| Ornaments (section ornaments, invitation.partials.ornaments). Positions, timing and the entrance
+| start come from inline CSS variables set in Blade. Only transform/opacity are animated.
+*/
+.inv-has-ornaments {
+    position: relative;
+}
+
+/* Section content sits between the two ornament layers. */
+.inv-section-body {
+    position: relative;
+    z-index: 1;
+}
+
+.inv-ornaments {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.inv-ornaments--back { z-index: 0; }
+.inv-ornaments--front { z-index: 2; }
+
+.inv-ornament {
+    position: absolute;
+}
+
+.inv-ornament--flip { scale: -1 1; }
+
+.inv-ornament__img {
+    display: block;
+    width: 100%;
+    height: auto;
+    transform-origin: var(--inv-ornament-origin, center);
+    animation-delay: var(--inv-ornament-phase, 0s);
+}
+
+@keyframes inv-ornament-sway {
+    0%, 100% { transform: rotate(-2.5deg); }
+    50% { transform: rotate(2.5deg); }
+}
+
+@keyframes inv-ornament-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.inv-ornament--sway .inv-ornament__img {
+    animation-name: inv-ornament-sway;
+    animation-duration: 5s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+
+.inv-ornament--float .inv-ornament__img {
+    animation-name: inv-ornament-float;
+    animation-duration: 6s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+
+/* Entrance: plays once the section scrolls into view (invitation.js adds .is-shown). */
+.inv-ornament--enter .inv-ornament__enter {
+    transition:
+        transform var(--inv-ornament-duration, 1.6s) cubic-bezier(0.2, 0.7, 0.2, 1) var(--inv-ornament-delay, 0s),
+        opacity calc(var(--inv-ornament-duration, 1.6s) * 0.8) ease var(--inv-ornament-delay, 0s);
+}
+
+.inv-js .inv-ornaments:not(.is-shown) .inv-ornament--enter .inv-ornament__enter {
+    opacity: 0;
+    transform: var(--inv-ornament-from, none);
+}
+
+/*
+| Cover background motion (cover field "background_motion").
+*/
+@keyframes inv-bg-zoom-out {
+    from { transform: scale(1.18); }
+    to { transform: scale(1); }
+}
+
+@keyframes inv-bg-drift {
+    from { transform: scale(1); }
+    to { transform: scale(1.1); }
+}
+
+.inv-bg-motion--zoom-out { animation: inv-bg-zoom-out 7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.inv-bg-motion--drift { animation: inv-bg-drift 24s ease-in-out infinite alternate; }
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-ornament__img,
+    .inv-bg-motion--zoom-out,
+    .inv-bg-motion--drift { animation: none !important; }
+    .inv-ornament__enter { transition: none !important; opacity: 1 !important; transform: none !important; }
+}
+
+/*
+| Desktop layout of the classic page (decoration "desktop_layout", invitation.partials.desktop-aside).
+| Phones always get the full-width page; from 1024px "column" keeps the invitation phone-sized in the
+| middle on the blurred cover photo, and "split" puts it on the right beside a cover panel.
+*/
+.inv-aside {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .inv-page--column,
+    .inv-page--split {
+        --inv-column: 460px;
+    }
+
+    .inv-aside {
+        position: fixed;
+        inset: 0;
+        display: block;
+        overflow: hidden;
+        background: radial-gradient(ellipse at top, var(--inv-surface), var(--inv-bg) 70%);
+    }
+
+    .inv-page--split .inv-aside {
+        right: var(--inv-column);
+    }
+
+    .inv-aside__photo {
+        position: absolute;
+        inset: 0;
+        background-position: center;
+        background-size: cover;
+    }
+
+    /* Blurred photo, scaled so the blur never shows a soft edge. */
+    .inv-page--column .inv-aside__photo {
+        filter: blur(22px);
+        transform: scale(1.12);
+    }
+
+    .inv-page--column .inv-aside--photo::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: color-mix(in srgb, var(--inv-bg) 35%, transparent);
+    }
+
+    .inv-page--split .inv-aside--photo::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgb(0 0 0 / 0.2), rgb(0 0 0 / 0.5));
+    }
+
+    .inv-aside__text {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 10%;
+        text-align: center;
+    }
+
+    .inv-aside--photo .inv-aside__text {
+        color: #fff;
+    }
+
+    .inv-aside--text-top .inv-aside__text { justify-content: flex-start; }
+    .inv-aside--text-bottom .inv-aside__text { justify-content: flex-end; }
+
+    .inv-aside__body {
+        max-width: 520px;
+        font-size: 1.05rem;
+        line-height: 1.7;
+        white-space: pre-line;
+    }
+
+    .inv-page--column .inv-page__column,
+    .inv-page--split .inv-page__column {
+        position: relative;
+        isolation: isolate;
+        width: var(--inv-column);
+        min-height: 100svh;
+        background: var(--inv-bg);
+        box-shadow: 0 0 60px rgb(0 0 0 / 0.25);
+    }
+
+    .inv-page--column .inv-page__column { margin-inline: auto; }
+    .inv-page--split .inv-page__column { margin-left: auto; }
+
+    /* Scroll-changing background photos stay inside the column. */
+    .inv-page--column .inv-backdrop--page,
+    .inv-page--split .inv-backdrop--page {
+        left: auto;
+        width: var(--inv-column);
+    }
+
+    .inv-page--column .inv-backdrop--page { right: calc(50% - var(--inv-column) / 2); }
+    .inv-page--split .inv-backdrop--page { right: 0; }
+}
+
+/*
+| Floating buttons (music, Instagram Story) stacked in the bottom-right corner of the invitation
+| column on every desktop layout (invitation.show > .inv-fabs). The music one spins while playing.
+*/
+.inv-fabs {
+    position: fixed;
+    right: 14px;
+    bottom: 14px;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.inv-fab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 9999px;
+    background: var(--inv-primary);
+    color: var(--inv-on-primary);
+    box-shadow: 0 6px 20px rgb(0 0 0 / 0.25);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.inv-fab:hover { transform: scale(1.06); }
+.inv-fab:focus-visible { outline: 2px solid var(--inv-secondary); outline-offset: 3px; }
+.inv-music__toggle[aria-pressed='false'] { opacity: 0.75; }
+.inv-music__toggle[aria-pressed='true'] i { animation: inv-music-spin 3s linear infinite; }
+
+/* Mocha Glass keeps its bottom menu in that corner. */
+[data-inv-desktop='design'] .inv-fabs { bottom: 84px; }
+
+@media (min-width: 1024px) {
+    /* 230px = half of --inv-column, which is scoped to .inv-page. */
+    [data-inv-desktop='column'] .inv-fabs { right: calc(50% - 230px + 14px); }
+}
+
+@keyframes inv-music-spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-music__toggle[aria-pressed='true'] i { animation: none; }
+}
+
+/*
+| Instagram Story dialog for guests (invitation.partials.story-share).
+*/
+.inv-story-dialog {
+    width: min(420px, calc(100vw - 32px));
+    max-height: calc(100svh - 32px);
+    padding: 16px;
+    border: 0;
+    border-radius: 16px;
+    background: var(--inv-surface);
+    color: var(--inv-text);
+    box-shadow: 0 24px 60px rgb(0 0 0 / 0.35);
+}
+
+.inv-story-dialog::backdrop { background: rgb(0 0 0 / 0.6); }
+
+.inv-story-dialog canvas {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: calc(100svh - 190px);
+    margin-inline: auto;
+    border-radius: 10px;
+    aspect-ratio: 9 / 16;
+}
+
+/*
+| Decoration "divider" (body data-inv-divider): the .inv-divider rule in the classic views, also drawn
+| under each classic section heading (not the closing section, which places its own). Accent color.
+*/
+.inv-section:not([data-section='closing']) > .inv-section-body h2.inv-heading::after {
+    content: '';
+    display: block;
+    width: 4rem;
+    height: 1px;
+    margin: 1.1rem auto 0;
+    background: var(--inv-secondary);
+}
+
+[data-inv-divider='dots'] .inv-divider,
+[data-inv-divider='dots'] .inv-section > .inv-section-body h2.inv-heading::after {
+    width: 42px;
+    height: 7px;
+    background: radial-gradient(circle, var(--inv-secondary) 0 3px, transparent 3.5px) center / 14px 7px repeat-x;
+}
+
+[data-inv-divider='flourish'] .inv-divider,
+[data-inv-divider='flourish'] .inv-section > .inv-section-body h2.inv-heading::after {
+    width: 132px;
+    height: 16px;
+    background: var(--inv-secondary);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 132 16'%3E%3Cg fill='none' stroke='black' stroke-width='1.2' stroke-linecap='round'%3E%3Cpath d='M2 8h40c6 0 8-5 12-5s5 3 2 5'/%3E%3Cpath d='M130 8H90c-6 0-8-5-12-5s-5 3-2 5'/%3E%3C/g%3E%3Cpath d='M66 1.5 72 8l-6 6.5L60 8z'/%3E%3Ccircle cx='52' cy='11' r='1.6'/%3E%3Ccircle cx='80' cy='11' r='1.6'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 132 16'%3E%3Cg fill='none' stroke='black' stroke-width='1.2' stroke-linecap='round'%3E%3Cpath d='M2 8h40c6 0 8-5 12-5s5 3 2 5'/%3E%3Cpath d='M130 8H90c-6 0-8-5-12-5s-5 3-2 5'/%3E%3C/g%3E%3Cpath d='M66 1.5 72 8l-6 6.5L60 8z'/%3E%3Ccircle cx='52' cy='11' r='1.6'/%3E%3Ccircle cx='80' cy='11' r='1.6'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+[data-inv-divider='none'] .inv-divider,
+[data-inv-divider='none'] .inv-section > .inv-section-body h2.inv-heading::after {
+    display: none;
+}
+
+/*
+| Decoration "texture" (body data-inv-texture): a faint pattern on the page and section/card
+| backgrounds only, so photos and text are never covered.
+*/
+[data-inv-texture='paper'] {
+    --inv-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .1 0 0 0 -.025'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+[data-inv-texture='grain'] {
+    --inv-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .45 0 0 0 -.17'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+[data-inv-texture='linen'] {
+    --inv-texture:
+        repeating-linear-gradient(0deg, rgb(0 0 0 / 0.012) 0 1px, transparent 1px 3px),
+        repeating-linear-gradient(90deg, rgb(0 0 0 / 0.01) 0 1px, transparent 1px 2px);
+}
+
+body[data-inv-texture]:not([data-inv-texture='none']),
+body[data-inv-texture]:not([data-inv-texture='none']) .inv-page__column,
+body[data-inv-texture]:not([data-inv-texture='none']) .inv-section--muted,
+body[data-inv-texture]:not([data-inv-texture='none']) .inv-section--primary,
+body[data-inv-texture]:not([data-inv-texture='none']) .inv-card {
+    background-image: var(--inv-texture);
+}

@@ -1,0 +1,1313 @@
+/*
+| Mocha Glass design pack (converted from the "Arina & Bagas" HTML design).
+|
+| Colors and fonts come from the theme, so admins can recolor the design:
+|   --inv-bg       dark panel behind the content        (mocha brown)
+|   --inv-surface  light blocks: quote, dress code, modals (cream)
+|   --inv-text     text on the dark panel                (white)
+|   --inv-primary  dark buttons and countdown circles    (near black)
+|   --inv-secondary accents                              (gold)
+|   --inv-font-heading  display titles (Cinzel Decorative); --inv-font-body  UI text (Jost)
+| Cormorant Garamond (copy) and Amiri (Arabic) are loaded by the design itself.
+*/
+
+.inv-design-mocha-glass {
+    --mg-panel: 430px;
+    --mg-serif: 'Cormorant Garamond', Georgia, serif;
+    --mg-arabic: 'Amiri', serif;
+    --mg-glass: color-mix(in srgb, var(--inv-text) 12%, transparent);
+    --mg-glass-border: color-mix(in srgb, var(--inv-text) 22%, transparent);
+    --mg-line: color-mix(in srgb, var(--inv-text) 85%, transparent);
+    --mg-ink: var(--inv-bg);
+
+    background: color-mix(in srgb, var(--inv-bg) 70%, #000);
+    overflow-x: hidden;
+}
+
+.inv-design-mocha-glass.mg-locked {
+    overflow: hidden;
+}
+
+.mg {
+    font-family: var(--inv-font-body);
+    color: var(--inv-text);
+}
+
+.mg a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.mg-photo {
+    background-color: color-mix(in srgb, var(--inv-bg) 60%, #fff 10%);
+    background-image: linear-gradient(160deg, color-mix(in srgb, var(--inv-secondary) 45%, var(--inv-bg)) 0%, var(--inv-bg) 100%);
+    background-size: cover;
+    background-position: center;
+}
+
+.mg-display,
+.mg-names,
+.mg-title,
+.mg-person h3,
+.mg-modal__title {
+    font-family: var(--inv-font-heading);
+    font-weight: 700;
+}
+
+/* ---------------------------------------------------------------- desktop photo panel */
+
+.mg-hero {
+    position: fixed;
+    inset: 0 var(--mg-panel) 0 0;
+    overflow: hidden;
+}
+
+.mg-hero .mg-photo {
+    position: absolute;
+    inset: 0;
+}
+
+.mg-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgb(0 0 0 / 0.25), rgb(0 0 0 / 0.45));
+}
+
+.mg-frame {
+    position: absolute;
+    left: 3%;
+    right: 3%;
+    z-index: 2;
+    height: 2px;
+    background: var(--mg-line);
+}
+
+.mg-frame--top { top: 18px; }
+.mg-frame--bottom { bottom: 18px; }
+
+.mg-hero__text {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    text-shadow: 0 2px 14px rgb(0 0 0 / 0.45);
+}
+
+.mg-hero__text small {
+    font-family: var(--mg-serif);
+    font-size: 1.35rem;
+}
+
+.mg-hero__text .mg-display {
+    margin-top: 0.3rem;
+    font-size: 2.6rem;
+}
+
+/* Desktop panel text position (cover field desktop_text_position) and paragraph. */
+.mg-hero--text-top .mg-hero__text { justify-content: flex-start; padding-top: 12%; }
+.mg-hero--text-bottom .mg-hero__text { justify-content: flex-end; padding-bottom: 12%; }
+
+.mg-hero__body {
+    max-width: min(60%, 520px);
+    margin-top: 1rem;
+    font-family: var(--mg-serif);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    white-space: pre-line;
+}
+
+.mg-kenburns {
+    animation: mg-kenburns 30s ease-in-out infinite alternate;
+}
+
+@keyframes mg-kenburns {
+    from { transform: scale(1); }
+    to { transform: scale(1.08); }
+}
+
+/* ---------------------------------------------------------------- content column */
+
+.mg-main {
+    position: relative;
+    width: var(--mg-panel);
+    min-height: 100svh;
+    margin-left: auto;
+    background: var(--inv-bg);
+    box-shadow: -10px 0 40px rgb(0 0 0 / 0.4);
+}
+
+.mg-main__bg {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 0;
+    width: var(--mg-panel);
+    height: 100svh;
+}
+
+.mg-main__bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--inv-bg) 15%, transparent) 0%,
+        color-mix(in srgb, var(--inv-bg) 55%, transparent) 60%,
+        color-mix(in srgb, var(--inv-bg) 85%, transparent) 100%);
+    transition: opacity 1s ease;
+}
+
+/* Section field "background_overlay" of the section whose photo is on screen (set by invitation.js). */
+.mg-main__bg:has([data-overlay='medium'])::after { opacity: 0.7; }
+.mg-main__bg:has([data-overlay='light'])::after { opacity: 0.4; }
+.mg-main__bg:has([data-overlay='none'])::after { opacity: 0; }
+
+.mg-content {
+    position: relative;
+    z-index: 1;
+    padding-bottom: 110px;
+}
+
+.mg-section {
+    position: relative;
+    padding: 56px 24px;
+}
+
+@media (max-width: 900px) {
+    .inv-design-mocha-glass { --mg-panel: 100vw; }
+    .mg-hero { display: none; }
+}
+
+/* ---------------------------------------------------------------- cover layer */
+
+.mg-cover {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: var(--mg-panel);
+    height: 100svh;
+    padding: 40px 24px 30px;
+    overflow: hidden;
+    text-align: center;
+    transition: transform 1.1s cubic-bezier(0.77, 0, 0.18, 1);
+}
+
+.mg-cover > .mg-photo {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+}
+
+.mg-cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(180deg, rgb(0 0 0 / 0.1) 0%, rgb(0 0 0 / 0.05) 45%, color-mix(in srgb, var(--inv-bg) 85%, #000) 100%);
+}
+
+/* Cover content stays above back-layer ornaments. */
+.mg-cover > :not(.mg-photo):not(.inv-ornaments) {
+    position: relative;
+    z-index: 1;
+}
+
+.mg-cover.is-opened {
+    transform: translateY(-100%);
+}
+
+.mg-cover.is-instant {
+    transition: none;
+}
+
+.mg-tag,
+.mg-date {
+    font-family: var(--mg-serif);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.mg-names {
+    margin-top: auto;
+    font-size: 2.6rem;
+    line-height: 1.15;
+    text-shadow: 0 3px 16px rgb(0 0 0 / 0.5);
+}
+
+.mg-date {
+    margin-top: 0.8rem;
+}
+
+/* "Framed" cover layout (cover field frame_style: blur / transparent / solid). */
+.mg-framebox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 340px;
+    margin-top: auto;
+    padding: 28px 22px 30px;
+    border-radius: 24px;
+}
+
+.mg-framebox .mg-names { margin-top: 0; }
+.mg-framebox .mg-btn-open { margin-top: 1.6rem; }
+
+.mg-framebox--blur {
+    border: 1px solid var(--mg-glass-border);
+    background: color-mix(in srgb, var(--inv-bg) 25%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+
+.mg-framebox--transparent {
+    border: 2px solid var(--mg-line);
+}
+
+.mg-framebox--solid {
+    background: var(--inv-surface);
+    color: var(--mg-ink);
+    box-shadow: 0 14px 40px rgb(0 0 0 / 0.35);
+}
+
+.mg-framebox--solid .mg-names { text-shadow: none; }
+
+.mg-btn-open {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 2.2rem;
+    padding: 0.85rem 1.4rem;
+    border-radius: 999px;
+    background: var(--inv-primary);
+    color: var(--inv-on-primary);
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+    box-shadow: 0 6px 20px rgb(0 0 0 / 0.35);
+    transition: transform 0.3s;
+}
+
+.mg-btn-open:hover { transform: translateY(-2px); }
+
+.mg-guest {
+    display: flex;
+    align-items: flex-end;
+    align-self: stretch;
+    gap: 16px;
+    margin-top: 2.4rem;
+    text-align: left;
+}
+
+.mg-guest div {
+    font-family: var(--mg-serif);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.mg-guest span {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.mg-guest::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    margin-bottom: 6px;
+    background: var(--mg-line);
+}
+
+/* ---------------------------------------------------------------- shared blocks */
+
+.mg-title {
+    margin-bottom: 1rem;
+    font-size: 2rem;
+    text-align: center;
+    text-shadow: 0 2px 12px rgb(0 0 0 / 0.35);
+}
+
+.mg-left { text-align: left; }
+.mg-center { text-align: center; }
+
+.mg-card {
+    padding: 32px 24px;
+    border: 1px solid var(--mg-glass-border);
+    border-radius: 24px;
+    background: var(--mg-glass);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+}
+
+.mg-card--tight { padding: 16px; }
+
+.mg-lead {
+    font-family: var(--mg-serif);
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.mg-left.mg-lead,
+.mg-card .mg-left + .mg-lead { text-align: left; }
+
+.mg-small {
+    margin-top: 0.6rem;
+    font-family: var(--mg-serif);
+    font-size: 0.95rem;
+}
+
+.mg-status {
+    margin: 1rem 0;
+    padding: 0.8rem 1rem;
+    border: 1px dashed var(--mg-line);
+    border-radius: 14px;
+    font-family: var(--mg-serif);
+    font-weight: 600;
+}
+
+.mg-btn-white {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    width: 100%;
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 12px;
+    background: #fff;
+    color: var(--mg-ink);
+    font-family: var(--mg-serif);
+    font-size: 1.05rem;
+    font-weight: 600;
+    transition: transform 0.25s;
+}
+
+.mg-btn-white:hover { transform: translateY(-2px); }
+
+.mg-btn-white--tall {
+    flex-direction: column;
+    padding: 1.3rem;
+    border-radius: 16px;
+    font-family: var(--inv-font-body);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.mg-btn-white--tall i { font-size: 2.2rem; }
+
+.mg-narrow {
+    width: 86%;
+    margin-inline: auto;
+}
+
+.mg-btn-dark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.65rem 1.1rem;
+    border-radius: 999px;
+    background: var(--inv-primary);
+    color: var(--inv-on-primary) !important;
+    font-size: 0.85rem;
+}
+
+.mg-rule {
+    height: 2px;
+    margin: 2.4rem -24px 0 0;
+    background: var(--mg-line);
+}
+
+.mg-dots {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    margin: 32px 0;
+}
+
+.mg-dots span {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+}
+
+.mg-dots span:nth-child(1) { background: var(--inv-primary); }
+.mg-dots span:nth-child(2) { background: #fff; }
+.mg-dots span:nth-child(3) { background: var(--inv-surface); }
+
+.mg-arabic {
+    margin: 1.2rem 0 1rem;
+    font-family: var(--mg-arabic);
+    font-size: 1.3rem;
+    line-height: 1.9;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mg-kenburns { animation: none; }
+    .mg-cover { transition: none; }
+}
+
+/* ---------------------------------------------------------------- home + countdown */
+
+.mg-section--cover { padding-top: 40px; padding-bottom: 40px; }
+
+.mg-home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: calc(100svh - 80px);
+    text-align: center;
+}
+
+.mg-home .mg-guest { margin-top: 3rem; }
+
+.mg-countdown {
+    display: flex;
+    gap: 10px;
+    margin-top: 1.6rem;
+}
+
+.mg-countdown--center { justify-content: center; }
+
+.mg-countdown div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.mg-countdown b {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: var(--inv-primary);
+    color: var(--inv-on-primary);
+    font-family: var(--mg-serif);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.mg-countdown span {
+    font-family: var(--mg-serif);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- quote */
+
+.mg-section--quote {
+    padding: 48px 32px;
+    background: var(--inv-surface);
+    color: var(--mg-ink);
+}
+
+.mg-quote__mark {
+    font-family: Georgia, serif;
+    font-size: 5rem;
+    font-style: italic;
+    font-weight: 700;
+    line-height: 0.6;
+}
+
+.mg-quote__mark--end {
+    margin-top: 0.6rem;
+    text-align: right;
+}
+
+.mg-quote blockquote {
+    font-family: var(--mg-serif);
+    font-size: 1.05rem;
+    font-style: italic;
+    line-height: 1.6;
+}
+
+.mg-quote cite {
+    display: block;
+    margin-top: 1rem;
+    font-family: var(--mg-serif);
+    font-style: normal;
+}
+
+/* ---------------------------------------------------------------- couple */
+
+.mg-person { margin-top: 2.4rem; }
+
+.mg-person--photo-first {
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.mg-person--photo-first .mg-portrait { margin: 0 0 1.4rem; }
+
+.mg-person h3 { font-size: 1.6rem; }
+
+.mg-person__role {
+    font-family: var(--mg-serif);
+    font-size: 0.95rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--inv-secondary);
+}
+
+.mg-person__parents {
+    margin-top: 0.5rem;
+    font-family: var(--mg-serif);
+    font-weight: 600;
+}
+
+.mg-socials {
+    display: flex;
+    gap: 10px;
+    margin-top: 1rem;
+}
+
+.mg-socials__link {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #fff;
+    color: #000 !important;
+    transition: transform 0.25s;
+}
+
+.mg-socials__link:hover { transform: scale(1.1); }
+
+.mg-portrait {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    margin-top: 1.4rem;
+    border-radius: 24px;
+    object-fit: cover;
+    box-shadow: 0 14px 40px rgb(0 0 0 / 0.35);
+}
+
+/* A portrait with a chosen shape or frame (invitation.partials.framed-photo). */
+.mg-portrait-shape {
+    width: 100%;
+    margin-top: 1.4rem;
+}
+
+.mg-person--photo-first .mg-portrait-shape { margin: 0 0 1.4rem; }
+.mg-person--compact .mg-portrait-shape { margin: 0 0 1rem; }
+.mg-portrait-shape.inv-photo--framed { max-width: 20rem; margin-inline: auto; }
+.mg-portrait-shape:not(.inv-photo--framed) .inv-photo__image { box-shadow: 0 14px 40px rgb(0 0 0 / 0.35); }
+.mg-portrait-shape .inv-photo__frame { filter: drop-shadow(0 10px 24px rgb(0 0 0 / 0.3)); }
+
+/* ---------------------------------------------------------------- events */
+
+.mg-event {
+    padding: 1.6rem 0;
+    text-align: center;
+}
+
+.mg-event + .mg-event { border-top: 2px dashed color-mix(in srgb, var(--inv-text) 40%, transparent); }
+
+.mg-event h3 {
+    font-family: var(--mg-serif);
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.mg-event__when,
+.mg-event__place,
+.mg-event__addr { font-family: var(--mg-serif); }
+
+.mg-event__when { margin-top: 0.4rem; font-weight: 600; }
+.mg-event__place { margin-top: 0.4rem; font-size: 1.15rem; font-weight: 700; }
+.mg-event__addr { margin-top: 0.2rem; font-size: 0.95rem; opacity: 0.95; }
+
+.mg-notice {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 1rem;
+    padding: 14px;
+    border: 1px dashed var(--mg-line);
+    border-radius: 14px;
+    font-family: var(--mg-serif);
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.mg-notice i { flex: none; font-size: 1.6rem; }
+
+.mg-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 1rem;
+}
+
+/* ---------------------------------------------------------------- story */
+
+.mg-timeline {
+    position: relative;
+    padding-left: 40px;
+}
+
+.mg-timeline::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    bottom: 10px;
+    left: 14px;
+    border-left: 3px dotted #fff;
+}
+
+.mg-story {
+    position: relative;
+    margin-bottom: 22px;
+}
+
+.mg-story__heart {
+    position: absolute;
+    top: 16px;
+    left: -36px;
+    font-size: 1.4rem;
+}
+
+.mg-story__card {
+    padding: 10px;
+    border-radius: 20px;
+}
+
+.mg-story__img {
+    width: 100%;
+    aspect-ratio: 16 / 7;
+    border-radius: 14px;
+    object-fit: cover;
+}
+
+.mg-story__date {
+    margin-top: 0.9rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-align: center;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+.mg-story h3 {
+    margin-top: 0.4rem;
+    font-family: var(--mg-serif);
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.mg-story p:not(.mg-story__date) {
+    padding: 0.3rem 0.6rem 0.8rem;
+    font-family: var(--mg-serif);
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.45;
+    text-align: center;
+}
+
+/* ---------------------------------------------------------------- gallery + video */
+
+.mg-gallery { padding: 28px 18px; }
+
+.mg-gallery__main {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 14px;
+    cursor: zoom-in;
+}
+
+.mg-gallery__main img {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+}
+
+.mg-gallery__strip {
+    position: relative;
+    margin-top: 12px;
+}
+
+.mg-gallery__thumbs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+}
+
+.mg-gallery__thumbs::-webkit-scrollbar { display: none; }
+
+.mg-gallery__thumbs button {
+    flex: 0 0 30%;
+    overflow: hidden;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    opacity: 0.6;
+    scroll-snap-align: start;
+    transition: opacity 0.3s;
+}
+
+.mg-gallery__thumbs button.is-active {
+    border-color: #fff;
+    opacity: 1;
+}
+
+.mg-gallery__thumbs img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+}
+
+.mg-gallery__nav {
+    position: absolute;
+    top: 50%;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgb(0 0 0 / 0.65);
+    color: #fff;
+    font-size: 0.75rem;
+    transform: translateY(-50%);
+}
+
+.mg-gallery__nav:first-child { left: 6px; }
+.mg-gallery__nav:last-child { right: 6px; }
+
+.mg-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgb(0 0 0 / 0.92);
+}
+
+.mg-lightbox img {
+    max-height: 90vh;
+    border-radius: 8px;
+}
+
+.mg-lightbox__close {
+    position: absolute;
+    top: 18px;
+    right: 22px;
+    color: #fff;
+    font-size: 1.8rem;
+}
+
+.mg-video {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #000;
+}
+
+.mg-video iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+/* ---------------------------------------------------------------- modals + forms */
+
+.mg-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgb(0 0 0 / 0.6);
+}
+
+.mg-modal__box {
+    position: relative;
+    width: 100%;
+    max-width: 380px;
+    max-height: 88vh;
+    overflow: auto;
+    padding: 28px 22px;
+    border-radius: 20px;
+    background: var(--inv-surface);
+    color: var(--mg-ink);
+    font-family: var(--mg-serif);
+}
+
+.mg-modal__title {
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.mg-modal__close {
+    position: absolute;
+    top: 10px;
+    right: 16px;
+    color: var(--mg-ink);
+    font-size: 1.4rem;
+}
+
+.mg-form {
+    display: grid;
+    gap: 0.9rem;
+    font-family: var(--mg-serif);
+    font-size: 1rem;
+}
+
+.mg-form input[type='text'],
+.mg-form select,
+.mg-form textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid color-mix(in srgb, var(--mg-ink) 45%, transparent);
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+}
+
+.mg-form .inv-btn {
+    width: 100%;
+    padding: 0.9rem;
+    border-radius: 12px;
+    font-family: var(--mg-serif);
+    font-size: 1.05rem;
+}
+
+.mg-form--glass {
+    margin-top: 1rem;
+    color: var(--inv-text);
+}
+
+.mg-form--glass input[type='text'],
+.mg-form--glass textarea {
+    border-color: var(--mg-line);
+}
+
+.mg-form--glass input::placeholder,
+.mg-form--glass textarea::placeholder { color: var(--mg-line); }
+
+.mg-form--glass .inv-btn {
+    border-color: #fff;
+    background: #fff;
+    color: var(--mg-ink);
+}
+
+.mg-bank {
+    margin-bottom: 12px;
+    padding: 14px;
+    border: 1px solid color-mix(in srgb, var(--mg-ink) 40%, transparent);
+    border-radius: 14px;
+}
+
+.mg-bank b { font-size: 1.1rem; }
+
+.mg-bank__number {
+    margin: 0.3rem 0;
+    font-family: var(--inv-font-body);
+    font-size: 1.1rem;
+    letter-spacing: 0.06em;
+}
+
+.mg-bank button,
+.mg-wishlist-item a {
+    margin-top: 0.3rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    background: var(--mg-ink);
+    color: var(--inv-surface) !important;
+    font-family: var(--inv-font-body);
+    font-size: 0.8rem;
+}
+
+.mg-wishlist-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--mg-ink) 15%, transparent);
+}
+
+/* ---------------------------------------------------------------- wishes */
+
+.mg-wishes {
+    max-height: 420px;
+    margin-top: 16px;
+    padding-right: 4px;
+    overflow-y: auto;
+}
+
+.mg-wish {
+    margin-bottom: 8px;
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--inv-surface);
+    color: var(--mg-ink);
+    font-family: var(--mg-serif);
+}
+
+.mg-wish b { font-size: 1.05rem; font-weight: 600; }
+
+.mg-wish small {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0.2rem 0 0.4rem;
+    font-size: 0.85rem;
+}
+
+/* ---------------------------------------------------------------- dress code + protocol */
+
+.mg-dresscode {
+    padding: 28px 18px;
+    border-radius: 4px;
+    background: var(--inv-surface);
+    color: var(--mg-ink);
+    text-align: center;
+}
+
+.mg-dresscode__ribbon { font-size: 2rem; color: var(--inv-secondary); }
+
+.mg-dresscode h2 {
+    margin-top: 0.4rem;
+    font-family: var(--mg-serif);
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.mg-dresscode__sub {
+    margin: 0.6rem 0 1.4rem;
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+.mg-dresscode__palette {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 1.4rem;
+}
+
+.mg-dresscode__palette span {
+    width: 28px;
+    height: 28px;
+    border: 1px solid rgb(0 0 0 / 0.1);
+    border-radius: 50%;
+}
+
+.mg-dresscode__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.mg-dresscode__grid > div {
+    font-size: 0.7rem;
+    line-height: 1.35;
+    opacity: 0.85;
+}
+
+.mg-dresscode__icon {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 8px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--mg-ink) 8%, transparent);
+    font-size: 1.3rem;
+}
+
+.mg-dresscode__grid b {
+    display: block;
+    margin-bottom: 2px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--inv-secondary);
+    filter: brightness(0.7);
+}
+
+.mg-dresscode__notes {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 1.6rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid color-mix(in srgb, var(--mg-ink) 12%, transparent);
+    font-size: 0.8rem;
+    text-align: left;
+}
+
+.mg-dresscode__notes > i { font-size: 2.4rem; opacity: 0.7; }
+.mg-dresscode__notes li { margin: 0.25rem 0; }
+.mg-dresscode__notes li::before { content: '\2713  '; opacity: 0.6; }
+
+.mg-protocol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px 10px;
+    margin-top: 1.4rem;
+}
+
+.mg-protocol li {
+    font-family: var(--mg-serif);
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.mg-protocol__icon {
+    display: grid;
+    place-items: center;
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 6px;
+    border-radius: 50%;
+    background: #fff;
+    color: #000;
+    font-size: 1.3rem;
+}
+
+/* ---------------------------------------------------------------- closing + fallback */
+
+.mg-closing {
+    font-family: var(--mg-serif);
+    font-weight: 600;
+    line-height: 1.55;
+    text-align: center;
+}
+
+.mg-closing .mg-rule { margin: 1.4rem -24px 1.4rem 0; }
+.mg-closing__inviters { margin-top: 1.4rem; }
+
+.mg-branding {
+    padding: 0 24px 24px;
+    font-size: 0.75rem;
+    text-align: center;
+    opacity: 0.7;
+}
+
+.mg-branding a { text-decoration: underline; }
+
+/* Classic sections inside a glass card: drop their own page padding and solid cards. */
+.mg-classic .inv-container { padding: 0; }
+.mg-classic .inv-card {
+    background: color-mix(in srgb, var(--inv-text) 8%, transparent);
+    border-color: var(--mg-glass-border);
+}
+
+/* ---------------------------------------------------------------- bottom menu + sparkles */
+
+.mg-nav {
+    position: fixed;
+    bottom: 14px;
+    right: calc(var(--mg-panel) / 2);
+    z-index: 40;
+    display: flex;
+    gap: 2px;
+    padding: 6px;
+    border-radius: 22px;
+    background: var(--inv-surface);
+    box-shadow: 0 8px 30px rgb(0 0 0 / 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(50%);
+    transition: opacity 0.6s 0.6s;
+}
+
+.mg-is-open .mg-nav {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.mg-nav a {
+    display: grid;
+    place-items: center;
+    min-width: 46px;
+    height: 42px;
+    padding: 0 14px;
+    border-radius: 16px;
+    color: #000 !important;
+    transition: background 0.35s, color 0.35s, min-width 0.35s;
+}
+
+.mg-nav a.is-active {
+    min-width: 72px;
+    background: var(--inv-primary);
+    color: var(--inv-on-primary) !important;
+}
+
+.mg-particles {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+}
+
+/* ---------------------------------------------------------------- cover options */
+
+/* "Dark overlay on image" switched off. */
+.mg--no-overlay .mg-cover::before,
+.mg--no-overlay .mg-hero::after {
+    display: none;
+}
+
+/* Cover "Alignment: left". */
+.mg--align-left .mg-cover,
+.mg--align-left .mg-home,
+.mg--align-left .mg-hero__text,
+.mg--align-left .mg-framebox {
+    align-items: flex-start;
+    text-align: left;
+}
+
+.mg--align-left .mg-hero__text { padding-left: 8%; }
+
+/* ---------------------------------------------------------------- section backgrounds (builder "Background") */
+
+.mg-bg-muted {
+    --mg-line: color-mix(in srgb, var(--mg-ink) 55%, transparent);
+    background: var(--inv-surface);
+    color: var(--mg-ink);
+}
+
+.mg-bg-muted .mg-title { text-shadow: none; }
+
+.mg-bg-muted .mg-card {
+    border-color: color-mix(in srgb, var(--mg-ink) 14%, transparent);
+    background: color-mix(in srgb, var(--mg-ink) 5%, transparent);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+.mg-bg-muted .mg-btn-white,
+.mg-bg-muted .mg-socials__link,
+.mg-bg-muted .mg-protocol__icon {
+    background: var(--mg-ink);
+    color: var(--inv-surface) !important;
+}
+
+.mg-bg-muted .mg-timeline::before { border-color: var(--mg-ink); }
+
+.mg-bg-primary {
+    background: var(--inv-primary);
+    color: var(--inv-on-primary);
+}
+
+.mg-bg-primary .mg-card {
+    border-color: color-mix(in srgb, var(--inv-on-primary) 20%, transparent);
+    background: color-mix(in srgb, var(--inv-on-primary) 8%, transparent);
+}
+
+/* Colored sections with their own background photo: the photo shows through, tinted (--inv-tint, invitation.css). */
+.mg-section--quote[data-inv-tint],
+.mg-bg-muted[data-inv-tint] { background: color-mix(in srgb, var(--inv-surface) var(--inv-tint), transparent); }
+.mg-bg-primary[data-inv-tint] { background: color-mix(in srgb, var(--inv-primary) var(--inv-tint), transparent); }
+
+/* ---------------------------------------------------------------- layout variants */
+
+/* Event "Cards": one glass card per event. */
+.mg-card--event + .mg-card--event { margin-top: 16px; }
+.mg-card--event .mg-event { padding: 0.4rem 0; }
+
+/* Couple "Side by side". */
+.mg-people-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 2rem;
+}
+
+.mg-person--compact {
+    margin-top: 0;
+    text-align: center;
+}
+
+.mg-person--compact .mg-portrait {
+    margin: 0 0 1rem;
+    border-radius: 18px;
+}
+
+.mg-person--compact h3 { font-size: 1.15rem; }
+.mg-person--compact .mg-person__parents { font-size: 0.85rem; }
+.mg-person--compact .mg-socials { justify-content: center; }
+
+.mg-person--compact .mg-socials__link {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+}
+
+/* Gallery "Grid" and "Masonry" (the original design is "Slideshow"). */
+.mg-gallery__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+}
+
+.mg-gallery__grid img {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.mg-gallery__masonry {
+    columns: 2;
+    column-gap: 8px;
+}
+
+.mg-gallery__masonry button {
+    display: block;
+    width: 100%;
+    margin-bottom: 8px;
+    break-inside: avoid;
+}
+
+.mg-gallery__masonry img {
+    width: 100%;
+    border-radius: 10px;
+}
+
+.mg-gallery__grid button,
+.mg-gallery__masonry button { cursor: zoom-in; }
+
+.mg-bank__type {
+    font-family: var(--inv-font-body);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.7;
+}

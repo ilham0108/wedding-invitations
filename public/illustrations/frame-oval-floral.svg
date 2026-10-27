@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="400" height="500">
+  <!-- Gold oval photo frame with jasmine flowers at the bottom corners. The opening fits a photo inset 12%. -->
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ecd9a4"/>
+      <stop offset="0.5" stop-color="#bf9752"/>
+      <stop offset="1" stop-color="#8d6c33"/>
+    </linearGradient>
+    <g id="leaf"><path d="M0 0c14-18 40-24 62-18-14 20-40 26-62 18Z" fill="#7b9068"/><path d="M4 0c18-6 36-10 54-16" stroke="#5f7550" stroke-width="2" fill="none"/></g>
+    <g id="jasmine">
+      <g fill="#fbf6ea" stroke="#e4d6b8" stroke-width="2">
+        <ellipse cx="0" cy="-17" rx="9" ry="17"/>
+        <ellipse cx="0" cy="-17" rx="9" ry="17" transform="rotate(72)"/>
+        <ellipse cx="0" cy="-17" rx="9" ry="17" transform="rotate(144)"/>
+        <ellipse cx="0" cy="-17" rx="9" ry="17" transform="rotate(216)"/>
+        <ellipse cx="0" cy="-17" rx="9" ry="17" transform="rotate(288)"/>
+      </g>
+      <circle r="6" fill="#e8c46a"/>
+    </g>
+  </defs>
+  <g fill="none" stroke="url(#gold)">
+    <ellipse cx="200" cy="250" rx="157" ry="195" stroke-width="10"/>
+    <ellipse cx="200" cy="250" rx="170" ry="208" stroke-width="2.5"/>
+  </g>
+  <!-- crest on top -->
+  <g fill="url(#gold)">
+    <path d="M200 14c9 12 21 19 35 21-12 5-24 5-35 0-11 5-23 5-35 0 14-2 26-9 35-21Z"/>
+    <path d="M200 34c-26 3-50-5-70 5 21 2 38 10 49 22-16-5-30-5-44 2 19 2 35 5 47 2 7 0 12-3 18-7 6 4 11 7 18 7 12 3 28 0 47-2-14-7-28-7-44-2 11-12 28-20 49-22-20-10-44-2-70-5Z"/>
+  </g>
+  <!-- bottom-left cluster -->
+  <g transform="translate(70 420)">
+    <use href="#leaf" transform="rotate(-150)"/>
+    <use href="#leaf" transform="rotate(-110) scale(0.9)"/>
+    <use href="#leaf" transform="rotate(170) scale(0.85)"/>
+    <use href="#leaf" transform="rotate(-20) scale(0.9)"/>
+    <use href="#leaf" transform="rotate(20) scale(0.8)"/>
+    <use href="#jasmine" transform="translate(-6 -6) scale(1.3)"/>
+    <use href="#jasmine" transform="translate(-40 -70) scale(0.95)"/>
+    <use href="#jasmine" transform="translate(48 36) scale(0.9)"/>
+    <circle cx="20" cy="-40" r="6" fill="#fbf6ea" stroke="#e4d6b8" stroke-width="2"/>
+  </g>
+  <!-- bottom-right cluster (mirrored) -->
+  <g transform="translate(330 420) scale(-1 1)">
+    <use href="#leaf" transform="rotate(-150)"/>
+    <use href="#leaf" transform="rotate(-110) scale(0.9)"/>
+    <use href="#leaf" transform="rotate(170) scale(0.85)"/>
+    <use href="#leaf" transform="rotate(-20) scale(0.9)"/>
+    <use href="#leaf" transform="rotate(20) scale(0.8)"/>
+    <use href="#jasmine" transform="translate(-6 -6) scale(1.3)"/>
+    <use href="#jasmine" transform="translate(-40 -70) scale(0.95)"/>
+    <use href="#jasmine" transform="translate(48 36) scale(0.9)"/>
+    <circle cx="20" cy="-40" r="6" fill="#fbf6ea" stroke="#e4d6b8" stroke-width="2"/>
+  </g>
+  <!-- small bloom at the bottom center -->
+  <use href="#jasmine" transform="translate(200 462) scale(0.8)"/>
+</svg>

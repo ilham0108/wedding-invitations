@@ -1,0 +1,17 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
+
+class TemplateCategoryController extends Controller
+{
+    public function index(): View
+    {
+        Gate::authorize('template-categories.manage');
+
+        return view('admin.template-categories.index');
+    }
+}

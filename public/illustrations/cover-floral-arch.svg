@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1600" width="1200" height="1600">
+  <rect width="1200" height="1600" fill="#f6efe4"/>
+  <path d="M300 1450V700a300 300 0 0 1 600 0v750" fill="#fbf7f0" stroke="#c8a46b" stroke-width="6"/>
+  <path d="M340 1450V705a260 260 0 0 1 520 0v745" fill="none" stroke="#e8d7b8" stroke-width="3"/>
+  <g fill="#6f8f7f">
+    <ellipse cx="300" cy="760" rx="70" ry="26" transform="rotate(-60 300 760)"/>
+    <ellipse cx="320" cy="620" rx="70" ry="26" transform="rotate(-35 320 620)"/>
+    <ellipse cx="380" cy="510" rx="70" ry="26" transform="rotate(-10 380 510)"/>
+    <ellipse cx="900" cy="760" rx="70" ry="26" transform="rotate(60 900 760)"/>
+    <ellipse cx="880" cy="620" rx="70" ry="26" transform="rotate(35 880 620)"/>
+    <ellipse cx="820" cy="510" rx="70" ry="26" transform="rotate(10 820 510)"/>
+  </g>
+  <g fill="#365149">
+    <ellipse cx="270" cy="880" rx="60" ry="22" transform="rotate(-80 270 880)"/>
+    <ellipse cx="930" cy="880" rx="60" ry="22" transform="rotate(80 930 880)"/>
+    <ellipse cx="470" cy="440" rx="60" ry="22" transform="rotate(15 470 440)"/>
+    <ellipse cx="730" cy="440" rx="60" ry="22" transform="rotate(-15 730 440)"/>
+  </g>
+  <g>
+    <circle cx="600" cy="400" r="58" fill="#e9b8c1"/>
+    <circle cx="600" cy="400" r="30" fill="#d98fa0"/>
+    <circle cx="360" cy="560" r="46" fill="#f3d5c0"/>
+    <circle cx="360" cy="560" r="22" fill="#e4b393"/>
+    <circle cx="840" cy="560" r="46" fill="#f3d5c0"/>
+    <circle cx="840" cy="560" r="22" fill="#e4b393"/>
+    <circle cx="300" cy="690" r="38" fill="#e9b8c1"/>
+    <circle cx="900" cy="690" r="38" fill="#e9b8c1"/>
+    <circle cx="500" cy="420" r="30" fill="#ffffff" stroke="#e9b8c1" stroke-width="6"/>
+    <circle cx="700" cy="420" r="30" fill="#ffffff" stroke="#e9b8c1" stroke-width="6"/>
+  </g>
+  <g fill="#c8a46b">
+    <circle cx="430" cy="480" r="7"/><circle cx="770" cy="480" r="7"/>
+    <circle cx="290" cy="820" r="7"/><circle cx="910" cy="820" r="7"/>
+  </g>
+  <g fill="#6f8f7f">
+    <ellipse cx="240" cy="1450" rx="140" ry="40"/>
+    <ellipse cx="960" cy="1450" rx="140" ry="40"/>
+  </g>
+  <circle cx="230" cy="1400" r="44" fill="#e9b8c1"/>
+  <circle cx="970" cy="1400" r="44" fill="#e9b8c1"/>
+  <circle cx="300" cy="1420" r="30" fill="#f3d5c0"/>
+  <circle cx="900" cy="1420" r="30" fill="#f3d5c0"/>
+</svg>

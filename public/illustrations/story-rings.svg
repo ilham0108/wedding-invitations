@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <rect width="600" height="600" fill="#f6efe4"/>
+  <circle cx="300" cy="320" r="220" fill="#efe3cd"/>
+  <circle cx="240" cy="340" r="100" fill="none" stroke="#c8a46b" stroke-width="26"/>
+  <circle cx="360" cy="340" r="100" fill="none" stroke="#dcc08f" stroke-width="26"/>
+  <path d="M240 240a100 100 0 0 1 64 23" fill="none" stroke="#c8a46b" stroke-width="26"/>
+  <path d="M300 240l-24-34h48Z" fill="#ffffff" stroke="#b9cfd6" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M276 206l24-26 24 26" fill="#e3f0f4" stroke="#b9cfd6" stroke-width="6" stroke-linejoin="round"/>
+  <g stroke="#c8a46b" stroke-width="6" stroke-linecap="round">
+    <path d="M300 130v-30M250 150l-18-22M350 150l18-22"/>
+  </g>
+  <g fill="#e9b8c1">
+    <path d="M120 480c-16-16 8-40 24-20 16-20 40 4 24 20l-24 24Z"/>
+    <path d="M450 470c-12-12 6-30 18-15 12-15 30 3 18 15l-18 18Z"/>
+  </g>
+</svg>

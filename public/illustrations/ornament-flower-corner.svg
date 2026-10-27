@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <!-- Flower cluster for a bottom-left corner (mirror it for the right). Transparent background. -->
+  <g fill="#6f8f6a">
+    <path d="M10 400C40 300 90 240 170 205c-55 55-95 115-120 195Z"/>
+    <path d="M0 330c50-60 110-80 170-70-70 15-120 45-160 95Z"/>
+    <path d="M60 400c20-80 70-150 150-190-45 55-80 115-95 190Z" fill="#87a37f"/>
+    <ellipse cx="225" cy="300" rx="70" ry="20" transform="rotate(-35 225 300)"/>
+    <ellipse cx="250" cy="370" rx="80" ry="18" transform="rotate(-12 250 370)" fill="#87a37f"/>
+    <ellipse cx="40" cy="220" rx="60" ry="16" transform="rotate(-70 40 220)" fill="#87a37f"/>
+  </g>
+  <g stroke="#5a7a56" stroke-width="5" stroke-linecap="round" fill="none">
+    <path d="M30 400c10-60 40-110 85-150M110 400c15-55 45-100 95-130M0 360c30-30 70-50 110-55"/>
+  </g>
+  <!-- calla lilies -->
+  <g>
+    <path d="M150 230c-20-55 5-105 50-120-5 45-10 85-50 120Z" fill="#fbf7ef" stroke="#e6dccb" stroke-width="3"/>
+    <path d="M168 205c5-30 15-55 30-75" stroke="#e8c45a" stroke-width="6" stroke-linecap="round"/>
+    <path d="M60 260c-30-40-20-95 15-120 10 45 15 85-15 120Z" fill="#fbf7ef" stroke="#e6dccb" stroke-width="3"/>
+    <path d="M70 240c-5-30-2-55 8-80" stroke="#e8c45a" stroke-width="6" stroke-linecap="round"/>
+  </g>
+  <!-- peonies -->
+  <g>
+    <circle cx="120" cy="320" r="62" fill="#f3e3cf"/>
+    <circle cx="120" cy="320" r="46" fill="#ecd3b5"/>
+    <circle cx="120" cy="320" r="30" fill="#e3c19c"/>
+    <path d="M90 300c20-15 45-15 60 0M95 335c15 12 40 12 52 0" stroke="#f8eedf" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <circle cx="215" cy="345" r="42" fill="#f7ebe0"/>
+    <circle cx="215" cy="345" r="28" fill="#efd9c6"/>
+    <circle cx="215" cy="345" r="14" fill="#e6c4a7"/>
+    <circle cx="30" cy="300" r="34" fill="#f7ebe0"/>
+    <circle cx="30" cy="300" r="20" fill="#efd9c6"/>
+  </g>
+  <!-- small blossoms -->
+  <g fill="#e9b8c1">
+    <circle cx="250" cy="250" r="9"/><circle cx="262" cy="238" r="7"/><circle cx="240" cy="236" r="6"/>
+    <circle cx="180" cy="270" r="7"/><circle cx="20" cy="240" r="8"/><circle cx="290" cy="320" r="7"/>
+  </g>
+</svg>
