@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Livewire\Concerns\Notifies;
 use App\Services\AuditLogger;
 use App\Services\FaviconService;
+use App\Services\LogoService;
 use App\Services\SystemSettings;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -22,6 +23,9 @@ class SystemSettingsForm extends Component
 
     /** @var array<string, mixed> */
     public array $settings = [];
+
+    /** New logo; saved as soon as it is chosen. */
+    public ?TemporaryUploadedFile $logo = null;
 
     /** New site icon; saved as soon as it is chosen. */
     public ?TemporaryUploadedFile $favicon = null;
@@ -48,6 +52,27 @@ class SystemSettingsForm extends Component
         $this->notify('success', __('Settings saved.'));
     }
 
+    public function updatedLogo(LogoService $logoService): void
+    {
+        Gate::authorize('settings.manage');
+
+        $this->validate(['logo' => ['required', ...LogoService::rules()]], [], ['logo' => __('logo')]);
+
+        $logoService->replace($this->logo, Auth::user());
+        $this->logo = null;
+
+        $this->notify('success', __('Logo saved.'));
+    }
+
+    public function removeLogo(LogoService $logoService): void
+    {
+        Gate::authorize('settings.manage');
+
+        $logoService->replace(null, Auth::user());
+
+        $this->notify('success', __('Logo removed.'));
+    }
+
     public function updatedFavicon(FaviconService $faviconService): void
     {
         Gate::authorize('settings.manage');
@@ -69,9 +94,11 @@ class SystemSettingsForm extends Component
         $this->notify('success', __('Site icon removed.'));
     }
 
-    public function render(FaviconService $faviconService): View
+    public function render(FaviconService $faviconService, LogoService $logoService): View
     {
         return view('livewire.system-settings-form', [
+            'logoUrl' => $logoService->url(),
+            'hasUploadedLogo' => $logoService->exists(),
             'faviconUrl' => $faviconService->url(192),
             'definitions' => SystemSettings::DEFINITIONS,
             'timezones' => timezone_identifiers_list(),

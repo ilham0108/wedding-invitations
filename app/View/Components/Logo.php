@@ -2,12 +2,14 @@
 
 namespace App\View\Components;
 
+use App\Services\LogoService;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
 /**
- * Brand logo from config/branding.php; falls back to the app name as text when the file is missing.
+ * Brand logo: the one uploaded at /admin/settings, else the file from config/branding.php,
+ * else the app name as text.
  */
 class Logo extends Component
 {
@@ -20,15 +22,12 @@ class Logo extends Component
      * @param  string  $textClass  Classes for the text fallback.
      */
     public function __construct(
+        LogoService $logo,
         public string $height = 'h-8',
         public string $textClass = 'text-xl',
     ) {
-        $path = ltrim((string) config('branding.logo'), '/');
-
         $this->name = (string) config('app.name');
-        $this->src = $path !== '' && is_file(public_path($path))
-            ? asset($path).'?v='.filemtime(public_path($path))
-            : null;
+        $this->src = $logo->url();
     }
 
     public function render(): View|Closure|string

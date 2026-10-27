@@ -1325,5 +1325,14 @@
     "Remove the site icon?": "Hapus ikon situs?",
     "Non-square images are cropped to the center.": "Gambar yang tidak persegi akan dipotong di bagian tengah.",
     "Site icon saved.": "Ikon situs disimpan.",
-    "Site icon removed.": "Ikon situs dihapus."
+    "Site icon removed.": "Ikon situs dihapus.",
+    "Logo": "Logo",
+    "logo": "logo",
+    "Shown on the website, the dashboard and the login pages. PNG with a transparent background works best, at least 80 px tall.": "Tampil di website, dashboard, dan halaman login. Paling bagus PNG berlatar transparan, tinggi minimal 80 px.",
+    "Current logo": "Logo saat ini",
+    "Upload logo": "Unggah logo",
+    "Remove the uploaded logo?": "Hapus logo yang diunggah?",
+    "No logo uploaded yet: the website shows the leaf wordmark and the dashboard shows the default logo.": "Belum ada logo yang diunggah: website menampilkan wordmark daun dan dashboard menampilkan logo bawaan.",
+    "Logo saved.": "Logo disimpan.",
+    "Logo removed.": "Logo dihapus."
 }

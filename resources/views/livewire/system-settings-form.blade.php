@@ -24,6 +24,31 @@
         </div>
     </x-ui.card>
 
+    <x-ui.card :title="__($definitions['logo']['label'])" :description="__($definitions['logo']['help'])">
+        <div class="flex h-24 items-center justify-center rounded-xl border border-line bg-paper px-4">
+            @if ($logoUrl)
+                <img src="{{ $logoUrl }}" alt="{{ __('Current logo') }}" class="max-h-16 w-auto max-w-full">
+            @else
+                <span class="font-display text-xl text-ink">{{ config('app.name') }}</span>
+            @endif
+        </div>
+
+        <div class="mt-3 flex flex-wrap items-center gap-2">
+            <x-ui.upload-progress>
+                <input type="file" accept="image/png,image/jpeg,image/webp" wire:model="logo" aria-label="{{ __('Upload logo') }}"
+                    class="block text-sm text-ink-soft file:mr-3 file:rounded-lg file:border-0 file:bg-paper file:px-3 file:py-2 file:text-sm file:font-medium file:text-ink hover:file:bg-sage-soft">
+            </x-ui.upload-progress>
+            @if ($hasUploadedLogo)
+                <x-ui.button type="button" variant="ghost" size="sm" class="text-red-600" wire:click="removeLogo"
+                    data-confirm="{{ __('Remove the uploaded logo?') }}">{{ __('Remove') }}</x-ui.button>
+            @endif
+        </div>
+        @unless ($hasUploadedLogo)
+            <p class="mt-2 text-xs text-muted">{{ __('No logo uploaded yet: the website shows the leaf wordmark and the dashboard shows the default logo.') }}</p>
+        @endunless
+        @error('logo')<p class="mt-1 text-sm font-medium text-red-600">{{ $message }}</p>@enderror
+    </x-ui.card>
+
     <x-ui.card :title="__($definitions['favicon']['label'])" :description="__($definitions['favicon']['help'])">
         <div class="flex items-center gap-4">
             <div class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-paper">

@@ -32,7 +32,13 @@
 
     <header class="sticky top-0 z-40 border-b border-olive-line/60 bg-cream/85 backdrop-blur-md" x-data="{ open: false }" x-on:keydown.escape.window="open = false">
         <div class="mx-auto flex h-[4.5rem] max-w-6xl items-center justify-between gap-6 px-4 sm:px-6">
-            <a href="{{ route('home') }}" aria-label="{{ config('app.name') }}"><x-marketing.brand /></a>
+            <a href="{{ route('home') }}" aria-label="{{ config('app.name') }}">
+                @if ($hasUploadedLogo)
+                    <x-logo height="h-10" />
+                @else
+                    <x-marketing.brand />
+                @endif
+            </a>
 
             <nav class="hidden items-center gap-7 text-[0.8rem] text-ink-soft lg:flex" aria-label="{{ __('Main navigation') }}">
                 @foreach ($menu as $anchor => $label)
@@ -75,7 +81,11 @@
     <footer id="contact" class="scroll-mt-24 border-t border-olive-line/60 bg-cream">
         <div class="mx-auto grid max-w-6xl gap-10 px-4 py-14 text-sm sm:px-6 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
             <div class="space-y-4">
-                <x-marketing.brand />
+                @if ($hasUploadedLogo)
+                    <x-logo height="h-12" />
+                @else
+                    <x-marketing.brand />
+                @endif
                 @if (filled($siteContact['tagline'] ?? null))
                     <p class="max-w-xs leading-relaxed text-muted">{{ $siteContact['tagline'] }}</p>
                 @endif

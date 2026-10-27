@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Cache;
  *
  * Where they apply: site_name replaces config('app.name') at boot (AppServiceProvider),
  * support_email is the dashboard Help link, default_timezone is given to new accounts,
- * registration_enabled closes the sign-up page, and favicon is managed by FaviconService.
+ * registration_enabled closes the sign-up page, and logo/favicon are managed by LogoService/FaviconService.
  */
 class SystemSettings
 {
@@ -25,6 +25,7 @@ class SystemSettings
         'site_name' => ['group' => 'general', 'type' => 'string', 'label' => 'Site name', 'help' => 'Shown in page titles, emails and the invitation footer.', 'public' => true],
         'support_email' => ['group' => 'general', 'type' => 'string', 'label' => 'Support email', 'help' => 'Where the Help button in the dashboard sends clients.', 'public' => true],
         'default_timezone' => ['group' => 'general', 'type' => 'string', 'label' => 'Default timezone', 'help' => 'Given to new accounts; each client can change their own.', 'public' => false],
+        'logo' => ['group' => 'general', 'type' => 'string', 'label' => 'Logo', 'help' => 'Shown on the website, the dashboard and the login pages. PNG with a transparent background works best, at least 80 px tall.', 'public' => true],
         'favicon' => ['group' => 'general', 'type' => 'string', 'label' => 'Site icon', 'help' => 'Shown in browser tabs, bookmarks and on phone home screens, including invitation pages. Square PNG, at least 512 × 512 px.', 'public' => true],
         'registration_enabled' => ['group' => 'auth', 'type' => 'boolean', 'label' => 'Allow new registrations', 'help' => 'When off, the sign-up page is closed. Existing accounts can still sign in.', 'public' => false],
     ];
@@ -51,6 +52,7 @@ class SystemSettings
             'site_name' => (string) config('app.name'),
             'support_email' => (string) config('mail.from.address'),
             'default_timezone' => 'Asia/Jakarta',
+            'logo' => null,
             'favicon' => null,
             'registration_enabled' => true,
         ];

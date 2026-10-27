@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Page;
 use App\Models\User;
+use App\Services\LogoService;
 use App\Services\SiteContentService;
 use App\Services\Subscription\SubscriptionLimitService;
 use App\Services\SystemSettings;
@@ -56,13 +57,14 @@ class AppServiceProvider extends ServiceProvider
          */
         Gate::before(fn (User $user, string $ability): ?bool => $user->hasPermission($ability) ? true : null);
 
-        // Footer and menu of the marketing site come from the admin CMS.
+        // Footer and menu of the marketing site come from the admin CMS; an uploaded logo replaces the leaf wordmark.
         View::composer('components.layouts.marketing', function (ViewInstance $view): void {
             $content = $this->app->make(SiteContentService::class)->all();
 
             $view->with([
                 'siteContact' => $content['contact'],
                 'hasFaq' => $content['faq']['items'] !== [],
+                'hasUploadedLogo' => $this->app->make(LogoService::class)->exists(),
                 'footerPages' => Page::query()->published()->where('show_in_footer', true)->ordered()->get(['slug', 'title']),
             ]);
         });
