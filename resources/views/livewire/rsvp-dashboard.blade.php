@@ -1,11 +1,11 @@
 <div class="viz-root space-y-6">
     {{-- KPI row (rules.md section 37) --}}
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <x-ui.stat-card :label="__('Total invited')" :value="Number::format($stats['invited'])" icon="fa-solid fa-user-group" />
-        <x-ui.stat-card :label="__('Attending')" :value="Number::format($stats['attending'])" icon="fa-regular fa-circle-check" />
-        <x-ui.stat-card :label="__('Not attending')" :value="Number::format($stats['not_attending'])" icon="fa-regular fa-circle-xmark" />
-        <x-ui.stat-card :label="__('Pending')" :value="Number::format($stats['pending'])" icon="fa-regular fa-clock" />
-        <x-ui.stat-card :label="__('Total people')" :value="Number::format($stats['people'])" icon="fa-solid fa-people-group" />
+    <div class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
+        <x-ui.stat-card :label="__('Total invited')" :value="Number::format($stats['invited'])" />
+        <x-ui.stat-card :label="__('Attending')" :value="Number::format($stats['attending'])" />
+        <x-ui.stat-card :label="__('Not attending')" :value="Number::format($stats['not_attending'])" />
+        <x-ui.stat-card :label="__('Pending')" :value="Number::format($stats['pending'])" />
+        <x-ui.stat-card :label="__('Total people')" :value="Number::format($stats['people'])" />
     </div>
 
     <div class="grid gap-6 lg:grid-cols-2">
@@ -155,7 +155,9 @@
                     </li>
                 @endforeach
             </ul>
-            <div class="border-t border-line px-4 py-3">{{ $responses->links() }}</div>
+            @if ($responses->hasPages())
+                <div class="border-t border-line px-4 py-3">{{ $responses->links() }}</div>
+            @endif
         @endif
     </x-ui.card>
 </div>

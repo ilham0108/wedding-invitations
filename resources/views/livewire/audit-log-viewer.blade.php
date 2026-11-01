@@ -24,7 +24,8 @@
                             @if ($log->auditable_type)
                                 <span class="text-xs text-muted">{{ class_basename($log->auditable_type) }}</span>
                             @endif
-                            <span class="min-w-0 flex-1 truncate text-xs text-ink-soft">
+                            {{-- Own line on phones, so the email is not cut off next to the action and date. --}}
+                            <span class="order-last min-w-0 basis-full truncate text-xs text-ink-soft sm:order-none sm:basis-0 sm:flex-1">
                                 @if ($log->user && $log->user->deleted_at)
                                     {{ $log->user->email }} ({{ __('deleted') }})
                                 @elseif ($log->user)
@@ -39,8 +40,8 @@
                             </button>
                         </div>
                         <div x-show="open" x-cloak class="mt-2 space-y-2 rounded-lg bg-paper p-3 text-xs">
-                            <p class="text-muted">{{ __('IP address') }}: <span class="text-ink">{{ $log->ip_address ?? '—' }}</span></p>
-                            <p class="break-all text-muted">{{ __('Device') }}: <span class="text-ink">{{ $log->user_agent ?? '—' }}</span></p>
+                            <p class="text-muted">{{ __('IP address') }}: <span class="text-ink">{{ $log->ip_address ?? __('Not recorded') }}</span></p>
+                            <p class="break-all text-muted">{{ __('Device') }}: <span class="text-ink">{{ $log->user_agent ?? __('Not recorded') }}</span></p>
                             @if ($log->metadata)
                                 <pre class="overflow-x-auto whitespace-pre-wrap break-all font-mono text-ink">{{ json_encode($log->metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) }}</pre>
                             @endif
@@ -49,6 +50,8 @@
                 @endforeach
             </ul>
         @endif
-        <div class="border-t border-line px-4 py-3">{{ $logs->links() }}</div>
+        @if ($logs->hasPages())
+            <div class="border-t border-line px-4 py-3">{{ $logs->links() }}</div>
+        @endif
     </x-ui.card>
 </div>

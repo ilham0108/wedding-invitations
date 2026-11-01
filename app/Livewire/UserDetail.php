@@ -12,6 +12,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 /**
  * Admin user page (rules.md section 64): profile, subscription, invitations, recent activity,
@@ -19,7 +20,7 @@ use Livewire\Component;
  */
 class UserDetail extends Component
 {
-    use Notifies;
+    use Notifies, WithPagination;
 
     #[Locked]
     public string $userUlid = '';
@@ -68,11 +69,11 @@ class UserDetail extends Component
         $user = $this->user()->load([
             'roles:id,slug',
             'subscriptions' => fn ($query) => $query->with('plan:id,name')->latest('starts_at'),
-            'invitations' => fn ($query) => $query->with('template:id,name')->withCount('guests')->latest(),
         ]);
 
         return view('livewire.user-detail', [
             'user' => $user,
+            'invitations' => $user->invitations()->with('template:id,name')->withCount('guests')->latest()->paginate(10, pageName: 'invitationsPage'),
             'current' => $user->subscriptions->first(fn ($subscription): bool => $subscription->isCurrent()),
             'activity' => AuditLog::query()->where('user_id', $user->getKey())->latest('created_at')->limit(10)->get(['action', 'metadata', 'ip_address', 'created_at']),
             'isSelf' => $user->is(Auth::user()),

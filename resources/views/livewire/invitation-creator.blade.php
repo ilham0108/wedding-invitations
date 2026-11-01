@@ -36,13 +36,13 @@
             <div>
                 <h2 class="font-display text-2xl text-ink">{{ __('Choose a design') }}</h2>
                 @if ($showingAllTemplates)
-                    <p class="mt-1 text-sm text-muted">{{ __('No dedicated templates for this event type yet — every design works for any event.') }}</p>
+                    <p class="mt-1 text-sm text-muted">{{ __('No dedicated templates for this event type yet. Every design works for any event.') }}</p>
                 @endif
             </div>
             <x-ui.button type="button" variant="ghost" size="sm" wire:click="back" icon="fa-solid fa-arrow-left">{{ __('Back') }}</x-ui.button>
         </div>
 
-        <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             @foreach ($templates as $template)
                 <div wire:key="template-{{ $template->slug }}">
                     <x-template-card :template="$template" />
@@ -53,6 +53,9 @@
                 </div>
             @endforeach
         </div>
+        @if ($templates->hasPages())
+            <div class="mt-6">{{ $templates->links() }}</div>
+        @endif
     @endif
 
     {{-- Step 3: basic details --}}

@@ -15,10 +15,12 @@ export default {
         extend: {
             colors: {
                 ink: { DEFAULT: '#1f2d2a', soft: '#3a4a46' },
-                muted: '#6b7a74',
+                // muted: 4.9:1 on paper, 5.4:1 on white (WCAG AA for small meta text).
+                muted: '#5e6d67',
                 paper: '#f6f4ef',
                 line: '#e5e2da',
-                accent: { DEFAULT: '#c8634b', hover: '#b25540', soft: '#f8e9e4' },
+                // accent carries white button text: 5.1:1 (hover 6.5:1).
+                accent: { DEFAULT: '#ae543d', hover: '#984632', soft: '#f8e9e4' },
                 sage: { DEFAULT: '#365149', soft: '#e7ece8' },
                 // Marketing site palette (botanical: olive buttons on warm cream).
                 olive: { DEFAULT: '#4a573f', dark: '#3a4532', soft: '#e8e5da', line: '#d9d4c7' },

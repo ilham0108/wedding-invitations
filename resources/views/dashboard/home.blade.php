@@ -7,13 +7,16 @@
         <x-ui.button :href="route('dashboard.invitations.create')" variant="accent" icon="fa-solid fa-plus">{{ __('Create Invitation') }}</x-ui.button>
     </x-slot:actions>
 
-    <div class="grid gap-4 sm:grid-cols-3">
-        <x-ui.stat-card :label="__('Total Invitations')" :value="Number::format($stats['invitations'])" icon="fa-regular fa-envelope-open" :href="route('dashboard.invitations.index')" />
-        <x-ui.stat-card :label="__('Published Invitations')" :value="Number::format($stats['published'])" icon="fa-solid fa-globe" :href="route('dashboard.invitations.index')" />
-        <x-ui.stat-card :label="__('Total Guests')" :value="Number::format($stats['guests'])" icon="fa-solid fa-user-group" :href="route('dashboard.guests.index')" />
-    </div>
+    {{-- Figures appear once there is something to count; before that the empty state below says what to do. --}}
+    @if ($stats['invitations'] > 0)
+        <div class="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+            <x-ui.stat-card :label="__('Total Invitations')" :value="Number::format($stats['invitations'])" :href="route('dashboard.invitations.index')" />
+            <x-ui.stat-card :label="__('Published Invitations')" :value="Number::format($stats['published'])" :href="route('dashboard.invitations.index')" />
+            <x-ui.stat-card :label="__('Total Guests')" :value="Number::format($stats['guests'])" :href="route('dashboard.guests.index')" />
+        </div>
+    @endif
 
-    <x-ui.card :title="__('Recent Invitations')" class="mt-6" padding="p-0">
+    <x-ui.card :title="__('Recent Invitations')" padding="p-0">
         @if ($recentInvitations->isEmpty())
             <x-ui.empty-state icon="fa-regular fa-envelope-open" :title="__('You haven\'t created an invitation yet.')"
                 :description="__('Choose a template and have your first invitation ready in minutes.')">

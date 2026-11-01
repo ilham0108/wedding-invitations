@@ -11,8 +11,13 @@
         refresh() {
             window.previewFrame.reload(this.$refs.frame, this.base + '?content=' + this.$wire.content, this.selectedAnchor());
         },
+        preview: null,
     }"
+    {{-- Look-only changes are patched into the preview (resources/js/builder-preview.js); ornaments of the edited section can be dragged there. --}}
+    x-init="preview = window.builderPreview.attach($refs.frame, $el, (index, x, y, width) => $wire.placeOrnament(index, x, y, width))"
+    data-ornament-owner="{{ $ornamentOwner }}" data-ornament-list="{{ $ornamentList }}"
     {{-- Events come from TemplateBuilder ($wire.$watch does not fire for $set() changes in Livewire 4). --}}
+    x-on:template-preview-patch.window="preview.apply($event.detail.patch)"
     x-on:template-preview-refresh.window="refresh()"
     x-on:builder-section-selected.window="window.previewFrame.scrollTo($refs.frame, $event.detail.anchor)"
     x-on:template-draft-updated.window="refresh()"

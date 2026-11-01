@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
+use Livewire\WithPagination;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 
@@ -18,7 +19,7 @@ use Livewire\WithFileUploads;
  */
 class MusicManager extends Component
 {
-    use Notifies, WithFileUploads;
+    use Notifies, WithFileUploads, WithPagination;
 
     private const MAX_FILES_PER_UPLOAD = 10;
 
@@ -99,7 +100,7 @@ class MusicManager extends Component
     public function render(): View
     {
         return view('livewire.music-manager', [
-            'tracks' => MusicTrack::query()->ordered()->get(),
+            'tracks' => MusicTrack::query()->ordered()->paginate(20),
             'maxUploadMb' => (int) round(config('invitation.music.max_library_upload_kb') / 1024),
         ]);
     }

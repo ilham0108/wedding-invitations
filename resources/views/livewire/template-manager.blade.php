@@ -66,38 +66,55 @@
             <x-ui.empty-state icon="fa-solid fa-swatchbook" :title="__('No templates found.')" :description="__('Create a template or change the filters.')" />
         </x-ui.card>
     @else
-        <ul class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <ul class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             @foreach ($templates as $template)
                 <li wire:key="admin-template-{{ $template->ulid }}" class="flex flex-col">
                     <x-template-card :template="$template" :class="$template->isPublished() ? 'flex-1' : 'flex-1 opacity-70'" />
 
-                    <div class="mt-2 flex flex-wrap items-center gap-1.5 px-1">
-                        <x-ui.badge :variant="$template->isPublished() ? 'success' : 'neutral'">{{ $template->status->label() }}</x-ui.badge>
+                    {{-- Published is the normal state: only drafts and unsaved builder work are flagged. --}}
+                    <div class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 px-1 text-xs">
+                        @unless ($template->isPublished())
+                            <x-ui.badge>{{ $template->status->label() }}</x-ui.badge>
+                        @endunless
                         @if (in_array($template->ulid, $unsaved, true))
-                            <span class="inline-flex items-center gap-1 text-xs font-medium text-amber-700" title="{{ __('Open the builder and save the template to keep them.') }}">
+                            <span class="inline-flex items-center gap-1 font-medium text-amber-800" title="{{ __('Open the builder and save the template to keep them.') }}">
                                 <i class="fa-solid fa-circle text-[6px]" aria-hidden="true"></i>{{ __('Unsaved changes') }}
                             </span>
                         @endif
-                        <span class="text-xs text-muted">{{ trans_choice(':count invitation|:count invitations', $template->invitations_count) }}</span>
+                        <span class="text-muted">{{ trans_choice(':count invitation|:count invitations', $template->invitations_count) }}</span>
                     </div>
 
-                    <div class="mt-2 flex flex-wrap items-center gap-1 px-1">
+                    {{-- The two everyday actions stay visible; the rest sit in one menu. --}}
+                    <div class="mt-2 flex items-center gap-1.5 px-1">
                         <x-ui.button :href="route('admin.templates.builder', $template->ulid)" size="sm" icon="fa-solid fa-pen-ruler">{{ __('Builder') }}</x-ui.button>
                         <x-ui.button type="button" variant="secondary" size="sm" wire:click="edit('{{ $template->ulid }}')">{{ __('Details') }}</x-ui.button>
-                        @if ($template->isPublished())
-                            <x-ui.button type="button" variant="ghost" size="sm" wire:click="unpublish('{{ $template->ulid }}')"
-                                data-confirm="{{ __('Unpublish this template? Clients can no longer choose it.') }}">{{ __('Unpublish') }}</x-ui.button>
-                        @else
-                            <x-ui.button type="button" variant="ghost" size="sm" wire:click="publish('{{ $template->ulid }}')">{{ __('Publish') }}</x-ui.button>
-                        @endif
-                        <button type="button" wire:click="duplicate('{{ $template->ulid }}')" class="rounded p-1.5 text-muted hover:bg-sage-soft hover:text-ink" aria-label="{{ __('Duplicate') }}" title="{{ __('Duplicate') }}"><i class="fa-regular fa-copy" aria-hidden="true"></i></button>
-                        <a href="{{ route('admin.templates.export', $template->ulid) }}" class="rounded p-1.5 text-muted hover:bg-sage-soft hover:text-ink" aria-label="{{ __('Export (.zip)') }}" title="{{ __('Export (.zip)') }}"
-                            @if (in_array($template->ulid, $unsaved, true)) data-confirm="{{ __('This template has builder changes that are not saved yet. The export only contains the saved version. Export anyway?') }}" data-confirm-button="{{ __('Export saved version') }}" data-confirm-variant="default" @endif><i class="fa-solid fa-file-export" aria-hidden="true"></i></a>
-                        <button type="button" wire:click="remove('{{ $template->ulid }}')" data-confirm="{{ __('Delete this template?') }}" class="ml-auto rounded p-1.5 text-muted hover:bg-red-50 hover:text-red-600" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fa-regular fa-trash-can" aria-hidden="true"></i></button>
+                        <x-ui.dropdown width="w-52">
+                            <x-slot:trigger>
+                                <button type="button" class="flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-sm text-ink-soft hover:bg-sage-soft hover:text-ink" x-bind:aria-expanded="open.toString()" aria-haspopup="true">
+                                    {{ __('More') }}<i class="fa-solid fa-chevron-down text-[10px]" aria-hidden="true"></i>
+                                </button>
+                            </x-slot:trigger>
+                            @if ($template->isPublished())
+                                <button type="button" wire:click="unpublish('{{ $template->ulid }}')" data-confirm="{{ __('Unpublish this template? Clients can no longer choose it.') }}"
+                                    class="flex w-full items-center gap-2.5 px-4 py-2 text-left text-sm text-ink hover:bg-paper"><i class="fa-regular fa-eye-slash w-4 text-muted" aria-hidden="true"></i>{{ __('Unpublish') }}</button>
+                            @else
+                                <button type="button" wire:click="publish('{{ $template->ulid }}')"
+                                    class="flex w-full items-center gap-2.5 px-4 py-2 text-left text-sm text-ink hover:bg-paper"><i class="fa-regular fa-eye w-4 text-muted" aria-hidden="true"></i>{{ __('Publish') }}</button>
+                            @endif
+                            <button type="button" wire:click="duplicate('{{ $template->ulid }}')"
+                                class="flex w-full items-center gap-2.5 px-4 py-2 text-left text-sm text-ink hover:bg-paper"><i class="fa-regular fa-copy w-4 text-muted" aria-hidden="true"></i>{{ __('Duplicate') }}</button>
+                            <a href="{{ route('admin.templates.export', $template->ulid) }}" class="flex w-full items-center gap-2.5 px-4 py-2 text-sm text-ink hover:bg-paper"
+                                @if (in_array($template->ulid, $unsaved, true)) data-confirm="{{ __('This template has builder changes that are not saved yet. The export only contains the saved version. Export anyway?') }}" data-confirm-button="{{ __('Export saved version') }}" data-confirm-variant="default" @endif><i class="fa-solid fa-file-export w-4 text-muted" aria-hidden="true"></i>{{ __('Export (.zip)') }}</a>
+                            <button type="button" wire:click="remove('{{ $template->ulid }}')" data-confirm="{{ __('Delete this template?') }}"
+                                class="flex w-full items-center gap-2.5 border-t border-line px-4 py-2 text-left text-sm text-red-700 hover:bg-red-50"><i class="fa-regular fa-trash-can w-4" aria-hidden="true"></i>{{ __('Delete') }}</button>
+                        </x-ui.dropdown>
                     </div>
                 </li>
             @endforeach
         </ul>
+        @if ($templates->hasPages())
+            <div class="mt-6">{{ $templates->links() }}</div>
+        @endif
     @endif
 
     @if ($showForm)

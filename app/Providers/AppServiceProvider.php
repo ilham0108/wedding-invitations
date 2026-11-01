@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Page;
 use App\Models\Plan;
 use App\Models\User;
+use App\Services\FontRegistry;
 use App\Services\LogoService;
 use App\Services\SiteContentService;
 use App\Services\Subscription\SubscriptionLimitService;
@@ -32,6 +33,8 @@ class AppServiceProvider extends ServiceProvider
     {
         // Memoizes plan lookups for one request or queued job.
         $this->app->scoped(SubscriptionLimitService::class);
+        // Memoizes the font list (built-in + installed) for one request.
+        $this->app->scoped(FontRegistry::class);
     }
 
     /**

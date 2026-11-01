@@ -68,7 +68,7 @@
                 <ul class="divide-y divide-line">
                     @foreach ($pages as $page)
                         <li wire:key="cms-page-{{ $page->ulid }}" class="flex flex-wrap items-center gap-3 px-5 py-3 text-sm">
-                            <div class="min-w-0 flex-1">
+                            <div class="min-w-0 basis-full sm:basis-0 sm:flex-1">
                                 <p class="font-medium text-ink">{{ $page->title }}</p>
                                 <p class="text-xs text-muted">/page/{{ $page->slug }}@if ($page->show_in_footer) · {{ __('in the footer') }}@endif · {{ __('Updated :time', ['time' => $page->updated_at->diffForHumans()]) }}</p>
                             </div>
@@ -81,6 +81,9 @@
                         </li>
                     @endforeach
                 </ul>
+                @if ($pages->hasPages())
+                    <div class="border-t border-line px-4 py-3">{{ $pages->links() }}</div>
+                @endif
             @endif
         </x-ui.card>
     @endif

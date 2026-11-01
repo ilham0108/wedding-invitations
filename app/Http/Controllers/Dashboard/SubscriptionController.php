@@ -43,7 +43,7 @@ class SubscriptionController extends Controller
             ],
             'offlineInvitations' => $invitations->reject(fn ($invitation): bool => $limits->isInvitationActive($invitation->setRelation('user', $user))),
             'plans' => $plans,
-            'orders' => $user->orders()->with('plan:id,name')->latest()->limit(10)->get(),
+            'orders' => $user->orders()->with('plan:id,name')->latest()->paginate(10, pageName: 'ordersPage')->withQueryString(),
             'features' => config('plans.features'),
         ]);
     }

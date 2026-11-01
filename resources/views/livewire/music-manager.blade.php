@@ -52,6 +52,9 @@
                     </li>
                 @endforeach
             </ul>
+            @if ($tracks->hasPages())
+                <div class="border-t border-line px-4 py-3">{{ $tracks->links() }}</div>
+            @endif
         </x-ui.card>
     @endif
 </div>

@@ -11,12 +11,15 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 /**
  * Client message templates with variable insertion (rules.md section 40).
  */
 class WhatsAppTemplateManager extends Component
 {
+    use WithPagination;
+
     public bool $showForm = false;
 
     #[Locked]
@@ -82,7 +85,7 @@ class WhatsAppTemplateManager extends Component
     public function render(): View
     {
         return view('livewire.whats-app-template-manager', [
-            'templates' => Auth::user()->whatsappTemplates()->get(['id', 'ulid', 'user_id', 'name', 'body', 'updated_at']),
+            'templates' => Auth::user()->whatsappTemplates()->paginate(20, ['id', 'ulid', 'user_id', 'name', 'body', 'updated_at']),
             'variables' => MessageRenderer::variables(),
         ]);
     }

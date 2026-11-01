@@ -7,6 +7,7 @@ use App\Livewire\Concerns\Notifies;
 use App\Models\Illustration;
 use App\Models\InvitationTemplate;
 use App\Models\MusicTrack;
+use App\Services\FontRegistry;
 use App\Services\Invitation\DecorationResolver;
 use App\Services\Invitation\DesignRegistry;
 use App\Services\Invitation\Ornaments;
@@ -33,6 +34,9 @@ use Livewire\Component;
 class TemplateBuilder extends Component
 {
     use Notifies;
+
+    /** Decoration keys the preview applies in place (body data-inv-* attributes); the rest reload it. */
+    private const LIVE_DECORATIONS = ['divider', 'texture', 'heading_ornament_size', 'heading_scale', 'text_scale'];
 
     #[Locked]
     public string $templateUlid = '';
@@ -187,7 +191,13 @@ class TemplateBuilder extends Component
 
         if (in_array($which, ['heading_size', 'text_size'], true) && in_array($size, TemplateSchema::FONT_SIZES, true)) {
             $this->sections[$index][$which] = $size;
-            $this->persistSections();
+            // Same classes as invitation.partials.section: inv-heading-size--{size} / inv-text-size--{size}.
+            $this->persistSections(fn (): array => [
+                'kind' => 'section-class',
+                'owner' => 'preview-'.$index,
+                'prefix' => $which === 'heading_size' ? 'inv-heading-size--' : 'inv-text-size--',
+                'value' => $size === 'default' ? null : $size,
+            ]);
         }
     }
 
@@ -238,7 +248,13 @@ class TemplateBuilder extends Component
         }
 
         $this->decoration[$key] = $value;
-        $this->persist(fn (array $definition): array => [...$definition, 'decoration' => [...($definition['decoration'] ?? []), $key => $value]]);
+        $this->persist(
+            fn (array $definition): array => [...$definition, 'decoration' => [...($definition['decoration'] ?? []), $key => $value]],
+            // These are read by invitation.css from body data attributes (layouts.invitation), so they change in place.
+            in_array($key, self::LIVE_DECORATIONS, true)
+                ? fn (): array => ['kind' => 'attributes', 'attributes' => ['data-inv-'.str_replace('_', '-', $key) => $value]]
+                : null,
+        );
     }
 
     /**
@@ -303,7 +319,24 @@ class TemplateBuilder extends Component
         }
 
         $ornaments[$ornament][$key] = $key === 'flip' ? $value === '1' : $value;
-        $this->setOrnaments($index, $ornaments);
+        // A new layer moves the ornament into another container, which needs a fresh render.
+        $this->setOrnaments($index, $ornaments, $key === 'layer' ? null : $ornament);
+    }
+
+    /**
+     * Position and width of an ornament dragged or resized in the preview, stored in one step.
+     */
+    public function placeOrnament(int $ornament, float $x, float $y, float $width): void
+    {
+        $index = $this->selectedIndex();
+        $ornaments = $this->sections[$index][$this->ornamentList()] ?? [];
+
+        if (! isset($ornaments[$ornament])) {
+            return;
+        }
+
+        $ornaments[$ornament] = [...$ornaments[$ornament], 'x' => $x, 'y' => $y, 'width' => $width];
+        $this->setOrnaments($index, $ornaments, $ornament);
     }
 
     public function duplicateOrnament(int $ornament): void
@@ -431,7 +464,8 @@ class TemplateBuilder extends Component
             'heights' => ['auto' => 'Fit content', 'screen-top' => 'Screen height, content at the top', 'screen-center' => 'Screen height, content in the middle', 'screen-bottom' => 'Screen height, content at the bottom'],
             'previewUrl' => route('admin.templates.builder.preview', $template),
             'presets' => array_keys($themes->presets()),
-            'fontsByCategory' => collect(config('invitation.fonts'))->map(fn (array $font, string $name): array => [...$font, 'name' => $name])->groupBy('category'),
+            'fontsByCategory' => app(FontRegistry::class)->forPicker([$this->theme['font_heading'] ?? '', $this->theme['font_body'] ?? '']),
+            'fontWeights' => app(FontRegistry::class)->themeWeights($this->theme),
             'themeOptions' => config('invitation.theme_options'),
             'designs' => app(DesignRegistry::class)->all(),
             'animations' => [
@@ -452,6 +486,8 @@ class TemplateBuilder extends Component
             ],
             'ornamentMotions' => ['none' => 'Still', 'sway' => 'Sway', 'float' => 'Float'],
             'ornamentList' => $this->ornamentList(),
+            // Preview anchor of the section whose ornaments can be dragged in the preview (Section panel only).
+            'ornamentOwner' => $this->panel === 'section' && $this->selected !== null ? 'preview-'.$this->sectionIndex($this->selected) : '',
             'hasDesktopPanel' => $this->hasDesktopPanel(),
             'hasDesktopLayouts' => app(DesignRegistry::class)->hasDesktopLayouts($this->design),
             'musicTracks' => $this->panel === 'music' ? app(MusicService::class)->library() : collect(),
@@ -517,7 +553,10 @@ class TemplateBuilder extends Component
         $this->hasChanges = $draft->hasChanges($template, Auth::user());
     }
 
-    private function persistSections(): void
+    /**
+     * @param  (callable(array<string, mixed>): array<string, mixed>)|null  $patch  See persist().
+     */
+    private function persistSections(?callable $patch = null): void
     {
         $sections = array_map(fn (array $section): array => [
             'type' => $section['type'],
@@ -530,16 +569,17 @@ class TemplateBuilder extends Component
             'desktop_ornaments' => $section['desktop_ornaments'] ?? [],
         ], $this->sections);
 
-        $this->persist(fn (array $definition): array => [...$definition, 'schema' => ['sections' => $sections]]);
+        $this->persist(fn (array $definition): array => [...$definition, 'schema' => ['sections' => $sections]], $patch);
     }
 
     /**
      * @param  array<int, array<string, mixed>>  $ornaments
+     * @param  int|null  $restyled  An ornament whose look alone changed: patched in the preview, no reload.
      */
-    private function setOrnaments(int $index, array $ornaments): void
+    private function setOrnaments(int $index, array $ornaments, ?int $restyled = null): void
     {
         $this->sections[$index][$this->ornamentList()] = app(Ornaments::class)->clean($ornaments);
-        $this->persistSections();
+        $this->persistSections($restyled === null ? null : fn (): array => $this->ornamentPatch($index, $restyled));
     }
 
     /**
@@ -596,21 +636,72 @@ class TemplateBuilder extends Component
     {
         $theme = array_filter(['preset' => $this->preset, ...$this->theme], fn (mixed $value): bool => $value !== null);
 
-        $this->persist(fn (array $definition): array => [...$definition, 'theme' => $theme]);
+        $this->persist(fn (array $definition): array => [...$definition, 'theme' => $theme], $this->themePatch(...));
     }
 
     /**
+     * Store a change in the draft. With $patch, the preview is updated in place from the patch
+     * (resources/js/builder-preview.js) instead of reloading; use it only for changes the patch fully covers.
+     *
      * @param  callable(array<string, mixed>): array<string, mixed>  $change
+     * @param  (callable(array<string, mixed>): array<string, mixed>)|null  $patch  Receives the new definition.
      */
-    private function persist(callable $change): void
+    private function persist(callable $change, ?callable $patch = null): void
     {
         Gate::authorize('templates.manage');
 
-        app(TemplateDraft::class)->update($this->template(), Auth::user(), $change);
+        $definition = app(TemplateDraft::class)->update($this->template(), Auth::user(), $change);
 
         $this->resetValidation();
         $this->hasChanges = true;
-        $this->dispatch('template-preview-refresh');
+
+        $patch === null
+            ? $this->dispatch('template-preview-refresh')
+            : $this->dispatch('template-preview-patch', patch: $patch($definition));
+    }
+
+    /**
+     * Theme colors, fonts and shapes as CSS variables (the same ones the page renders).
+     *
+     * @param  array<string, mixed>  $definition
+     * @return array<string, mixed>
+     */
+    private function themePatch(array $definition): array
+    {
+        $themes = app(ThemeResolver::class);
+        $theme = $themes->resolve($definition['theme'] ?? []);
+
+        return [
+            'kind' => 'theme',
+            'css' => $themes->cssVariables($theme),
+            'font' => $themes->fontStylesheetUrl($theme, app(DesignRegistry::class)->fonts($this->design)),
+            'button' => $theme['button_style'],
+            // Body attributes as in layouts.invitation; null removes the attribute (back to the design's weights).
+            'attributes' => [
+                'data-inv-heading-weight' => $theme['heading_weight'] !== 'default' ? $theme['heading_weight'] : null,
+                'data-inv-body-weight' => $theme['body_weight'] !== 'default' ? $theme['body_weight'] : null,
+            ],
+        ];
+    }
+
+    /**
+     * One ornament's box, restyled in place.
+     *
+     * @return array<string, mixed>
+     */
+    private function ornamentPatch(int $sectionIndex, int $ornament): array
+    {
+        $ornaments = app(Ornaments::class);
+        $list = $this->sections[$sectionIndex][$this->ornamentList()];
+
+        return [
+            'kind' => 'ornament',
+            'owner' => 'preview-'.$sectionIndex,
+            'list' => $this->ornamentList(),
+            'index' => $ornament,
+            'style' => $ornaments->style($list[$ornament], $ornaments->phase($list, $ornament)),
+            'classes' => $ornaments->classes($list[$ornament]),
+        ];
     }
 
     private function sectionIndex(string $key): int

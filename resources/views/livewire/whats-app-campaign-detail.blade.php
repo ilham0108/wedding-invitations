@@ -26,13 +26,13 @@
     @error('retry')<p class="text-sm font-medium text-red-600">{{ $message }}</p>@enderror
 
     {{-- KPI row (rules.md section 44) --}}
-    <div class="grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
-        <x-ui.stat-card :label="__('Total recipients')" :value="Number::format($stats['total'])" icon="fa-solid fa-user-group" />
-        <x-ui.stat-card :label="__('Sent')" :value="Number::format($stats['sent'])" icon="fa-regular fa-paper-plane" />
-        <x-ui.stat-card :label="__('Delivered')" :value="Number::format($stats['delivered'])" icon="fa-solid fa-check-double" />
-        <x-ui.stat-card :label="__('Failed')" :value="Number::format($stats['failed'])" icon="fa-regular fa-circle-xmark" />
-        <x-ui.stat-card :label="__('Read')" :value="Number::format($stats['opened'])" icon="fa-regular fa-eye" />
-        <x-ui.stat-card :label="__('Opened invitation')" :value="Number::format($stats['clicked'])" icon="fa-solid fa-arrow-pointer" />
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">
+        <x-ui.stat-card :label="__('Total recipients')" :value="Number::format($stats['total'])" />
+        <x-ui.stat-card :label="__('Sent')" :value="Number::format($stats['sent'])" />
+        <x-ui.stat-card :label="__('Delivered')" :value="Number::format($stats['delivered'])" />
+        <x-ui.stat-card :label="__('Failed')" :value="Number::format($stats['failed'])" />
+        <x-ui.stat-card :label="__('Read')" :value="Number::format($stats['opened'])" />
+        <x-ui.stat-card :label="__('Opened invitation')" :value="Number::format($stats['clicked'])" />
     </div>
 
     {{-- Progress: part-to-whole → one stacked bar (sent · failed · pending) --}}
@@ -91,7 +91,9 @@
                     </li>
                 @endforeach
             </ul>
-            <div class="border-t border-line px-4 py-3">{{ $recipients->links() }}</div>
+            @if ($recipients->hasPages())
+                <div class="border-t border-line px-4 py-3">{{ $recipients->links() }}</div>
+            @endif
         @endif
     </x-ui.card>
 

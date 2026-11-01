@@ -26,7 +26,8 @@
                     <li wire:key="user-{{ $user->ulid }}">
                         <a href="{{ route('admin.users.show', $user) }}" class="flex flex-wrap items-center gap-3 px-5 py-3 text-sm hover:bg-paper">
                             <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sage-soft font-medium text-sage">{{ mb_strtoupper(mb_substr($user->name, 0, 1)) }}</span>
-                            <span class="min-w-0 flex-1">
+                            {{-- Phones: avatar and name fill the first line; plan, count and status wrap under the name. --}}
+                            <span class="min-w-0 flex-1 basis-[calc(100%-3rem)] sm:basis-0">
                                 <span class="flex flex-wrap items-center gap-2 font-medium text-ink">
                                     {{ $user->name }}
                                     @foreach ($user->roles as $userRole)
@@ -35,14 +36,21 @@
                                 </span>
                                 <span class="block truncate text-xs text-muted">{{ $user->email }} · {{ __('Joined :date', ['date' => $user->created_at->translatedFormat('d M Y')]) }}@if ($user->last_login_at) · {{ __('Last login :time', ['time' => $user->last_login_at->diffForHumans()]) }}@endif</span>
                             </span>
-                            <span class="text-xs text-ink-soft">{{ $subscription?->plan->name ?? __('Free') }}</span>
-                            <span class="w-24 text-right text-xs text-muted">{{ trans_choice(':count invitation|:count invitations', $user->invitations_count) }}</span>
-                            <x-ui.badge :variant="$user->isActive() ? 'success' : 'danger'">{{ $user->status->label() }}</x-ui.badge>
+                            <span class="ml-12 text-xs text-ink-soft sm:ml-0 sm:w-24 sm:text-right">{{ $subscription?->plan->name ?? __('Free') }}</span>
+                            <span class="text-xs text-muted sm:w-24 sm:text-right">{{ trans_choice(':count invitation|:count invitations', $user->invitations_count) }}</span>
+                            {{-- Active is the normal state; only a suspended account is flagged. --}}
+                            <span class="sm:w-24 sm:text-right">
+                                @unless ($user->isActive())
+                                    <x-ui.badge variant="danger">{{ $user->status->label() }}</x-ui.badge>
+                                @endunless
+                            </span>
                         </a>
                     </li>
                 @endforeach
             </ul>
         @endif
-        <div class="border-t border-line px-4 py-3">{{ $users->links() }}</div>
+        @if ($users->hasPages())
+            <div class="border-t border-line px-4 py-3">{{ $users->links() }}</div>
+        @endif
     </x-ui.card>
 </div>

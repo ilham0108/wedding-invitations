@@ -957,12 +957,6 @@ body:has(.inv-preview-bar) .bc-topbar { top: 40px; }
 
 /* ---------------------------------------------------------------- wishes, closing, footer */
 
-.bc-quote-mark {
-    margin-bottom: 0.6rem;
-    color: var(--inv-secondary);
-    font-size: 1.8rem;
-}
-
 .bc-form {
     display: grid;
     gap: 12px;

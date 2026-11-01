@@ -46,7 +46,7 @@
             <x-ui.empty-state icon="fa-solid fa-palette" :title="__('No illustrations yet.')" :description="__('Upload 2D art that clients can use instead of photos.')" />
         </x-ui.card>
     @else
-        <ul class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        <ul class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 2xl:grid-cols-7">
             @foreach ($illustrations as $illustration)
                 <li wire:key="admin-illustration-{{ $illustration->ulid }}" @class(['overflow-hidden rounded-xl border bg-white', 'border-line' => $illustration->is_active, 'border-dashed border-line opacity-60' => ! $illustration->is_active])>
                     <div class="relative bg-paper">
@@ -70,5 +70,8 @@
                 </li>
             @endforeach
         </ul>
+        @if ($illustrations->hasPages())
+            <div>{{ $illustrations->links() }}</div>
+        @endif
     @endif
 </div>

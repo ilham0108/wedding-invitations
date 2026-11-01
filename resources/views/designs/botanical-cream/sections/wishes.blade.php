@@ -7,12 +7,11 @@
 <div id="wishes-form">
     @include('designs.botanical-cream.partials.heading', ['text' => $config['heading']])
 
-    <div class="bc-center inv-animate">
-        <i class="fa-solid fa-quote-left bc-quote-mark" aria-hidden="true"></i>
-        @if (filled($config['description']))
+    @if (filled($config['description']))
+        <div class="bc-center inv-animate">
             <p class="bc-lead">{{ $config['description'] }}</p>
-        @endif
-    </div>
+        </div>
+    @endif
 
     @if (session('wish_saved'))
         <p class="bc-status" role="status">

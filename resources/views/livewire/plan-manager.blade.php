@@ -18,14 +18,22 @@
                 </div>
                 <p class="text-xs text-muted">{{ $plan->slug }} · {{ __('rank :rank', ['rank' => $plan->rank]) }} · {{ trans_choice(':count active subscriber|:count active subscribers', $plan->subscriptions_count) }}</p>
 
-                <ul class="mt-3 flex-1 space-y-1 text-xs text-ink-soft">
+                {{-- Label left, value right, so the four plans can be compared row by row. --}}
+                <dl class="mt-3 flex-1 divide-y divide-line text-xs">
                     @foreach ($plan->resolvedFeatures() as $feature => $value)
-                        <li>
-                            {{ __($catalog[$feature]['label']) }}:
-                            <span class="font-medium text-ink">{{ is_bool($value) ? ($value ? __('Yes') : __('No')) : ($value === null ? __('Unlimited') : Number::format($value)) }}</span>
-                        </li>
+                        <div class="flex items-baseline justify-between gap-3 py-1.5">
+                            <dt class="text-ink-soft">{{ __($catalog[$feature]['label']) }}</dt>
+                            <dd class="shrink-0 text-right font-medium tabular-nums text-ink">
+                                @if (is_bool($value))
+                                    <i @class(['fa-solid', 'fa-check text-sage' => $value, 'fa-minus text-muted' => ! $value]) aria-hidden="true"></i>
+                                    <span class="sr-only">{{ $value ? __('Yes') : __('No') }}</span>
+                                @else
+                                    {{ $value === null ? __('Unlimited') : Number::format($value) }}
+                                @endif
+                            </dd>
+                        </div>
                     @endforeach
-                </ul>
+                </dl>
 
                 <ul class="mt-3 space-y-1 border-t border-line pt-3 text-sm">
                     @forelse ($plan->prices as $price)
@@ -49,6 +57,9 @@
             </x-ui.card>
         @endforelse
     </div>
+    @if ($plans->hasPages())
+        <div>{{ $plans->links() }}</div>
+    @endif
 
     @if ($showForm)
         @teleport('body')

@@ -44,7 +44,7 @@
                 <p class="bc-hero__body">{{ $panel['desktop_text'] }}</p>
             @endif
         </div>
-        @include('invitation.partials.ornaments', ['ornaments' => $cover['desktop_ornaments'] ?? []])
+        @include('invitation.partials.ornaments', ['ornaments' => $cover['desktop_ornaments'] ?? [], 'owner' => $cover['key'] ?? '', 'list' => 'desktop_ornaments'])
     </aside>
 
     <div class="bc-column">

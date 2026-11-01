@@ -44,10 +44,10 @@
             </div>
         @endif
 
-        <div class="mb-6 grid gap-4 sm:grid-cols-3">
-            <x-ui.stat-card :label="__('Platform messages this month')" :value="Number::format($usage['used'])" icon="fa-regular fa-paper-plane" />
-            <x-ui.stat-card :label="__('Monthly limit')" :value="$usage['limit'] === null ? __('Unlimited') : Number::format($usage['limit'])" icon="fa-solid fa-gauge" />
-            <x-ui.stat-card :label="__('Remaining')" :value="$usage['remaining'] === null ? '—' : Number::format($usage['remaining'])" icon="fa-regular fa-hourglass" />
+        <div class="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+            <x-ui.stat-card :label="__('Platform messages this month')" :value="Number::format($usage['used'])" />
+            <x-ui.stat-card :label="__('Monthly limit')" :value="$usage['limit'] === null ? __('Unlimited') : Number::format($usage['limit'])" />
+            <x-ui.stat-card :label="__('Remaining')" :value="$usage['remaining'] === null ? __('Unlimited') : Number::format($usage['remaining'])" />
         </div>
 
         <x-ui.card :title="__('Campaigns')" padding="p-0">
@@ -82,7 +82,9 @@
                         </li>
                     @endforeach
                 </ul>
-                <div class="border-t border-line px-4 py-3">{{ $campaigns->links() }}</div>
+                @if ($campaigns->hasPages())
+                    <div class="border-t border-line px-4 py-3">{{ $campaigns->links() }}</div>
+                @endif
             @endif
         </x-ui.card>
     @endif

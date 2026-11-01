@@ -14,6 +14,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 /**
  * Admin configuration of the platform's WhatsApp providers (rules.md section 39).
@@ -21,7 +22,7 @@ use Livewire\Component;
  */
 class WhatsAppProviderManager extends Component
 {
-    use Notifies;
+    use Notifies, WithPagination;
 
     public bool $showForm = false;
 
@@ -145,7 +146,7 @@ class WhatsAppProviderManager extends Component
         $driver = WhatsAppDriver::tryFrom($this->driver) ?? WhatsAppDriver::Fonnte;
 
         return view('livewire.whats-app-provider-manager', [
-            'providers' => WhatsAppProvider::query()->platform()->orderByDesc('is_active')->orderBy('name')->get(),
+            'providers' => WhatsAppProvider::query()->platform()->orderByDesc('is_active')->orderBy('name')->paginate(20),
             'drivers' => WhatsAppDriver::cases(),
             'fields' => $driver->credentialFields(),
             'webhookUrl' => $driver->supportsStatusWebhook() ? route('webhooks.whatsapp', ['driver' => $driver->value]) : null,

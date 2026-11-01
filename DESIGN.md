@@ -54,10 +54,15 @@ Dial: ENERGY 1 / RHYTHM 1 / MOTION 1
 
 - Mood: alat kerja yang tenang. Fokus pada data dan form, bukan dekorasi.
 - Palet inti (Tailwind):
-  - Ink `#1f2d2a` (teks utama), ink soft `#3a4a46`, muted `#6b7a74`
+  - Ink `#1f2d2a` (teks utama), ink soft `#3a4a46`, muted `#5e6d67` (4.9:1 di paper, 5.4:1 di putih; versi lama `#6b7a74` gagal AA di paper)
   - Paper `#f6f4ef` (latar halaman), putih untuk kartu, line `#e5e2da`
   - Sage `#365149` (navigasi aktif, link), sage soft `#e7ece8`
-  - Aksen tunggal terracotta `#c8634b` (aksi utama), hover `#b25540`, soft `#f8e9e4`
+  - Aksen tunggal terracotta `#ae543d` (aksi utama, teks putih 5.1:1), hover `#984632`, soft `#f8e9e4`
+- Komposisi: halaman dibangun dari keputusan yang diambil di sana. Dasbor admin dibuka dengan "Perlu tindakan" (pesanan menunggu pembayaran, akun ditangguhkan, template draf) yang menaut ke daftar terfilter; angka dan daftar terbaru di bawahnya.
+- Kartu angka (`x-ui.stat-card`): label kecil di atas angka, datar tanpa ikon dan tanpa bayangan. Dasbor klien baru menampilkannya setelah ada undangan.
+- Badge hanya untuk keadaan yang tidak biasa (ditangguhkan, draf, admin), bukan untuk keadaan normal seperti "Aktif" atau "Terbit".
+- Aksi jarang di kartu (terbitkan, duplikat, ekspor, hapus) masuk menu "Lainnya"; aksi harian tetap terlihat.
+- Tidak ada kontrol mati: kotak cari global dihapus sampai ada fitur pencariannya.
 - Tipografi: DM Sans untuk UI, Playfair Display (`font-display`) untuk judul halaman.
 - Bentuk: radius `xl` 0.875rem, bayangan `shadow-soft` sangat tipis sebagai penanda elevasi kartu.
 - Grafik: palet `.viz-root` di `app.css` (biru `#2a78d6`, oranye `#eb6834`), sudah dicek untuk buta warna dan kontras 3:1.

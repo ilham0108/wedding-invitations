@@ -12,13 +12,14 @@ use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 /**
  * Admin CMS: static pages of the marketing site (terms, privacy, …), written in Markdown.
  */
 class PageManager extends Component
 {
-    use Notifies;
+    use Notifies, WithPagination;
 
     public bool $editing = false;
 
@@ -107,7 +108,7 @@ class PageManager extends Component
     public function render(): View
     {
         return view('livewire.page-manager', [
-            'pages' => Page::query()->ordered()->get(),
+            'pages' => Page::query()->ordered()->paginate(20),
             'previewHtml' => $this->editing && $this->preview ? (new Page(['body' => (string) ($this->form['body'] ?? '')]))->html() : null,
         ]);
     }

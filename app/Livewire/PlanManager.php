@@ -13,13 +13,14 @@ use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 /**
  * Admin: plans, their features (from config/plans.php), and their prices.
  */
 class PlanManager extends Component
 {
-    use Notifies;
+    use Notifies, WithPagination;
 
     public bool $showForm = false;
 
@@ -134,7 +135,7 @@ class PlanManager extends Component
     public function render(): View
     {
         return view('livewire.plan-manager', [
-            'plans' => Plan::query()->ordered()->with('prices')->withCount(['subscriptions' => fn ($query) => $query->where('status', SubscriptionStatus::Active)])->get(),
+            'plans' => Plan::query()->ordered()->with('prices')->withCount(['subscriptions' => fn ($query) => $query->where('status', SubscriptionStatus::Active)])->paginate(12),
             'catalog' => config('plans.features'),
             'periods' => BillingPeriod::cases(),
         ]);

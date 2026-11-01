@@ -377,6 +377,9 @@ return [
         'button_style' => ['solid', 'outline', 'pill'],
         'border_radius' => ['none', 'small', 'medium', 'large'],
         'section_spacing' => ['compact', 'normal', 'relaxed'],
+        // "default" keeps each design's own weights; a number overrides headings / running text.
+        'heading_weight' => ['default', '100', '200', '300', '400', '500', '600', '700', '800', '900'],
+        'body_weight' => ['default', '100', '200', '300', '400', '500', '600', '700', '800', '900'],
     ],
 
     'default_theme' => [
@@ -387,6 +390,8 @@ return [
         'text_color' => '#1f2d2a',
         'font_heading' => 'Playfair Display',
         'font_body' => 'DM Sans',
+        'heading_weight' => 'default',
+        'body_weight' => 'default',
         'button_style' => 'solid',
         'border_radius' => 'medium',
         'section_spacing' => 'normal',

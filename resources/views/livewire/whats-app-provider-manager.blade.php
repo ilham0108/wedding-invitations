@@ -41,6 +41,9 @@
                     </li>
                 @endforeach
             </ul>
+            @if ($providers->hasPages())
+                <div class="border-t border-line px-4 py-3">{{ $providers->links() }}</div>
+            @endif
         @endif
     </x-ui.card>
 

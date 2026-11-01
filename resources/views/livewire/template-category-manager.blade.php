@@ -49,6 +49,9 @@
                     </tbody>
                 </table>
             </div>
+            @if ($categories->hasPages())
+                <div class="border-t border-line px-4 py-3">{{ $categories->links() }}</div>
+            @endif
         @endif
     </x-ui.card>
 

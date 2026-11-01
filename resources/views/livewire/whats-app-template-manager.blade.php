@@ -21,6 +21,9 @@
                     </li>
                 @endforeach
             </ul>
+            @if ($templates->hasPages())
+                <div class="border-t border-line px-4 py-3">{{ $templates->links() }}</div>
+            @endif
         @endif
     </x-ui.card>
 

@@ -2,6 +2,7 @@
 
 namespace App\Services\Invitation;
 
+use App\Services\FontRegistry;
 use Illuminate\Validation\Rule;
 
 /**
@@ -62,7 +63,7 @@ class ThemeResolver
 
         return match (true) {
             str_ends_with($key, '_color') => is_string($value) && preg_match('/^#[0-9a-fA-F]{6}$/', $value) === 1,
-            str_starts_with($key, 'font_') => is_string($value) && isset(config('invitation.fonts')[$value]),
+            str_starts_with($key, 'font_') => $this->fonts()->has($value),
             isset($options[$key]) => in_array($value, $options[$key], true),
             default => false,
         };
@@ -76,7 +77,8 @@ class ThemeResolver
     public function rules(string $prefix = 'theme'): array
     {
         $options = config('invitation.theme_options');
-        $fonts = array_keys(config('invitation.fonts'));
+        // Hidden fonts still validate, so a theme that already uses one can be saved again.
+        $fonts = array_keys($this->fonts()->all());
         $hex = 'regex:/^#[0-9a-fA-F]{6}$/';
 
         return [
@@ -87,6 +89,8 @@ class ThemeResolver
             "{$prefix}.text_color" => ['required', $hex],
             "{$prefix}.font_heading" => ['required', Rule::in($fonts)],
             "{$prefix}.font_body" => ['required', Rule::in($fonts)],
+            "{$prefix}.heading_weight" => ['required', Rule::in($options['heading_weight'])],
+            "{$prefix}.body_weight" => ['required', Rule::in($options['body_weight'])],
             "{$prefix}.button_style" => ['required', Rule::in($options['button_style'])],
             "{$prefix}.border_radius" => ['required', Rule::in($options['border_radius'])],
             "{$prefix}.section_spacing" => ['required', Rule::in($options['section_spacing'])],
@@ -103,7 +107,7 @@ class ThemeResolver
      */
     public function cssVariables(array $theme): string
     {
-        $fonts = config('invitation.fonts');
+        $fonts = $this->fonts()->all();
 
         $variables = [
             '--inv-primary' => $theme['primary_color'],
@@ -116,9 +120,12 @@ class ThemeResolver
             '--inv-font-body' => "'{$theme['font_body']}', {$fonts[$theme['font_body']]['fallback']}",
             '--inv-radius' => self::RADIUS[$theme['border_radius']],
             '--inv-spacing' => self::SPACING[$theme['section_spacing']],
+            // Only when chosen; invitation.css applies them under body[data-inv-heading-weight] / [data-inv-body-weight].
+            '--inv-heading-weight' => $theme['heading_weight'] !== 'default' ? $theme['heading_weight'] : null,
+            '--inv-body-weight' => $theme['body_weight'] !== 'default' ? $theme['body_weight'] : null,
         ];
 
-        return collect($variables)->map(fn (string $value, string $name): string => "{$name}: {$value};")->implode(' ');
+        return collect(array_filter($variables, fn (?string $value): bool => $value !== null))->map(fn (string $value, string $name): string => "{$name}: {$value};")->implode(' ');
     }
 
     /**
@@ -127,14 +134,7 @@ class ThemeResolver
      */
     public function fontStylesheetUrl(array $theme, array $extraFonts = []): string
     {
-        $fonts = config('invitation.fonts');
-        $families = collect([$theme['font_heading'], $theme['font_body'], ...$extraFonts])
-            ->filter(fn (string $font): bool => isset($fonts[$font]))
-            ->unique()
-            ->map(fn (string $font): string => $fonts[$font]['bunny'])
-            ->implode('|');
-
-        return 'https://fonts.bunny.net/css?family='.$families.'&display=swap';
+        return $this->fonts()->stylesheetUrl([$theme['font_heading'], $theme['font_body'], ...$extraFonts]);
     }
 
     /**
@@ -143,6 +143,11 @@ class ThemeResolver
     public function presets(): array
     {
         return config('invitation.theme_presets');
+    }
+
+    private function fonts(): FontRegistry
+    {
+        return app(FontRegistry::class);
     }
 
     private function readableTextOn(string $hexColor): string

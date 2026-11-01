@@ -26,7 +26,7 @@
                     <li wire:key="message-{{ $message->ulid }}" class="flex flex-wrap items-start gap-3 px-5 py-4">
                         <div class="min-w-0 flex-1">
                             <p class="text-sm text-ink">{{ $message->message }}</p>
-                            <p class="mt-1 text-xs text-muted">— {{ $message->name }} · {{ $message->created_at->diffForHumans() }}</p>
+                            <p class="mt-1 text-xs text-muted">{{ $message->name }} · {{ $message->created_at->diffForHumans() }}</p>
                         </div>
                         <div class="flex items-center gap-1">
                             <x-ui.badge :variant="$message->status->badgeVariant()">{{ __($message->status->label()) }}</x-ui.badge>
@@ -42,7 +42,9 @@
                     </li>
                 @endforeach
             </ul>
-            <div class="border-t border-line px-4 py-3">{{ $messages->links() }}</div>
+            @if ($messages->hasPages())
+                <div class="border-t border-line px-4 py-3">{{ $messages->links() }}</div>
+            @endif
         @endif
     </x-ui.card>
 </div>

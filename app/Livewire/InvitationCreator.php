@@ -14,13 +14,19 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 /**
  * Creation wizard (rules.md section 12): event type → template → basic info → create.
  */
 class InvitationCreator extends Component
 {
+    use WithPagination;
+
+    private const TEMPLATES_PER_PAGE = 20;
+
     public int $step = 1;
 
     public ?string $eventType = null;
@@ -55,6 +61,7 @@ class InvitationCreator extends Component
         $this->eventType = EventType::tryFrom($eventType)?->value;
         $this->templateSlug = null;
         $this->step = $this->eventType ? 2 : 1;
+        $this->resetPage();
     }
 
     public function selectTemplate(string $slug, TemplateCatalog $catalog): void
@@ -104,12 +111,15 @@ class InvitationCreator extends Component
     public function render(TemplateCatalog $catalog): View
     {
         $eventType = EventType::tryFrom((string) $this->eventType);
-        $templates = $eventType ? $catalog->forEventType($eventType) : collect();
+        $matching = $eventType ? $catalog->forEventType($eventType) : collect();
+        $templates = ($matching->isNotEmpty() ? $matching : $catalog->publishedTemplates())->values();
+        $page = $this->getPage();
 
         return view('livewire.invitation-creator', [
             'eventTypes' => EventType::cases(),
-            'templates' => $templates->isNotEmpty() ? $templates : $catalog->publishedTemplates(),
-            'showingAllTemplates' => $templates->isEmpty(),
+            // The catalog is a cached list, so one page is sliced from it.
+            'templates' => new LengthAwarePaginator($templates->forPage($page, self::TEMPLATES_PER_PAGE)->values(), $templates->count(), self::TEMPLATES_PER_PAGE, $page),
+            'showingAllTemplates' => $matching->isEmpty(),
             'selectedTemplate' => $this->templateSlug ? $catalog->findPublished($this->templateSlug) : null,
             'timezones' => timezone_identifiers_list(),
         ]);

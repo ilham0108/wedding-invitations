@@ -17,7 +17,7 @@
 
             <dl class="mt-5 grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
                 <div><dt class="text-xs text-muted">{{ __('Joined') }}</dt><dd class="text-ink">{{ $user->created_at->translatedFormat('d M Y, H:i') }}</dd></div>
-                <div><dt class="text-xs text-muted">{{ __('Last login') }}</dt><dd class="text-ink">{{ $user->last_login_at?->translatedFormat('d M Y, H:i') ?? '—' }}</dd></div>
+                <div><dt class="text-xs text-muted">{{ __('Last login') }}</dt><dd class="text-ink">{{ $user->last_login_at?->translatedFormat('d M Y, H:i') ?? __('Never') }}</dd></div>
                 <div><dt class="text-xs text-muted">{{ __('Email verified') }}</dt><dd class="text-ink">{{ $user->email_verified_at ? __('Yes') : __('No') }}</dd></div>
                 <div><dt class="text-xs text-muted">{{ __('Timezone') }}</dt><dd class="text-ink">{{ $user->timezone }}</dd></div>
                 @if ($user->suspended_at)
@@ -27,21 +27,24 @@
         </x-ui.card>
 
         <x-ui.card :title="__('Invitations')" padding="p-0">
-            @if ($user->invitations->isEmpty())
+            @if ($invitations->isEmpty())
                 <p class="p-5 text-sm text-muted">{{ __('No invitations yet.') }}</p>
             @else
                 <ul class="divide-y divide-line">
-                    @foreach ($user->invitations as $invitation)
+                    @foreach ($invitations as $invitation)
                         <li wire:key="user-invitation-{{ $invitation->ulid }}" class="flex flex-wrap items-center gap-3 px-5 py-3 text-sm">
-                            <div class="min-w-0 flex-1">
+                            <div class="min-w-0 basis-full sm:basis-0 sm:flex-1">
                                 <p class="truncate font-medium text-ink">{{ $invitation->title }}</p>
-                                <p class="text-xs text-muted">{{ $invitation->template?->name ?? '—' }} · {{ trans_choice(':count guest|:count guests', $invitation->guests_count) }} · {{ $invitation->created_at->translatedFormat('d M Y') }}</p>
+                                <p class="text-xs text-muted">{{ $invitation->template?->name ?? __('No template') }} · {{ trans_choice(':count guest|:count guests', $invitation->guests_count) }} · {{ $invitation->created_at->translatedFormat('d M Y') }}</p>
                             </div>
                             <x-ui.badge :variant="$invitation->status->badgeVariant()">{{ $invitation->status->label() }}</x-ui.badge>
                             <x-ui.button :href="route('dashboard.invitations.preview', $invitation)" variant="ghost" size="sm" icon="fa-regular fa-eye" target="_blank">{{ __('Preview') }}</x-ui.button>
                         </li>
                     @endforeach
                 </ul>
+                @if ($invitations->hasPages())
+                    <div class="border-t border-line px-4 py-3">{{ $invitations->links() }}</div>
+                @endif
             @endif
         </x-ui.card>
 

@@ -116,7 +116,7 @@
                     @foreach ($orders as $order)
                         <li>
                             <a href="{{ route('dashboard.subscription.orders.show', $order) }}" class="flex flex-wrap items-center gap-3 px-5 py-3 hover:bg-paper/60">
-                                <div class="min-w-0 flex-1">
+                                <div class="min-w-0 basis-full sm:basis-0 sm:flex-1">
                                     <p class="font-medium text-ink">{{ $order->plan->name }} <span class="font-normal text-muted">· {{ $order->number }}</span></p>
                                     <p class="text-xs text-muted">{{ $order->created_at->translatedFormat('d M Y, H:i') }} · {{ \App\Support\Money::format($order->amount, $order->currency) }}</p>
                                 </div>
@@ -125,6 +125,9 @@
                         </li>
                     @endforeach
                 </ul>
+                @if ($orders->hasPages())
+                    <div class="border-t border-line px-4 py-3">{{ $orders->links() }}</div>
+                @endif
             @endif
         </x-ui.card>
     </div>

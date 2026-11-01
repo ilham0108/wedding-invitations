@@ -12,7 +12,7 @@
         @if ($order->status->value === 'paid')
             <div class="mt-6 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-700" role="status">
                 <i class="fa-regular fa-circle-check mr-1" aria-hidden="true"></i>
-                {{ __('Payment received. Your :plan plan is active until :date.', ['plan' => $order->plan->name, 'date' => $order->subscription?->ends_at?->translatedFormat('d F Y') ?? '—']) }}
+                {{ __('Payment received. Your :plan plan is active until :date.', ['plan' => $order->plan->name, 'date' => $order->subscription?->ends_at?->translatedFormat('d F Y') ?? __('not set')]) }}
             </div>
             <x-ui.button :href="route('dashboard')" class="mt-4">{{ __('Back to dashboard') }}</x-ui.button>
         @elseif ($pending)

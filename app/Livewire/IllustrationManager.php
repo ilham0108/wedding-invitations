@@ -16,13 +16,14 @@ use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
+use Livewire\WithPagination;
 
 /**
  * Admin library of 2D illustrations that clients can use instead of photos.
  */
 class IllustrationManager extends Component
 {
-    use Notifies, WithFileUploads;
+    use Notifies, WithFileUploads, WithPagination;
 
     private const MAX_FILES_PER_UPLOAD = 20;
 
@@ -43,6 +44,11 @@ class IllustrationManager extends Component
         if ($this->category !== '') {
             $this->uploadCategory = $this->category;
         }
+    }
+
+    public function updatedCategory(): void
+    {
+        $this->resetPage();
     }
 
     /**
@@ -68,6 +74,7 @@ class IllustrationManager extends Component
         $this->notify('success', trans_choice(':count illustration added.|:count illustrations added.', count($this->files)));
         $this->files = [];
         $this->category = $category->value;
+        $this->resetPage();
     }
 
     public function rename(string $illustrationUlid, string $name): void
@@ -120,9 +127,12 @@ class IllustrationManager extends Component
                 ->when($filter, fn ($query) => $query->where('category', $filter))
                 ->orderBy('category')
                 ->ordered()
-                ->get(),
+                ->paginate(35),
             'categories' => IllustrationCategory::cases(),
-            'counts' => Illustration::query()->get(['category'])->countBy(fn (Illustration $illustration): string => $illustration->category->value),
+            // One COUNT per category instead of loading every illustration row.
+            'counts' => collect(IllustrationCategory::cases())->mapWithKeys(fn (IllustrationCategory $category): array => [
+                $category->value => Illustration::query()->where('category', $category)->count(),
+            ]),
         ]);
     }
 

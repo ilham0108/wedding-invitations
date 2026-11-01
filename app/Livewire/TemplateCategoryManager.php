@@ -13,13 +13,14 @@ use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 /**
  * Admin: template categories. Each category serves one event type in the creation wizard.
  */
 class TemplateCategoryManager extends Component
 {
-    use Notifies;
+    use Notifies, WithPagination;
 
     private const ICON_PATTERN = '/^fa-(solid|regular|brands) fa-[a-z0-9-]+$/';
 
@@ -146,7 +147,7 @@ class TemplateCategoryManager extends Component
                 ->withCount(['templates', 'templates as published_templates_count' => fn ($query) => $query->published()])
                 ->orderBy('sort_order')
                 ->orderBy('name')
-                ->get(),
+                ->paginate(20),
             'eventTypes' => EventType::cases(),
         ]);
     }

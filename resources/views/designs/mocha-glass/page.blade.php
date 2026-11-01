@@ -46,7 +46,7 @@
             @endif
         </div>
         <span class="mg-frame mg-frame--bottom"></span>
-        @include('invitation.partials.ornaments', ['ornaments' => $cover['desktop_ornaments'] ?? []])
+        @include('invitation.partials.ornaments', ['ornaments' => $cover['desktop_ornaments'] ?? [], 'owner' => $cover['key'] ?? '', 'list' => 'desktop_ornaments'])
     </aside>
 
     @if ($cover)
@@ -69,7 +69,7 @@
                 </div>
             @endif
             @include('designs.mocha-glass.partials.guest')
-            @include('invitation.partials.ornaments', ['ornaments' => $cover['ornaments']])
+            @include('invitation.partials.ornaments', ['ornaments' => $cover['ornaments'], 'owner' => $cover['key']])
         </div>
     @endif
 

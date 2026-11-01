@@ -1,9 +1,9 @@
 <div class="space-y-6">
     {{-- Summary --}}
-    <div class="grid gap-4 sm:grid-cols-3">
-        <x-ui.stat-card :label="__('Invited')" :value="Number::format($stats['guests'])" icon="fa-solid fa-user-group" />
-        <x-ui.stat-card :label="__('Total people')" :value="Number::format($stats['people'])" icon="fa-solid fa-people-group" />
-        <x-ui.stat-card :label="__('Attending')" :value="Number::format($stats['attending'])" icon="fa-regular fa-circle-check" />
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+        <x-ui.stat-card :label="__('Invited')" :value="Number::format($stats['guests'])" />
+        <x-ui.stat-card :label="__('Total people')" :value="Number::format($stats['people'])" />
+        <x-ui.stat-card :label="__('Attending')" :value="Number::format($stats['attending'])" />
     </div>
 
     <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_260px]">
@@ -108,7 +108,7 @@
                                     </td>
                                     <td class="px-3 py-3 tabular-nums">{{ $guest->number_of_guests }}</td>
                                     <td class="px-3 py-3"><x-ui.badge :variant="$guest->rsvp_status->badgeVariant()">{{ __($guest->rsvp_status->label()) }}</x-ui.badge></td>
-                                    <td class="hidden px-3 py-3 text-ink-soft md:table-cell">{{ $guest->group?->name ?? '—' }}</td>
+                                    <td class="hidden px-3 py-3 text-ink-soft md:table-cell">{{ $guest->group?->name ?? __('No group') }}</td>
                                     <td class="hidden px-3 py-3 md:table-cell"><x-ui.badge :variant="$guest->invitation_status->badgeVariant()">{{ __($guest->invitation_status->label()) }}</x-ui.badge></td>
                                     <td class="px-3 py-3">
                                         <div class="flex items-center justify-end gap-1" x-data="{ copied: false }">
@@ -129,7 +129,9 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="border-t border-line px-4 py-3">{{ $guests->links() }}</div>
+                @if ($guests->hasPages())
+                    <div class="border-t border-line px-4 py-3">{{ $guests->links() }}</div>
+                @endif
             @endif
         </x-ui.card>
 

@@ -27,6 +27,7 @@ class AuditLogViewer extends Component
         'template' => 'Templates',
         'illustration' => 'Illustrations',
         'music' => 'Music',
+        'font' => 'Fonts',
         'whatsapp' => 'WhatsApp',
         'order' => 'Orders',
         'payment' => 'Payments',

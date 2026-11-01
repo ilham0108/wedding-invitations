@@ -36,18 +36,34 @@
         </div>
     </div>
 
-    @foreach (['font_heading' => __('Heading font'), 'font_body' => __('Body font')] as $key => $label)
-        <x-ui.field :name="'theme_'.$key" :label="$label">
-            <select id="theme_{{ $key }}" wire:model.live="theme.{{ $key }}" class="block w-full rounded-lg border-line text-sm focus:border-sage focus:ring-sage">
-                @foreach ($fontsByCategory as $category => $fonts)
-                    <optgroup label="{{ __(ucfirst($category)) }}">
-                        @foreach ($fonts as $font)
-                            <option value="{{ $font['name'] }}">{{ $font['name'] }}</option>
-                        @endforeach
-                    </optgroup>
-                @endforeach
-            </select>
-        </x-ui.field>
+    @php
+        $weightNames = ['100' => __('Thin'), '200' => __('Extra light'), '300' => __('Light'), '400' => __('Regular'), '500' => __('Medium'), '600' => __('Semibold'), '700' => __('Bold'), '800' => __('Extra bold'), '900' => __('Black')];
+    @endphp
+    @foreach (['font_heading' => [__('Heading font'), 'heading_weight', __('Heading weight')], 'font_body' => [__('Body font'), 'body_weight', __('Text weight')]] as $key => [$label, $weightKey, $weightLabel])
+        <div class="space-y-2">
+            <x-ui.field :name="'theme_'.$key" :label="$label">
+                <select id="theme_{{ $key }}" wire:model.live="theme.{{ $key }}" class="block w-full rounded-lg border-line text-sm focus:border-sage focus:ring-sage">
+                    @foreach ($fontsByCategory as $category => $fonts)
+                        <optgroup label="{{ __(ucfirst($category)) }}">
+                            @foreach ($fonts as $font)
+                                <option value="{{ $font['name'] }}">{{ $font['name'] }}</option>
+                            @endforeach
+                        </optgroup>
+                    @endforeach
+                </select>
+            </x-ui.field>
+            {{-- Only the weights this font loads, so the browser never fakes a bold. --}}
+            <div class="flex items-center gap-3">
+                <label for="theme_{{ $weightKey }}" class="shrink-0 text-xs text-ink-soft">{{ $weightLabel }}</label>
+                <select id="theme_{{ $weightKey }}" wire:model.live="theme.{{ $weightKey }}" class="block w-full rounded-lg border-line py-1.5 text-xs focus:border-sage focus:ring-sage">
+                    <option value="default">{{ __('Follow the design') }}</option>
+                    @foreach ($fontWeights[$weightKey] as $weight)
+                        <option value="{{ $weight }}">{{ $weight }} · {{ $weightNames[$weight] ?? $weight }}</option>
+                    @endforeach
+                </select>
+            </div>
+            @error('theme.'.$weightKey)<p class="text-xs text-red-600">{{ $message }}</p>@enderror
+        </div>
     @endforeach
 
     @foreach (['button_style' => __('Button style'), 'border_radius' => __('Border radius'), 'section_spacing' => __('Section spacing')] as $key => $label)

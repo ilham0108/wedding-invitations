@@ -43,6 +43,9 @@
     data-inv-heading-ornament="{{ in_array($invitation->decoration['heading_ornament'], ['design', 'none', 'image'], true) ? $invitation->decoration['heading_ornament'] : 'mask' }}"
     data-inv-heading-ornament-size="{{ $invitation->decoration['heading_ornament_size'] }}"
     data-inv-heading-scale="{{ $invitation->decoration['heading_scale'] }}" data-inv-text-scale="{{ $invitation->decoration['text_scale'] }}"
+    {{-- Theme font weights, only when chosen (values come from --inv-heading-weight / --inv-body-weight). --}}
+    @if (($invitation->theme['heading_weight'] ?? 'default') !== 'default') data-inv-heading-weight="{{ $invitation->theme['heading_weight'] }}" @endif
+    @if (($invitation->theme['body_weight'] ?? 'default') !== 'default') data-inv-body-weight="{{ $invitation->theme['body_weight'] }}" @endif
     @if (filled($invitation->decoration['heading_ornament_url'] ?? null)) style="--inv-heading-ornament: {{ \App\Support\CssUrl::wrap($invitation->decoration['heading_ornament_url']) }}" @endif>
     {{ $slot }}
 </body>

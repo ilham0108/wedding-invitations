@@ -57,13 +57,6 @@
                     <i class="fa-solid fa-bars" aria-hidden="true"></i>
                 </button>
 
-                <label class="relative hidden max-w-sm flex-1 sm:block">
-                    <span class="sr-only">{{ __('Search') }}</span>
-                    <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted" aria-hidden="true"></i>
-                    <input type="search" placeholder="{{ __('Search…') }}" disabled title="{{ __('Search becomes available once invitations exist.') }}"
-                        class="h-9 w-full rounded-lg border-line bg-white pl-8 text-sm placeholder:text-muted/70 disabled:cursor-not-allowed disabled:opacity-70">
-                </label>
-
                 <div class="ml-auto flex items-center gap-1">
                     <x-ui.dropdown width="w-72">
                         <x-slot:trigger>
@@ -116,7 +109,8 @@
                 </div>
             </header>
 
-            <main @class(['w-full flex-1', 'mx-auto max-w-6xl px-4 py-8 sm:px-6' => ! $fullWidth])>
+            {{-- Content uses the full width of the screen; forms keep their own readable width. --}}
+            <main @class(['w-full flex-1', 'px-4 py-8 sm:px-6 lg:px-8 2xl:px-10' => ! $fullWidth])>
                 @if ($title)
                     <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
                         <div>

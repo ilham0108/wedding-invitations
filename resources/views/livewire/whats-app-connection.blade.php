@@ -4,7 +4,7 @@
             <x-ui.card padding="p-0">
                 <div class="flex flex-wrap items-center gap-3 px-5 py-4">
                     <span class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"><i class="fa-brands fa-whatsapp text-lg" aria-hidden="true"></i></span>
-                    <div class="min-w-0 flex-1">
+                    <div class="min-w-0 flex-1 basis-[calc(100%-3.25rem)] sm:basis-0">
                         <p class="font-medium text-ink">{{ $provider->name }} <x-ui.badge variant="success" class="ml-1">{{ __('Connected') }}</x-ui.badge></p>
                         <p class="text-xs text-muted">
                             {{ $provider->driver->label() }} · {{ __(':count messages per minute', ['count' => $provider->rate_per_minute]) }}

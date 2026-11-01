@@ -317,6 +317,24 @@
 [data-inv-text-scale='large'] { --inv-text-scale: 1.12; }
 [data-inv-text-scale='xlarge'] { --inv-text-scale: 1.25; }
 
+/*
+| Font weights (theme heading_weight / body_weight, Theme tab). Without the body attribute each design keeps
+| its own weights. Headings: section titles and the names set as titles, in every design; buttons, pills and
+| labels keep theirs. Body: the running text of the page.
+*/
+body[data-inv-heading-weight] :is(
+    .inv-heading,
+    .bc-title, .bc-classic .inv-heading, .bc-person__name, .bc-closing__title,
+    .mg-display, .mg-names, .mg-title, .mg-person h3, .mg-modal__title
+) {
+    font-weight: var(--inv-heading-weight);
+}
+
+body.inv-body[data-inv-body-weight],
+body[data-inv-body-weight] .mg {
+    font-weight: var(--inv-body-weight);
+}
+
 .inv-heading-size--smaller { --inv-section-heading-scale: 0.88; }
 .inv-heading-size--larger { --inv-section-heading-scale: 1.15; }
 .inv-heading-size--largest { --inv-section-heading-scale: 1.3; }

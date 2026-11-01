@@ -1,7 +1,7 @@
 <div class="space-y-6">
-    <div class="grid gap-4 sm:grid-cols-2">
-        <x-ui.stat-card :label="__('Revenue this month')" :value="\App\Support\Money::format($revenueThisMonth)" icon="fa-solid fa-sack-dollar" />
-        <x-ui.stat-card :label="__('Awaiting payment')" :value="Number::format($pendingCount)" icon="fa-regular fa-hourglass" />
+    <div class="grid grid-cols-2 gap-3 sm:gap-4">
+        <x-ui.stat-card :label="__('Revenue this month')" :value="\App\Support\Money::format($revenueThisMonth)" />
+        <x-ui.stat-card :label="__('Awaiting payment')" :value="Number::format($pendingCount)" />
     </div>
 
 
@@ -24,7 +24,7 @@
             <ul class="divide-y divide-line">
                 @foreach ($rows as $payment)
                     <li wire:key="payment-{{ $payment->ulid }}" class="flex flex-wrap items-center gap-3 px-5 py-3 text-sm">
-                        <div class="min-w-0 flex-1">
+                        <div class="min-w-0 basis-full sm:basis-0 sm:flex-1">
                             <p class="font-medium text-ink">{{ $payment->order->number }} <span class="font-normal text-muted">· {{ $payment->order->user->email }}</span></p>
                             <p class="text-xs text-muted">{{ ucfirst($payment->gateway) }} · {{ $payment->external_id }}@if ($payment->method) · {{ $payment->method }}@endif · {{ $payment->created_at->translatedFormat('d M Y, H:i') }}</p>
                         </div>
@@ -37,7 +37,7 @@
             <ul class="divide-y divide-line">
                 @foreach ($rows as $order)
                     <li wire:key="order-{{ $order->ulid }}" class="flex flex-wrap items-center gap-3 px-5 py-3 text-sm">
-                        <div class="min-w-0 flex-1">
+                        <div class="min-w-0 basis-full sm:basis-0 sm:flex-1">
                             <p class="font-medium text-ink">{{ $order->number }} · {{ $order->plan->name }}</p>
                             <p class="text-xs text-muted">{{ $order->user->name }} ({{ $order->user->email }}) · {{ $order->billing_period->label() }} · {{ $order->created_at->translatedFormat('d M Y, H:i') }}@if ($order->latestPayment) · {{ ucfirst($order->latestPayment->gateway) }}@endif</p>
                         </div>
@@ -56,6 +56,8 @@
                 @endforeach
             </ul>
         @endif
-        <div class="border-t border-line px-4 py-3">{{ $rows->links() }}</div>
+        @if ($rows->hasPages())
+            <div class="border-t border-line px-4 py-3">{{ $rows->links() }}</div>
+        @endif
     </x-ui.card>
 </div>

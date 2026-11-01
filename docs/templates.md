@@ -156,6 +156,22 @@ resources/css/designs/{key}.css, resources/js/designs/{key}.js
 3. Pindahkan CSS/JS ke file desain; ganti nilai `CONFIG` di JavaScript dengan `$config` dari Blade.
 4. Tambahkan template contoh di `InvitationTemplateSeeder` (`'design' => '{key}'`), lalu sempurnakan lewat Builder.
 
+## Font
+
+Tema memilih font **berdasarkan nama** (`theme.font_heading`, `theme.font_body`). Daftar lengkapnya dari
+`App\Services\FontRegistry`: 16 font bawaan di `config/invitation.php` (`fonts`, tidak bisa diubah dari admin)
+ditambah font yang dipasang admin di **Admin → Font** (tabel `fonts` dan `font_files`, izin `fonts.manage`).
+
+- **Dari Bunny Fonts:** admin mengetik nama, `BunnyFontCatalog` mencocokkannya ke katalog `fonts.bunny.net/list`
+  (di-cache sehari), lalu yang disimpan hanya parameter family-nya, misalnya `cormorant-infant:300,400,500,600,700`.
+- **Unggah file:** WOFF2/WOFF/TTF/OTF, dikenali dari isinya (`App\Support\FontFormat`), satu file per ketebalan dan
+  gaya, disimpan di disk `public` dalam `fonts/{ulid}/`.
+- `ThemeResolver::fontStylesheetUrl()` tetap menghasilkan satu URL. Kalau semua font berasal dari Bunny, URL-nya
+  langsung ke Bunny. Kalau ada font unggahan, URL-nya ke `route('fonts.stylesheet')`, yang mengeluarkan `@import`
+  Bunny dan `@font-face` untuk file unggahan, dengan `?v=` berupa versi registry supaya bisa di-cache permanen.
+- Nama font dibatasi huruf, angka, spasi, dan tanda hubung (`FontService::NAME_PATTERN`), karena nama itu ditulis ke CSS.
+- Font yang dipakai template atau undangan tidak bisa dihapus, hanya disembunyikan. Font tersembunyi hilang dari
+  pemilih font, tetapi tetap valid dan tetap dirender di tempat yang sudah memakainya.
 
 ## Ekspor & impor template (.zip)
 

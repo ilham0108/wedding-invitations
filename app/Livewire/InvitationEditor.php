@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Livewire\Concerns\ResolvesEditableInvitation;
 use App\Models\Invitation;
+use App\Services\FontRegistry;
 use App\Services\Invitation\InvitationService;
 use App\Services\Invitation\ThemeResolver;
 use App\Services\Subscription\SubscriptionLimitService;
@@ -132,7 +133,8 @@ class InvitationEditor extends Component
             'previewUrl' => route('dashboard.invitations.preview', ['invitation' => $invitation, 'embed' => 1]),
             'publicUrl' => route('invitations.public', $invitation->slug),
             'presets' => array_keys($themes->presets()),
-            'fontsByCategory' => collect(config('invitation.fonts'))->map(fn (array $font, string $name): array => [...$font, 'name' => $name])->groupBy('category'),
+            'fontsByCategory' => app(FontRegistry::class)->forPicker([$this->theme['font_heading'] ?? '', $this->theme['font_body'] ?? '']),
+            'fontWeights' => app(FontRegistry::class)->themeWeights($this->theme),
             'themeOptions' => config('invitation.theme_options'),
             'timezones' => timezone_identifiers_list(),
         ]);

@@ -21,6 +21,12 @@
         </div>
     @endif
     <p class="mb-3 text-xs text-muted">{{ __('Transparent images placed on this section. Later ones are drawn on top. Upload your own in Illustrations → Ornaments.') }}</p>
+    @if ($ornaments !== [])
+        <p class="mb-3 flex gap-2 rounded-lg bg-sage-soft px-3 py-2 text-xs text-ink-soft">
+            <i class="fa-solid fa-up-down-left-right mt-0.5 text-sage" aria-hidden="true"></i>
+            <span>{{ __('Drag an ornament in the preview to move it; drag its round handle to resize it.') }}</span>
+        </p>
+    @endif
 
     @if ($ornamentPicker)
         <div class="mb-3 rounded-lg border border-line bg-paper p-2">

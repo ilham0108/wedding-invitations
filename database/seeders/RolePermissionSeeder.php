@@ -22,6 +22,7 @@ class RolePermissionSeeder extends Seeder
             'templates.manage' => 'Manage templates',
             'illustrations.manage' => 'Manage illustrations',
             'music.manage' => 'Manage music',
+            'fonts.manage' => 'Manage fonts',
             'template-categories.manage' => 'Manage template categories',
             'plans.manage' => 'Manage packages',
             'subscriptions.manage' => 'Manage subscriptions',

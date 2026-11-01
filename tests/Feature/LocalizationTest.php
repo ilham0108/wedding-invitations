@@ -130,7 +130,9 @@ class LocalizationTest extends TestCase
         }
 
         array_push($keys, ...array_map('ucfirst', array_keys(config('invitation.theme_presets'))));
-        array_push($keys, ...array_map('ucfirst', array_merge(...array_values(config('invitation.theme_options')))));
+        // Weights are shown as numbers with their own translated names (theme-panel), not as __(ucfirst($option)).
+        $labelledOptions = array_diff_key(config('invitation.theme_options'), array_flip(['heading_weight', 'body_weight']));
+        array_push($keys, ...array_map('ucfirst', array_merge(...array_values($labelledOptions))));
         array_push($keys, ...array_values(array_map(fn (array $font): string => ucfirst($font['category']), config('invitation.fonts'))));
 
         array_push($keys, ...array_values(array_column(config('plans.features'), 'label')));

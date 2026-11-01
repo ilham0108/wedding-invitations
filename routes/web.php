@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\FontController;
 use App\Http\Controllers\Admin\IllustrationController;
 use App\Http\Controllers\Admin\MusicController;
 use App\Http\Controllers\Admin\OrderController;
@@ -23,6 +24,7 @@ use App\Http\Controllers\Dashboard\RsvpController;
 use App\Http\Controllers\Dashboard\SubscriptionController;
 use App\Http\Controllers\Dashboard\TemplateController;
 use App\Http\Controllers\Dashboard\WhatsAppController;
+use App\Http\Controllers\FontStylesheetController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InvitationRsvpController;
 use App\Http\Controllers\InvitationWishController;
@@ -38,6 +40,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', HomeController::class)->name('home');
 Route::get('/site.webmanifest', SiteManifestController::class)->name('site.manifest');
 Route::get('/page/{page:slug}', [PageController::class, 'show'])->name('pages.show');
+
+// @font-face rules for uploaded admin fonts (FontRegistry::stylesheetUrl()); public, like the invitations using them.
+Route::get('/fonts/stylesheet', FontStylesheetController::class)->name('fonts.stylesheet');
 
 Route::get('/templates/{template}/preview', TemplatePreviewController::class)->name('templates.preview');
 Route::get('/invitation/{slug}', [PublicInvitationController::class, 'show'])->name('invitations.public');
@@ -114,6 +119,7 @@ Route::middleware(['auth', 'active', 'verified'])->group(function () {
         Route::get('/template-categories', [TemplateCategoryController::class, 'index'])->name('template-categories.index');
         Route::get('/illustrations', [IllustrationController::class, 'index'])->name('illustrations.index');
         Route::get('/music', [MusicController::class, 'index'])->name('music.index');
+        Route::get('/fonts', [FontController::class, 'index'])->name('fonts.index');
         Route::get('/plans', [PlanController::class, 'index'])->name('plans.index');
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/payments', [OrderController::class, 'payments'])->name('payments.index');

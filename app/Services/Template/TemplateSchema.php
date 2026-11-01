@@ -10,6 +10,7 @@ use App\Services\Invitation\ThemeResolver;
 use App\Services\MusicService;
 use Closure;
 use Illuminate\Support\Facades\Validator;
+use App\Services\FontRegistry;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -220,7 +221,7 @@ class TemplateSchema
     {
         return match (true) {
             str_ends_with($key, '_color') => 'regex:/^#[0-9a-fA-F]{6}$/',
-            str_starts_with($key, 'font_') => Rule::in(array_keys(config('invitation.fonts'))),
+            str_starts_with($key, 'font_') => Rule::in(array_keys(app(FontRegistry::class)->all())),
             default => Rule::in(config("invitation.theme_options.{$key}", [])),
         };
     }

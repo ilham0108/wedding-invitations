@@ -31,6 +31,7 @@ return [
         ['label' => 'Categories', 'icon' => 'fa-solid fa-tags', 'route' => 'admin.template-categories.index'],
         ['label' => 'Illustrations', 'icon' => 'fa-solid fa-palette', 'route' => 'admin.illustrations.index'],
         ['label' => 'Music', 'icon' => 'fa-solid fa-music', 'route' => 'admin.music.index'],
+        ['label' => 'Fonts', 'icon' => 'fa-solid fa-font', 'route' => 'admin.fonts.index'],
         ['label' => 'Plans', 'icon' => 'fa-regular fa-gem', 'route' => 'admin.plans.index'],
         ['label' => 'Orders', 'icon' => 'fa-solid fa-receipt', 'route' => 'admin.orders.index'],
         ['label' => 'Payments', 'icon' => 'fa-regular fa-credit-card', 'route' => 'admin.payments.index'],

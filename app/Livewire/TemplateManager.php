@@ -21,6 +21,7 @@ use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
+use Livewire\WithPagination;
 
 /**
  * Admin: template catalog data and lifecycle (rules.md section 50).
@@ -28,7 +29,7 @@ use Livewire\WithFileUploads;
  */
 class TemplateManager extends Component
 {
-    use Notifies, WithFileUploads;
+    use Notifies, WithFileUploads, WithPagination;
 
     #[Url(except: '')]
     public string $search = '';
@@ -55,6 +56,13 @@ class TemplateManager extends Component
     public function mount(): void
     {
         Gate::authorize('templates.manage');
+    }
+
+    public function updated(string $property): void
+    {
+        if (in_array($property, ['search', 'category', 'status'], true)) {
+            $this->resetPage();
+        }
     }
 
     public function create(): void
@@ -233,13 +241,13 @@ class TemplateManager extends Component
                 ->orWhere('slug', 'like', '%'.addcslashes($search, '%_\\').'%')))
             ->orderBy('sort_order')
             ->orderBy('name')
-            ->get();
+            ->paginate(20);
         $draft = app(TemplateDraft::class);
 
         return view('livewire.template-manager', [
             'templates' => $templates,
             // Export uses the saved version; templates with unsaved builder changes of this admin get a warning.
-            'unsaved' => $templates->filter(fn (InvitationTemplate $template): bool => $draft->hasChanges($template, Auth::user()))->pluck('ulid')->all(),
+            'unsaved' => $templates->getCollection()->filter(fn (InvitationTemplate $template): bool => $draft->hasChanges($template, Auth::user()))->pluck('ulid')->all(),
             'categories' => TemplateCategory::query()->orderBy('sort_order')->orderBy('name')->get(['id', 'name', 'slug', 'is_active']),
             'statuses' => TemplateStatus::cases(),
             'editing' => $this->editingUlid ? $this->template($this->editingUlid) : null,

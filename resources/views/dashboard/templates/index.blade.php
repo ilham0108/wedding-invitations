@@ -8,23 +8,22 @@
             <x-ui.empty-state icon="fa-solid fa-swatchbook" :title="__('No templates are available yet.')" :description="__('Please check back soon.')" />
         </x-ui.card>
     @else
-        <div x-data="{ category: 'all' }">
-            <div class="mb-6 flex flex-wrap gap-2" role="tablist">
-                <button type="button" x-on:click="category = 'all'" class="rounded-full border px-4 py-1.5 text-sm transition"
-                    x-bind:class="category === 'all' ? 'border-ink bg-ink text-white' : 'border-line bg-white text-ink-soft hover:border-ink/30'">{{ __('All') }}</button>
-                @foreach ($categories as $category)
-                    <button type="button" x-on:click="category = @js($category->slug)" class="rounded-full border px-4 py-1.5 text-sm transition"
-                        x-bind:class="category === @js($category->slug) ? 'border-ink bg-ink text-white' : 'border-line bg-white text-ink-soft hover:border-ink/30'">{{ $category->name }}</button>
-                @endforeach
-            </div>
+        {{-- Category filter as links (?category=slug): the server filters and pages the list. --}}
+        <nav class="mb-6 flex flex-wrap gap-2" aria-label="{{ __('Filter by category') }}">
+            @foreach ([[null, __('All')], ...$categories->map(fn ($option): array => [$option->slug, $option->name])] as [$slug, $name])
+                <a href="{{ route('dashboard.templates.index', array_filter(['category' => $slug])) }}" @if ($category === $slug) aria-current="page" @endif
+                    @class(['inline-flex min-h-10 items-center rounded-full border px-4 text-sm transition', 'border-ink bg-ink text-white' => $category === $slug, 'border-line bg-white text-ink-soft hover:border-ink/30' => $category !== $slug])>{{ $name }}</a>
+            @endforeach
+        </nav>
 
-            <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                @foreach ($templates as $template)
-                    <div x-show="category === 'all' || category === @js($template->category->slug)">
-                        <x-template-card :template="$template" :use-url="route('dashboard.invitations.create', ['template' => $template->slug])" />
-                    </div>
-                @endforeach
-            </div>
+        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+            @foreach ($templates as $template)
+                <x-template-card :template="$template" :use-url="route('dashboard.invitations.create', ['template' => $template->slug])" />
+            @endforeach
         </div>
+
+        @if ($templates->hasPages())
+            <div class="mt-6">{{ $templates->links() }}</div>
+        @endif
     @endif
 </x-layouts.app>
