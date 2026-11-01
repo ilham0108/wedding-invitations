@@ -89,6 +89,26 @@ class SiteContentTest extends TestCase
         $this->get(route('home'))->assertSee('Buku Tamu Digital')->assertDontSee('Template Cantik');
     }
 
+    public function test_demo_items_jump_to_real_section_types(): void
+    {
+        $component = $this->manager('demo');
+        $count = count($component->get('form.items'));
+
+        $component->call('addItem')
+            ->assertSet("form.items.{$count}.section", 'cover')
+            ->set("form.items.{$count}.title", 'Galeri foto')
+            ->set("form.items.{$count}.section", 'not-a-section')
+            ->call('save')
+            ->assertHasErrors("form.items.{$count}.section")
+            ->set("form.items.{$count}.section", 'gallery')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        \App\Models\InvitationTemplate::factory()->create();
+
+        $this->get(route('home'))->assertSee('Galeri foto')->assertSee("go('gallery')", false);
+    }
+
     public function test_the_faq_appears_once_it_has_questions(): void
     {
         $this->manager('faq')

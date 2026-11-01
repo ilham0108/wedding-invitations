@@ -87,7 +87,7 @@
                     {{-- Sections without a Mocha Glass view keep their classic layout inside a glass card. --}}
                     <section id="section-{{ $section['key'] }}" data-section="{{ $section['type'] }}"
                         @include('invitation.partials.backdrop-attributes')
-                        @class(['mg-section mg-bg-'.$section['background'], 'inv-has-ornaments' => ! empty($section['ornaments'])])>
+                        @class(['mg-section mg-bg-'.$section['background'], 'inv-has-ornaments' => ! empty($section['ornaments']), 'inv-section--screen inv-section--'.$section['height'] => $section['height'] !== 'auto', 'inv-heading-size--'.$section['heading_size'] => $section['heading_size'] !== 'default', 'inv-text-size--'.$section['text_size'] => $section['text_size'] !== 'default'])>
                         <div class="inv-section-body mg-card mg-classic inv-animate">
                             @include($section['view'], ['config' => $section['config'], 'variant' => $section['variant']])
                         </div>

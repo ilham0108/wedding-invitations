@@ -12,6 +12,8 @@
     --bc-muted: color-mix(in srgb, var(--inv-text) 68%, transparent);
     --bc-line: color-mix(in srgb, var(--inv-text) 16%, transparent);
     --bc-shadow: 0 10px 30px color-mix(in srgb, var(--inv-text) 9%, transparent);
+    /* "Screen height" sections (invitation.css) end above the bottom menu. */
+    --inv-screen-height: calc(100svh - var(--bc-nav-h));
     background: color-mix(in srgb, var(--inv-bg) 82%, var(--inv-text) 18%);
     color: var(--inv-text);
     font-family: var(--inv-font-body);
@@ -109,6 +111,8 @@
 }
 
 .bc-section {
+    /* What the section looks like underneath, for photos that fade into it (closing). */
+    --bc-section-bg: var(--inv-bg);
     position: relative;
     padding: 56px 24px;
     text-align: center;
@@ -116,9 +120,13 @@
     scroll-margin-top: 58px;
 }
 
-.bc-bg-muted { background: color-mix(in srgb, var(--inv-surface) 75%, transparent); }
+.bc-bg-muted {
+    --bc-section-bg: color-mix(in srgb, var(--inv-surface) 75%, var(--inv-bg));
+    background: color-mix(in srgb, var(--inv-surface) 75%, transparent);
+}
 
 .bc-bg-primary {
+    --bc-section-bg: var(--inv-primary);
     background: var(--inv-primary);
     color: var(--inv-on-primary);
     --bc-muted: color-mix(in srgb, var(--inv-on-primary) 80%, transparent);
@@ -204,13 +212,13 @@
 }
 
 .bc-monogram svg {
-    width: 16px;
-    height: 22px;
+    width: 18px;
+    height: 18px;
     color: var(--inv-secondary);
 }
 
 .bc-monogram--large { margin-bottom: 1rem; font-size: 2.4rem; }
-.bc-monogram--large svg { width: 22px; height: 32px; }
+.bc-monogram--large svg { width: 26px; height: 26px; }
 
 .bc-btn {
     display: inline-flex;
@@ -296,8 +304,11 @@
     justify-content: center;
     width: var(--bc-panel);
     height: 58px;
-    transition: background 0.35s, box-shadow 0.35s;
+    transition: background 0.35s, box-shadow 0.35s, transform 0.35s ease;
 }
+
+/* Slid away while reading downwards (botanical-cream.js); 48px more clears the template preview bar too. */
+.bc-topbar.is-hidden { transform: translateY(calc(-100% - 48px)); }
 
 .bc-topbar.is-scrolled {
     background: color-mix(in srgb, var(--inv-bg) 92%, transparent);
@@ -544,6 +555,9 @@ body:has(.inv-preview-bar) .bc-topbar { top: 40px; }
 
 .bc-section--quote { padding-top: 12px; }
 
+/* Its own screen: even padding, so "content in the middle" really is in the middle. */
+.bc-section--quote.inv-section--screen { padding-top: 56px; }
+
 .bc-quote blockquote {
     max-width: 34ch;
     margin: 0 auto;
@@ -585,9 +599,10 @@ body:has(.inv-preview-bar) .bc-topbar { top: 40px; }
 
 /* ---------------------------------------------------------------- couple */
 
+/* minmax(0, …): the columns share the width instead of growing to the photo's own size. */
 .bc-people--grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
 }
 
@@ -610,11 +625,16 @@ body:has(.inv-preview-bar) .bc-topbar { top: 40px; }
     margin: 0 auto 16px;
 }
 
+/* Side by side: photos (plain, shaped or framed) fill their column. */
 .bc-people--grid .bc-portrait {
     width: 100%;
     height: auto;
     aspect-ratio: 1;
 }
+
+.bc-people--grid .bc-portrait-shape { width: 100%; }
+
+.bc-people--grid .bc-person { overflow-wrap: anywhere; }
 
 .bc-person__role {
     color: var(--inv-secondary);
@@ -993,38 +1013,80 @@ body:has(.inv-preview-bar) .bc-topbar { top: 40px; }
 .bc-wish small { display: block; color: var(--bc-muted); font-size: 0.72rem; }
 .bc-wish p { margin-top: 0.45rem; font-size: 0.92rem; line-height: 1.55; }
 
-.bc-closing p {
-    max-width: 34ch;
-    margin: 0.8rem auto 0;
-    line-height: 1.7;
+/* Closing without a card: the photo spans the column edge to edge and fades into the section background. */
+.bc-section--closing { padding-top: 0; }
+
+.bc-closing__photo {
+    position: relative;
+    margin: 0 -24px;
+    aspect-ratio: 4 / 5;
 }
 
-.bc-closing .bc-title { font-size: 2.2rem; }
+.bc-closing__photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bc-closing__photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 45%, color-mix(in srgb, var(--bc-section-bg) 65%, transparent) 78%, var(--bc-section-bg) 100%);
+}
+
+.bc-closing__body {
+    position: relative;
+    padding-top: 56px;
+}
+
+/* The title starts on the faded end of the photo. */
+.bc-closing--photo .bc-closing__body { margin-top: -96px; padding-top: 0; }
+
+.bc-diamond {
+    display: block;
+    width: 120px;
+    margin: 0 auto;
+    color: var(--inv-secondary);
+}
+
+.bc-closing__title {
+    margin: 0.35rem 0 0.4rem;
+    font-family: var(--inv-font-heading);
+    font-size: 2.3rem;
+    font-style: italic;
+    font-weight: 500;
+    line-height: 1.15;
+}
+
+.bc-closing p {
+    max-width: 30ch;
+    margin: 0.8rem auto 0;
+    line-height: 1.65;
+}
+
+.bc-closing__message { color: var(--bc-muted); }
 .bc-closing__inviters { color: var(--bc-muted); font-size: 0.9rem; }
-.bc-closing__signature { font-weight: 600; }
-.bc-closing .bc-monogram { margin-top: 1.6rem; }
+.bc-closing .bc-closing__sign-off { margin-top: 1.4rem; color: var(--bc-muted); }
+
+.bc-closing .bc-closing__signature {
+    margin-top: 0.2rem;
+    font-family: var(--inv-font-heading);
+    font-size: 1.75rem;
+    font-style: italic;
+    font-weight: 600;
+    line-height: 1.2;
+}
 
 /* Solid, so the last section's background photo stays with that section. */
-.bc-footer {
-    position: relative;
-    padding: 56px 24px 40px;
-    background: var(--inv-bg);
-    text-align: center;
-}
-
-.bc-footer .bc-title { font-size: 1.7rem; }
-
-.bc-footer__date {
-    margin-top: 0.4rem;
-    color: var(--bc-muted);
-}
-
-.bc-footer .bc-btn { margin-top: 18px; }
-
 .bc-branding {
-    margin-top: 28px;
+    position: relative;
+    padding: 18px 24px 22px;
+    background: var(--inv-bg);
     color: var(--bc-muted);
     font-size: 0.78rem;
+    text-align: center;
 }
 
 .bc-branding i { color: #c0504d; }

@@ -204,6 +204,72 @@
                         </div>
                     @endif
                     <div class="mb-6">
+                        <p class="mb-2 text-sm font-medium text-ink">{{ __('Font sizes') }}</p>
+                        <p class="mb-2 text-xs text-muted">{{ __('For every section; a section can still make its own headings or text smaller or larger.') }}</p>
+                        @foreach (['heading_scale' => __('Headings'), 'text_scale' => __('Text')] as $scaleKey => $scaleLabel)
+                            <p class="mb-1.5 mt-3 text-xs font-medium text-ink">{{ $scaleLabel }}</p>
+                            <div class="flex rounded-lg border border-line p-0.5">
+                                @foreach ($fontScales as $key => $fontLabel)
+                                    <button type="button" wire:click="setDecoration('{{ $scaleKey }}', '{{ $key }}')"
+                                        @class(['flex-1 rounded-md px-2 py-1.5 text-xs', 'bg-ink text-white' => $decoration[$scaleKey] === $key, 'text-ink-soft hover:bg-paper' => $decoration[$scaleKey] !== $key])>{{ __($fontLabel) }}</button>
+                                @endforeach
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <div class="mb-6">
+                        <p class="mb-2 text-sm font-medium text-ink">{{ __('Ornament under headings') }}</p>
+                        <p class="mb-2 text-xs text-muted">{{ __('Shown under every section heading. Built-in icons take the secondary color; your own image keeps its colors.') }}</p>
+                        <div class="grid grid-cols-3 gap-2">
+                            @foreach ($headingOrnaments as $key => $ornamentLabel)
+                                <button type="button" wire:click="setDecoration('heading_ornament', '{{ $key }}')"
+                                    @class(['flex flex-col items-center justify-center gap-1 rounded-lg border px-1 py-2 text-xs', 'border-ink bg-paper font-medium text-ink' => $decoration['heading_ornament'] === $key, 'border-line text-ink-soft hover:border-ink/30' => $decoration['heading_ornament'] !== $key])>
+                                    @if (! in_array($key, ['design', 'none'], true))
+                                        <img src="{{ asset('images/heading-ornaments/'.$key.'.svg') }}" alt="" class="h-4 w-16 object-contain opacity-70">
+                                    @endif
+                                    {{ __($ornamentLabel) }}
+                                </button>
+                            @endforeach
+                            <button type="button" wire:click="$toggle('headingOrnamentPicker')"
+                                @class(['flex flex-col items-center justify-center gap-1 rounded-lg border px-1 py-2 text-xs', 'border-ink bg-paper font-medium text-ink' => $decoration['heading_ornament'] === 'image', 'border-line text-ink-soft hover:border-ink/30' => $decoration['heading_ornament'] !== 'image'])>
+                                @if ($headingOrnamentImage)
+                                    <img src="{{ $headingOrnamentImage }}" alt="" class="h-4 w-16 object-contain">
+                                @else
+                                    <i class="fa-regular fa-image" aria-hidden="true"></i>
+                                @endif
+                                {{ __('Own image') }}
+                            </button>
+                        </div>
+
+                        @if ($headingOrnamentPicker)
+                            <div class="mt-3 rounded-lg border border-line p-2">
+                                @if ($headingOrnamentIllustrations->isEmpty())
+                                    <p class="p-2 text-xs text-muted">{{ __('No ornaments in the library yet. Upload one under Illustrations → Ornament.') }}</p>
+                                @else
+                                    <div class="grid max-h-56 grid-cols-3 gap-2 overflow-y-auto">
+                                        @foreach ($headingOrnamentIllustrations as $illustration)
+                                            <button type="button" wire:key="heading-ornament-{{ $illustration->ulid }}" wire:click="chooseHeadingOrnamentImage('{{ $illustration->ulid }}')"
+                                                class="flex aspect-square items-center justify-center rounded-md border border-line bg-paper p-1 hover:border-ink/30" title="{{ $illustration->name }}">
+                                                <img src="{{ $illustration->url() }}" alt="{{ $illustration->name }}" loading="lazy" class="max-h-full max-w-full object-contain">
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+
+                        @unless (in_array($decoration['heading_ornament'], ['design', 'none'], true))
+                            <p class="mb-2 mt-4 text-xs font-medium text-ink">{{ __('Size') }}</p>
+                            <div class="flex rounded-lg border border-line p-0.5">
+                                @foreach ($headingOrnamentSizes as $key => $sizeLabel)
+                                    <button type="button" wire:click="setDecoration('heading_ornament_size', '{{ $key }}')"
+                                        @class(['flex-1 rounded-md px-2 py-1.5 text-xs', 'bg-ink text-white' => $decoration['heading_ornament_size'] === $key, 'text-ink-soft hover:bg-paper' => $decoration['heading_ornament_size'] !== $key])>{{ __($sizeLabel) }}</button>
+                                @endforeach
+                            </div>
+                        @endunless
+                    </div>
+
+                    <div class="mb-6">
                         <p class="mb-2 text-sm font-medium text-ink">{{ __('Animation') }}</p>
                         <p class="mb-2 text-xs text-muted">{{ __('How sections appear while guests scroll. Visitors who turned off motion on their device see no animation.') }}</p>
                         <div class="grid grid-cols-3 gap-2">
@@ -253,7 +319,32 @@
                                     @endforeach
                                 </div>
                             </div>
+
+                            <div>
+                                <label for="section-height" class="mb-2 block text-sm font-medium text-ink">{{ __('Section height') }}</label>
+                                <select id="section-height" x-on:change="$wire.setHeight('{{ $selectedSection['key'] }}', $event.target.value)"
+                                    class="block w-full rounded-lg border-line text-sm focus:border-sage focus:ring-sage">
+                                    @foreach ($heights as $option => $label)
+                                        <option value="{{ $option }}" @selected(($selectedSection['height'] ?? 'auto') === $option)>{{ __($label) }}</option>
+                                    @endforeach
+                                </select>
+                                <p class="mt-1 text-xs text-muted">{{ __('Screen height makes the section at least as tall as the guest\'s screen, e.g. for the closing or a quote.') }}</p>
+                            </div>
                         @endif
+
+                        <div class="grid grid-cols-2 gap-3">
+                            @foreach (['heading_size' => __('Heading size'), 'text_size' => __('Text size')] as $sizeKey => $sizeLabel)
+                                <div>
+                                    <label for="section-{{ $sizeKey }}" class="mb-2 block text-sm font-medium text-ink">{{ $sizeLabel }}</label>
+                                    <select id="section-{{ $sizeKey }}" x-on:change="$wire.setFontSize('{{ $selectedSection['key'] }}', '{{ $sizeKey }}', $event.target.value)"
+                                        class="block w-full rounded-lg border-line text-sm focus:border-sage focus:ring-sage">
+                                        @foreach ($sectionFontSizes as $option => $optionLabel)
+                                            <option value="{{ $option }}" @selected(($selectedSection[$sizeKey] ?? 'default') === $option)>{{ __($optionLabel) }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endforeach
+                        </div>
 
                         @include('livewire.partials.ornament-panel')
 

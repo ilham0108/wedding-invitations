@@ -51,9 +51,23 @@ class BotanicalCreamDesignTest extends TestCase
             // Labelled bottom menu (five types at most) and the full menu with every section that has one.
             ->assertSeeInOrder(['class="bc-nav"', __('Home'), __('Couple'), __('Event'), __('Gallery'), __('Wishes')], false)
             ->assertSeeInOrder(['id="bc-menu"', __('Love Story'), __('RSVP')], false)
-            // Footer with the first calendar link of the events.
-            ->assertSee(__('See you on our happy day'))
-            ->assertSee('calendar.google.com', false);
+            // No footer of its own: the page ends with the last section, plus the plan branding when it applies.
+            ->assertDontSee(__('See you on our happy day'))
+            ->assertSee('class="bc-branding"', false);
+    }
+
+    public function test_the_closing_shows_its_photo_without_a_card(): void
+    {
+        $template = $this->template(['sample_content' => ['closing' => [
+            'heading' => 'Terima Kasih', 'photo' => '/images/demo/gallery-4.svg', 'photo_focus' => '50% 20%',
+            'sign_off' => 'Hormat kami,', 'signature' => 'Ilham & Aisyah',
+        ]]]);
+
+        $this->get(route('templates.preview', $template))
+            ->assertOk()
+            ->assertSee('bc-closing inv-animate bc-closing--photo', false)
+            ->assertSee('src="/images/demo/gallery-4.svg" alt="" loading="lazy" decoding="async" style="object-position: 50% 20%"', false)
+            ->assertSeeInOrder(['bc-closing__title', 'Terima Kasih', 'bc-closing__sign-off', 'Hormat kami,', 'bc-closing__signature', 'Ilham &amp; Aisyah'], false);
     }
 
     public function test_sections_use_the_design_views_and_other_sections_sit_in_a_cream_card(): void

@@ -18,6 +18,11 @@ class TemplatePreviewController extends Controller
 
         abort_unless($isPublished || $request->user()?->can('templates.manage'), 404);
 
+        // The bare page for the marketing site's phone demo: no preview bar, no music autoplay.
+        if ($isPublished && $request->boolean('embed')) {
+            return view('invitation.show', ['invitation' => $renderer->forTemplatePreview($template), 'embedded' => true]);
+        }
+
         return view('invitation.show', [
             'invitation' => $renderer->forTemplatePreview($template),
             'previewLabel' => $isPublished

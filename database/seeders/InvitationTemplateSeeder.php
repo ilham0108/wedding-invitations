@@ -235,7 +235,7 @@ class InvitationTemplateSeeder extends Seeder
                 'rsvp',
                 'gift',
                 'wishes',
-                ['type' => 'closing', 'background' => 'primary'],
+                ['type' => 'closing', 'ornaments' => $corners],
             ]],
             'default_configuration' => [
                 'cover' => ['subtitle' => 'The Wedding of', 'button_label' => 'Gulir ke bawah'],
@@ -248,7 +248,7 @@ class InvitationTemplateSeeder extends Seeder
                 'rsvp' => ['heading' => 'Konfirmasi Kehadiran', 'description' => ''],
                 'gift' => ['heading' => 'Amplop Digital', 'description' => ''],
                 'wishes' => ['heading' => 'Ucapan & Doa', 'description' => 'Tulis ucapan dan doa terbaik untuk kami…'],
-                'closing' => ['heading' => 'Terima Kasih', 'message' => 'Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.'],
+                'closing' => ['heading' => 'Terima Kasih', 'message' => 'Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.', 'sign_off' => 'Hormat kami,'],
             ],
             'sample_content' => [
                 'cover' => ['title' => 'Ilham & Aisyah', 'date_text' => 'Sabtu, 12 Desember 2026', 'background_image' => '/images/demo/cover.svg'],
@@ -281,11 +281,7 @@ class InvitationTemplateSeeder extends Seeder
                 'gift' => ['accounts' => [
                     ['type' => 'bank', 'provider' => 'Bank BCA', 'account_number' => '1234567890', 'account_name' => 'Ilham Pambudi Utomo'],
                 ]],
-                'closing' => [
-                    'signature' => 'Wassalamu\'alaikum Warahmatullahi Wabarakatuh — Kami yang berbahagia, Ilham & Aisyah',
-                    'background_photo' => '/images/demo/gallery-4.svg',
-                    'background_overlay' => 'medium',
-                ],
+                'closing' => ['signature' => 'Ilham & Aisyah', 'photo' => '/images/demo/gallery-4.svg'],
             ],
         ];
     }

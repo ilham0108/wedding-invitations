@@ -58,6 +58,20 @@
                             </div>
                         @endforeach
 
+                        @if ($tab === 'demo')
+                            <div>
+                                <label for="cms-template" class="block text-sm font-medium text-ink">{{ __('Template shown first') }}</label>
+                                <select id="cms-template" wire:model="form.template" class="{{ $input }}">
+                                    <option value="">{{ __('First published template') }}</option>
+                                    @foreach ($demoTemplates as $slug => $name)
+                                        <option value="{{ $slug }}">{{ $name }}</option>
+                                    @endforeach
+                                </select>
+                                <p class="mt-1 text-xs text-muted">{{ __('Visitors can switch to other published templates. Each item below jumps the phone to that part of the invitation; items the template does not have are greyed out.') }}</p>
+                                @error('form.template')<p class="mt-1 text-sm font-medium text-red-600">{{ $message }}</p>@enderror
+                            </div>
+                        @endif
+
                         @if (array_key_exists('image', $form))
                             <div>
                                 <p class="text-sm font-medium text-ink">{{ __('Picture') }}</p>
@@ -102,6 +116,14 @@
                                                             </select>
                                                             <input type="text" wire:model="form.items.{{ $index }}.title" aria-label="{{ __('Title') }}" class="min-w-0 flex-1 rounded-lg border-line text-sm focus:border-sage focus:ring-sage">
                                                         </div>
+                                                        @if ($tab === 'demo')
+                                                            <select wire:model="form.items.{{ $index }}.section" aria-label="{{ __('Invitation section') }}" class="block w-full rounded-lg border-line text-xs focus:border-sage focus:ring-sage">
+                                                                @foreach ($sectionTypes as $type => $label)
+                                                                    <option value="{{ $type }}">{{ __('Jumps to: :section', ['section' => $label]) }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                            @error("form.items.{$index}.section")<p class="text-sm font-medium text-red-600">{{ $message }}</p>@enderror
+                                                        @endif
                                                         @if ($described)
                                                             <input type="text" wire:model="form.items.{{ $index }}.description" placeholder="{{ __('Short description (optional)') }}" aria-label="{{ __('Description') }}" class="block w-full rounded-lg border-line text-xs focus:border-sage focus:ring-sage">
                                                             @error("form.items.{$index}.description")<p class="text-sm font-medium text-red-600">{{ $message }}</p>@enderror

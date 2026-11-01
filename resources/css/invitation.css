@@ -292,6 +292,48 @@
     z-index: 1;
 }
 
+/*
+| Section height "screen-*" (Builder > Section height): at least one screen tall, the content at the top,
+| middle or bottom. Designs with a fixed bottom menu lower --inv-screen-height so the content stays clear of it.
+*/
+.inv-section--screen {
+    display: flex;
+    flex-direction: column;
+    min-height: var(--inv-screen-height, 100svh);
+}
+
+.inv-section--screen > .inv-section-body { width: 100%; }
+
+/*
+| Font sizes: the theme's base (body data-inv-heading-scale / data-inv-text-scale, Theme tab) times the
+| section's own adjustment (inv-heading-size--* / inv-text-size--*, Section panel). Scaled with zoom on the
+| text elements only, so photos, cards and spacing keep their size. Elements that contain other scaled
+| text (a list item with paragraphs, a label around an input) are left out so sizes never multiply.
+*/
+[data-inv-heading-scale='small'] { --inv-heading-scale: 0.9; }
+[data-inv-heading-scale='large'] { --inv-heading-scale: 1.12; }
+[data-inv-heading-scale='xlarge'] { --inv-heading-scale: 1.25; }
+[data-inv-text-scale='small'] { --inv-text-scale: 0.9; }
+[data-inv-text-scale='large'] { --inv-text-scale: 1.12; }
+[data-inv-text-scale='xlarge'] { --inv-text-scale: 1.25; }
+
+.inv-heading-size--smaller { --inv-section-heading-scale: 0.88; }
+.inv-heading-size--larger { --inv-section-heading-scale: 1.15; }
+.inv-heading-size--largest { --inv-section-heading-scale: 1.3; }
+.inv-text-size--smaller { --inv-section-text-scale: 0.88; }
+.inv-text-size--larger { --inv-section-text-scale: 1.15; }
+.inv-text-size--largest { --inv-section-text-scale: 1.3; }
+
+.inv-section-body :is(h1, h2) {
+    zoom: calc(var(--inv-heading-scale, 1) * var(--inv-section-heading-scale, 1));
+}
+
+.inv-section-body :is(p, blockquote, cite, h3, dt, dd, li:not(:has(p, h3, blockquote, div, label, ul, ol))) {
+    zoom: calc(var(--inv-text-scale, 1) * var(--inv-section-text-scale, 1));
+}
+.inv-section--screen-center { justify-content: center; }
+.inv-section--screen-bottom { justify-content: flex-end; }
+
 .inv-ornaments {
     position: absolute;
     inset: 0;
@@ -588,6 +630,45 @@
 [data-inv-divider='none'] .inv-section > .inv-section-body h2.inv-heading::after {
     display: none;
 }
+
+/*
+| Decoration "heading_ornament" (body data-inv-heading-ornament): replaces each design's own mark under
+| section headings (classic divider, Botanical Cream sprig; Mocha Glass has none) in every design.
+| "mask": a built-in line icon in the secondary color; "image": a library image in its own colors.
+| The image URL comes in --inv-heading-ornament (layouts.invitation). Same selectors in all three rules.
+*/
+[data-inv-heading-ornament-size='small'] { --inv-heading-ornament-h: 16px; }
+[data-inv-heading-ornament-size='medium'] { --inv-heading-ornament-h: 24px; }
+[data-inv-heading-ornament-size='large'] { --inv-heading-ornament-h: 38px; }
+
+:is([data-inv-heading-ornament='mask'], [data-inv-heading-ornament='image']) :is(.inv-section:not([data-section='closing']) > .inv-section-body h2.inv-heading, .mg-title, .bc-heading .bc-title, .mg-classic h2.inv-heading, .bc-classic h2.inv-heading)::after {
+    content: '';
+    display: block;
+    width: calc(var(--inv-heading-ornament-h) * 5);
+    max-width: 100%;
+    height: var(--inv-heading-ornament-h);
+    margin: 0.6rem auto 0;
+    background: none;
+    -webkit-mask: none;
+    mask: none;
+}
+
+[data-inv-heading-ornament='mask'] :is(.inv-section:not([data-section='closing']) > .inv-section-body h2.inv-heading, .mg-title, .bc-heading .bc-title, .mg-classic h2.inv-heading, .bc-classic h2.inv-heading)::after {
+    background: var(--inv-secondary);
+    -webkit-mask: var(--inv-heading-ornament) center / contain no-repeat;
+    mask: var(--inv-heading-ornament) center / contain no-repeat;
+}
+
+[data-inv-heading-ornament='image'] :is(.inv-section:not([data-section='closing']) > .inv-section-body h2.inv-heading, .mg-title, .bc-heading .bc-title, .mg-classic h2.inv-heading, .bc-classic h2.inv-heading)::after {
+    background: var(--inv-heading-ornament) center / contain no-repeat;
+}
+
+[data-inv-heading-ornament='none'] :is(.inv-section:not([data-section='closing']) > .inv-section-body h2.inv-heading, .mg-title, .bc-heading .bc-title, .mg-classic h2.inv-heading, .bc-classic h2.inv-heading)::after {
+    display: none;
+}
+
+/* Botanical Cream draws its sprig as an element; any choice other than the design's own replaces it. */
+[data-inv-heading-ornament]:not([data-inv-heading-ornament='design']) .bc-heading > .bc-sprig { display: none; }
 
 /*
 | Decoration "texture" (body data-inv-texture): a faint pattern on the page and section/card

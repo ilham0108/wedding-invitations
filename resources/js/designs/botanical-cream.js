@@ -10,7 +10,19 @@ function setupTopbar() {
         return;
     }
 
-    const update = () => topbar.classList.toggle('is-scrolled', window.scrollY > 40);
+    let lastY = window.scrollY;
+
+    const update = () => {
+        const y = window.scrollY;
+
+        topbar.classList.toggle('is-scrolled', y > 40);
+
+        // Hidden while the guest reads downwards, so the bar never covers text; back when scrolling up or near the top.
+        if (Math.abs(y - lastY) > 6) {
+            topbar.classList.toggle('is-hidden', y > lastY && y > 120);
+            lastY = y;
+        }
+    };
 
     window.addEventListener('scroll', update, { passive: true });
     update();

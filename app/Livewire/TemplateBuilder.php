@@ -66,6 +66,9 @@ class TemplateBuilder extends Component
 
     public bool $ornamentPicker = false;
 
+    /** Library picker for the image under section headings (decoration "heading_ornament" = image). */
+    public bool $headingOrnamentPicker = false;
+
     /** Which ornament list of the selected section is edited: "ornaments", or the cover's "desktop_ornaments". */
     public string $ornamentTarget = 'ornaments';
 
@@ -100,7 +103,7 @@ class TemplateBuilder extends Component
         }
 
         $key = $this->newKey();
-        $this->sections[] = ['key' => $key, 'type' => $type, 'variant' => $registry->resolveVariant($type, null), 'background' => 'default', 'ornaments' => [], 'desktop_ornaments' => []];
+        $this->sections[] = ['key' => $key, 'type' => $type, 'variant' => $registry->resolveVariant($type, null), 'background' => 'default', 'height' => 'auto', 'heading_size' => 'default', 'text_size' => 'default', 'ornaments' => [], 'desktop_ornaments' => []];
         $this->selected = $key;
         $this->panel = 'section';
         $this->persistSections();
@@ -165,6 +168,29 @@ class TemplateBuilder extends Component
         }
     }
 
+    public function setHeight(string $key, string $height): void
+    {
+        $index = $this->sectionIndex($key);
+
+        if (in_array($height, TemplateSchema::HEIGHTS, true)) {
+            $this->sections[$index]['height'] = $height;
+            $this->persistSections();
+        }
+    }
+
+    /**
+     * Heading or text size of one section, relative to the theme's ($which: heading_size | text_size).
+     */
+    public function setFontSize(string $key, string $which, string $size): void
+    {
+        $index = $this->sectionIndex($key);
+
+        if (in_array($which, ['heading_size', 'text_size'], true) && in_array($size, TemplateSchema::FONT_SIZES, true)) {
+            $this->sections[$index][$which] = $size;
+            $this->persistSections();
+        }
+    }
+
     public function updatedContent(string $content): void
     {
         if (! in_array($content, TemplateSectionContent::GROUPS, true)) {
@@ -206,12 +232,30 @@ class TemplateBuilder extends Component
      */
     public function setDecoration(string $key, string $value, DecorationResolver $decorations): void
     {
-        if (! $decorations->isValid($key, $value)) {
+        // The heading ornament image is only picked from the library (chooseHeadingOrnamentImage).
+        if (! $decorations->isValid($key, $value) || $key === 'heading_ornament_image' || ($key === 'heading_ornament' && $value === 'image')) {
             return;
         }
 
         $this->decoration[$key] = $value;
         $this->persist(fn (array $definition): array => [...$definition, 'decoration' => [...($definition['decoration'] ?? []), $key => $value]]);
+    }
+
+    /**
+     * Use a library ornament under every section heading. Only active "ornament" illustrations,
+     * stored by ULID, so no arbitrary image URL ends up on invitations.
+     */
+    public function chooseHeadingOrnamentImage(string $illustrationUlid): void
+    {
+        $illustration = Illustration::query()->active()->where('category', IllustrationCategory::Ornament)->where('ulid', $illustrationUlid)->firstOrFail();
+
+        $this->decoration = [...$this->decoration, 'heading_ornament' => 'image', 'heading_ornament_image' => $illustration->ulid];
+        $this->headingOrnamentPicker = false;
+        $this->persist(fn (array $definition): array => [...$definition, 'decoration' => [
+            ...($definition['decoration'] ?? []),
+            'heading_ornament' => 'image',
+            'heading_ornament_image' => $illustration->ulid,
+        ]]);
     }
 
     /**
@@ -384,6 +428,7 @@ class TemplateBuilder extends Component
             'sharedCount' => $selected ? collect($this->sections)->where('type', $selected['type'])->count() : 0,
             'addableTypes' => collect($registry->types())->mapWithKeys(fn (string $type): array => [$type => $registry->label($type)]),
             'backgrounds' => TemplateSchema::BACKGROUNDS,
+            'heights' => ['auto' => 'Fit content', 'screen-top' => 'Screen height, content at the top', 'screen-center' => 'Screen height, content in the middle', 'screen-bottom' => 'Screen height, content at the bottom'],
             'previewUrl' => route('admin.templates.builder.preview', $template),
             'presets' => array_keys($themes->presets()),
             'fontsByCategory' => collect(config('invitation.fonts'))->map(fn (array $font, string $name): array => [...$font, 'name' => $name])->groupBy('category'),
@@ -415,6 +460,16 @@ class TemplateBuilder extends Component
             // Label and a small text sample of each decoration choice.
             'dividers' => ['line' => ['Line', '———'], 'dots' => ['Dots', '• • •'], 'flourish' => ['Flourish', '~◆~'], 'none' => ['None', '∅']],
             'textures' => ['none' => 'None', 'paper' => 'Paper', 'linen' => 'Linen', 'grain' => 'Grain'],
+            'headingOrnaments' => ['design' => 'Design default', 'none' => 'None', 'sprig' => 'Sprig', 'heart' => 'Heart', 'diamond' => 'Diamond', 'flower' => 'Flower', 'dots' => 'Dots', 'line' => 'Line'],
+            'headingOrnamentSizes' => ['small' => 'Small', 'medium' => 'Medium', 'large' => 'Large'],
+            'fontScales' => ['small' => 'Small', 'normal' => 'Normal', 'large' => 'Large', 'xlarge' => 'Extra large'],
+            'sectionFontSizes' => ['default' => 'Follow the theme', 'smaller' => 'Smaller', 'larger' => 'Larger', 'largest' => 'Much larger'],
+            'headingOrnamentImage' => ($this->decoration['heading_ornament'] ?? null) === 'image'
+                ? app(DecorationResolver::class)->headingOrnamentUrl($this->decoration)
+                : null,
+            'headingOrnamentIllustrations' => $this->headingOrnamentPicker
+                ? Illustration::query()->active()->where('category', IllustrationCategory::Ornament)->ordered()->get()
+                : collect(),
             'desktopLayouts' => [
                 'column' => ['Centered column', 'The invitation stays phone-sized in the middle, on a blurred cover photo.', 'fa-solid fa-mobile-screen'],
                 'split' => ['Side panel', 'A cover panel with its own text and ornaments beside the invitation.', 'fa-solid fa-table-columns'],
@@ -444,6 +499,9 @@ class TemplateBuilder extends Component
                 'type' => $section['type'],
                 'variant' => $registry->resolveVariant($section['type'], $section['variant']),
                 'background' => $section['background'] ?? 'default',
+                'height' => $section['height'] ?? 'auto',
+                'heading_size' => $section['heading_size'] ?? 'default',
+                'text_size' => $section['text_size'] ?? 'default',
                 'ornaments' => app(Ornaments::class)->clean($section['ornaments']),
                 'desktop_ornaments' => app(Ornaments::class)->clean($section['desktop_ornaments']),
             ])
@@ -465,6 +523,9 @@ class TemplateBuilder extends Component
             'type' => $section['type'],
             'variant' => $section['variant'],
             'background' => $section['background'],
+            'height' => $section['height'] ?? 'auto',
+            'heading_size' => $section['heading_size'] ?? 'default',
+            'text_size' => $section['text_size'] ?? 'default',
             'ornaments' => $section['ornaments'] ?? [],
             'desktop_ornaments' => $section['desktop_ornaments'] ?? [],
         ], $this->sections);

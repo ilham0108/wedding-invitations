@@ -36,7 +36,7 @@ class LocalizationTest extends TestCase
     {
         App::setLocale('id');
 
-        $this->get('/')->assertOk()->assertSee('Undangan Digital untuk Momen Spesial Anda')->assertSee('Beranda');
+        $this->get('/')->assertOk()->assertSee('Undangan Digital untuk Momen Spesial Anda')->assertSee('Buat Undangan');
         $this->get('/login')->assertOk()->assertSee('Selamat datang kembali')->assertSee('Kata sandi');
 
         $this->actingAs(User::factory()->client()->create())

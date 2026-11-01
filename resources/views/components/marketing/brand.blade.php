@@ -12,7 +12,7 @@
         </g>
     </svg>
     <span class="leading-none">
-        <span class="mk-serif block text-[1.65rem] text-ink">{{ config('app.name') }}</span>
+        <span class="mk-serif block text-[1.45rem] text-ink sm:text-[1.65rem]">{{ config('app.name') }}</span>
         @if ($tagline)
             <span class="mt-1 hidden whitespace-nowrap text-[0.55rem] font-medium uppercase tracking-[0.32em] text-muted sm:block">{{ __('Digital Invitation') }}</span>
         @endif

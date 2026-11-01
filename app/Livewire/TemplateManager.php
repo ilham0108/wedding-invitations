@@ -7,6 +7,7 @@ use App\Livewire\Concerns\Notifies;
 use App\Models\InvitationTemplate;
 use App\Models\TemplateCategory;
 use App\Services\MediaService;
+use App\Services\Template\TemplateDraft;
 use App\Services\Template\TemplatePackage;
 use App\Services\Template\TemplateService;
 use Illuminate\Support\Facades\Auth;
@@ -157,6 +158,9 @@ class TemplateManager extends Component
     {
         Gate::authorize('templates.manage');
 
+        // Ends the "processing" state of the import progress bar, whatever the outcome (sent with the response).
+        $this->dispatch('template-import-finished');
+
         $this->validate(['package' => ['required', 'file', 'extensions:zip', 'mimes:zip', 'max:12288']], [], ['package' => __('file')]);
 
         try {
@@ -219,18 +223,23 @@ class TemplateManager extends Component
         $status = TemplateStatus::tryFrom($this->status);
         $search = trim($this->search);
 
+        $templates = InvitationTemplate::query()
+            ->with('category:id,name,slug')
+            ->withCount('invitations')
+            ->when($this->category !== '', fn ($query) => $query->whereHas('category', fn ($query) => $query->where('slug', $this->category)))
+            ->when($status, fn ($query) => $query->where('status', $status))
+            ->when($search !== '', fn ($query) => $query->where(fn ($query) => $query
+                ->where('name', 'like', '%'.addcslashes($search, '%_\\').'%')
+                ->orWhere('slug', 'like', '%'.addcslashes($search, '%_\\').'%')))
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+        $draft = app(TemplateDraft::class);
+
         return view('livewire.template-manager', [
-            'templates' => InvitationTemplate::query()
-                ->with('category:id,name,slug')
-                ->withCount('invitations')
-                ->when($this->category !== '', fn ($query) => $query->whereHas('category', fn ($query) => $query->where('slug', $this->category)))
-                ->when($status, fn ($query) => $query->where('status', $status))
-                ->when($search !== '', fn ($query) => $query->where(fn ($query) => $query
-                    ->where('name', 'like', '%'.addcslashes($search, '%_\\').'%')
-                    ->orWhere('slug', 'like', '%'.addcslashes($search, '%_\\').'%')))
-                ->orderBy('sort_order')
-                ->orderBy('name')
-                ->get(),
+            'templates' => $templates,
+            // Export uses the saved version; templates with unsaved builder changes of this admin get a warning.
+            'unsaved' => $templates->filter(fn (InvitationTemplate $template): bool => $draft->hasChanges($template, Auth::user()))->pluck('ulid')->all(),
             'categories' => TemplateCategory::query()->orderBy('sort_order')->orderBy('name')->get(['id', 'name', 'slug', 'is_active']),
             'statuses' => TemplateStatus::cases(),
             'editing' => $this->editingUlid ? $this->template($this->editingUlid) : null,

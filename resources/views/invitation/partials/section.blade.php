@@ -4,6 +4,9 @@
     @class([
         $sectionClass ?? '',
         'inv-has-ornaments' => ! empty($section['ornaments']),
+        'inv-section--screen inv-section--'.($section['height'] ?? 'auto') => ($section['height'] ?? 'auto') !== 'auto',
+        'inv-heading-size--'.($section['heading_size'] ?? 'default') => ($section['heading_size'] ?? 'default') !== 'default',
+        'inv-text-size--'.($section['text_size'] ?? 'default') => ($section['text_size'] ?? 'default') !== 'default',
         'inv-section' => $section['type'] !== 'cover' && ($classic ?? true),
         'inv-animate' => $section['type'] !== 'cover' && ($classic ?? true),
         'inv-section--muted' => $section['background'] === 'muted' && ($classic ?? true),

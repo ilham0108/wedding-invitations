@@ -89,6 +89,12 @@ class SiteContentService
                 'primary_label' => ['required', 'string', 'max:40'],
                 ...$iconItems('hero', false),
             ],
+            'demo' => [
+                ...$intro,
+                'template' => ['nullable', 'string', 'max:120'],
+                ...$iconItems('demo', true),
+                'items.*.section' => ['required', Rule::in(array_keys(config('invitation.sections')))],
+            ],
             'templates' => [...$intro, 'link_label' => ['nullable', 'string', 'max:40']],
             'steps' => [...$intro, ...$iconItems('steps', true)],
             'features' => [...$intro, ...$iconItems('features', true)],

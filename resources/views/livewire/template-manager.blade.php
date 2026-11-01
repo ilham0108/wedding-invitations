@@ -1,16 +1,43 @@
-<div class="space-y-6">
+{{--
+    Import progress (importPhase): "upload" with its percentage; at 100% the file is on the server and "process" shows
+    while TemplateManager::updatedPackage checks it and copies its images and music. Livewire only fires
+    livewire-upload-finish after that has run, so finish/error end it (and "template-import-finished", as a safeguard).
+--}}
+<div class="space-y-6" x-data="{ importPhase: null, importProgress: 0 }"
+    x-on:livewire-upload-start="if ($event.target.name === 'package') { importPhase = 'upload'; importProgress = 0 }"
+    x-on:livewire-upload-progress="if ($event.target.name === 'package') { importProgress = $event.detail.progress; if (importProgress >= 100) importPhase = 'process' }"
+    x-on:livewire-upload-finish="if ($event.target.name === 'package') importPhase = null"
+    x-on:livewire-upload-error="if ($event.target.name === 'package') importPhase = null"
+    x-on:livewire-upload-cancel="if ($event.target.name === 'package') importPhase = null"
+    x-on:template-import-finished.window="importPhase = null">
     <div class="flex flex-wrap items-center justify-between gap-3">
         <p class="max-w-2xl text-sm text-muted">{{ __('New templates start as drafts. Editing a template only affects invitations created afterwards; existing invitations keep their own copy.') }}</p>
         <div class="flex flex-wrap items-center gap-2">
-            <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-line bg-white px-4 py-2 text-sm font-medium text-ink hover:bg-paper"
+            <label x-bind:class="importPhase && 'pointer-events-none opacity-60'"
+                class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-line bg-white px-4 py-2 text-sm font-medium text-ink hover:bg-paper"
                 title="{{ __('Import a template exported as .zip') }}">
-                <i class="fa-solid fa-file-import" aria-hidden="true" wire:loading.remove wire:target="package"></i>
-                <i class="fa-solid fa-spinner fa-spin" aria-hidden="true" wire:loading wire:target="package"></i>
+                <i class="fa-solid fa-file-import" aria-hidden="true"></i>
                 {{ __('Import') }}
-                <input type="file" accept=".zip,application/zip" wire:model="package" class="sr-only">
+                <input type="file" name="package" accept=".zip,application/zip" wire:model="package" class="sr-only">
             </label>
             <x-ui.button type="button" icon="fa-solid fa-plus" wire:click="create">{{ __('New template') }}</x-ui.button>
         </div>
+    </div>
+
+    <div x-show="importPhase" x-cloak role="status" aria-live="polite" class="rounded-lg border border-line bg-white p-4">
+        <div class="flex items-center justify-between text-sm">
+            <span class="flex items-center gap-2 font-medium text-ink">
+                <i class="fa-solid fa-spinner fa-spin text-sage" aria-hidden="true"></i>
+                <span x-text="importPhase === 'upload' ? @js(__('Uploading the template…')) : @js(__('Importing the template: checking the file and copying its images and music…'))"></span>
+            </span>
+            <span class="tabular-nums text-muted" x-show="importPhase === 'upload'" x-text="importProgress + '%'"></span>
+        </div>
+        <div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-line">
+            <div x-show="importPhase === 'upload'" class="h-full rounded-full bg-sage transition-[width] duration-200"
+                x-bind:style="'width: ' + importProgress + '%'"></div>
+            <div x-show="importPhase === 'process'" class="h-full w-1/3 rounded-full bg-sage motion-safe:animate-[import-slide_1.2s_ease-in-out_infinite]"></div>
+        </div>
+        <p class="mt-2 text-xs text-muted">{{ __('Keep this page open until the import has finished.') }}</p>
     </div>
 
     @error('package')
@@ -46,6 +73,11 @@
 
                     <div class="mt-2 flex flex-wrap items-center gap-1.5 px-1">
                         <x-ui.badge :variant="$template->isPublished() ? 'success' : 'neutral'">{{ $template->status->label() }}</x-ui.badge>
+                        @if (in_array($template->ulid, $unsaved, true))
+                            <span class="inline-flex items-center gap-1 text-xs font-medium text-amber-700" title="{{ __('Open the builder and save the template to keep them.') }}">
+                                <i class="fa-solid fa-circle text-[6px]" aria-hidden="true"></i>{{ __('Unsaved changes') }}
+                            </span>
+                        @endif
                         <span class="text-xs text-muted">{{ trans_choice(':count invitation|:count invitations', $template->invitations_count) }}</span>
                     </div>
 
@@ -59,7 +91,8 @@
                             <x-ui.button type="button" variant="ghost" size="sm" wire:click="publish('{{ $template->ulid }}')">{{ __('Publish') }}</x-ui.button>
                         @endif
                         <button type="button" wire:click="duplicate('{{ $template->ulid }}')" class="rounded p-1.5 text-muted hover:bg-sage-soft hover:text-ink" aria-label="{{ __('Duplicate') }}" title="{{ __('Duplicate') }}"><i class="fa-regular fa-copy" aria-hidden="true"></i></button>
-                        <a href="{{ route('admin.templates.export', $template->ulid) }}" class="rounded p-1.5 text-muted hover:bg-sage-soft hover:text-ink" aria-label="{{ __('Export (.zip)') }}" title="{{ __('Export (.zip)') }}"><i class="fa-solid fa-file-export" aria-hidden="true"></i></a>
+                        <a href="{{ route('admin.templates.export', $template->ulid) }}" class="rounded p-1.5 text-muted hover:bg-sage-soft hover:text-ink" aria-label="{{ __('Export (.zip)') }}" title="{{ __('Export (.zip)') }}"
+                            @if (in_array($template->ulid, $unsaved, true)) data-confirm="{{ __('This template has builder changes that are not saved yet. The export only contains the saved version. Export anyway?') }}" data-confirm-button="{{ __('Export saved version') }}" data-confirm-variant="default" @endif><i class="fa-solid fa-file-export" aria-hidden="true"></i></a>
                         <button type="button" wire:click="remove('{{ $template->ulid }}')" data-confirm="{{ __('Delete this template?') }}" class="ml-auto rounded p-1.5 text-muted hover:bg-red-50 hover:text-red-600" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fa-regular fa-trash-can" aria-hidden="true"></i></button>
                     </div>
                 </li>

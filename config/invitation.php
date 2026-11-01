@@ -181,7 +181,10 @@ return [
         ],
         'closing' => [
             $heading,
+            // Shown inside the closing (unlike the common "background_photo", which sits behind the page).
+            ['key' => 'photo', 'label' => 'Photo', 'type' => 'image', 'illustrations' => 'cover', 'focus' => true],
             ['key' => 'message', 'label' => 'Message', 'type' => 'textarea'],
+            ['key' => 'sign_off', 'label' => 'Line before the signature (e.g. Sincerely,)', 'type' => 'text'],
             ['key' => 'signature', 'label' => 'Signature', 'type' => 'text'],
             ['key' => 'inviters', 'label' => 'Also inviting (one per line)', 'type' => 'textarea'],
         ],
@@ -304,7 +307,7 @@ return [
             'label' => 'Closing',
             'icon' => 'fa-regular fa-heart',
             'variants' => ['default'],
-            'defaults' => ['heading' => 'Thank You', 'message' => '', 'signature' => '', 'inviters' => ''],
+            'defaults' => ['heading' => 'Thank You', 'photo' => null, 'message' => '', 'sign_off' => '', 'signature' => '', 'inviters' => ''],
         ],
         'health_protocol' => [
             'label' => 'Health Protocol',
@@ -463,9 +466,22 @@ return [
         // Wide screens, for designs without their own page frame: a phone-width column on a blurred
         // cover photo, the column beside a cover panel (unlocks the "desktop_panel" feature), or full width.
         'desktop_layout' => ['column', 'split', 'full'],
+        // Under every section heading, in every design: the design's own ("design"), none, a built-in line icon
+        // (public/images/heading-ornaments/{name}.svg, drawn in the secondary color) or a library image ("image").
+        // The image is the illustration ULID in "heading_ornament_image", resolved by InvitationRenderer.
+        'heading_ornament' => ['design', 'none', 'sprig', 'heart', 'diamond', 'flower', 'dots', 'line', 'image'],
+        'heading_ornament_size' => ['small', 'medium', 'large'],
+        // Base size of section headings and of section text (resources/css/invitation.css, "Font sizes").
+        'heading_scale' => ['small', 'normal', 'large', 'xlarge'],
+        'text_scale' => ['small', 'normal', 'large', 'xlarge'],
     ],
 
     'default_decoration' => [
+        'heading_ornament' => 'design',
+        'heading_ornament_size' => 'medium',
+        'heading_ornament_image' => '',
+        'heading_scale' => 'normal',
+        'text_scale' => 'normal',
         'divider' => 'line',
         'texture' => 'none',
         'animation' => 'none',

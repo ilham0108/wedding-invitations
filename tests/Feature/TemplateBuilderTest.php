@@ -101,6 +101,69 @@ class TemplateBuilderTest extends TestCase
         ], $this->template->fresh()->schema['sections']);
     }
 
+    public function test_sections_can_be_made_screen_tall_and_new_invitations_keep_it(): void
+    {
+        $builder = $this->builder();
+        [, , $closing] = array_column($builder->get('sections'), 'key');
+
+        $builder->call('setHeight', $closing, 'screen-center')
+            ->assertDispatched('template-preview-refresh')
+            ->call('setHeight', $closing, 'not-a-height')
+            ->assertSet('sections.2.height', 'screen-center');
+
+        $this->actingAs($this->admin)->get(route('admin.templates.builder.preview', $this->template))
+            ->assertSee('inv-section--screen inv-section--screen-center', false);
+
+        $builder->call('save');
+        $sections = $this->template->fresh()->schema['sections'];
+        $this->assertSame('screen-center', $sections[2]['height']);
+        // "auto" is the default and is not stored, like the default background.
+        $this->assertArrayNotHasKey('height', $sections[0]);
+
+        $invitation = app(InvitationService::class)->createFromTemplate(User::factory()->client()->create(), $this->template->fresh(), [
+            'title' => 'Ana & Budi', 'event_type' => 'wedding', 'timezone' => 'Asia/Jakarta',
+        ]);
+        $invitation->forceFill(['status' => 'published', 'published_at' => now()])->save();
+
+        $this->assertSame('screen-center', $invitation->sections()->where('type', 'closing')->first()->theme['height']);
+        $this->get(route('invitations.public', $invitation->slug))->assertSee('inv-section--screen inv-section--screen-center', false);
+    }
+
+    public function test_font_sizes_are_set_for_the_theme_and_adjusted_per_section(): void
+    {
+        $builder = $this->builder();
+        [, $event] = array_column($builder->get('sections'), 'key');
+
+        $builder->set('panel', 'theme')
+            ->assertSee(__('Font sizes'))
+            ->call('setDecoration', 'text_scale', 'large')
+            ->call('setDecoration', 'heading_scale', 'gigantic')
+            ->set('panel', 'section')
+            ->call('select', $event)
+            ->assertSee(__('Text size'))
+            ->call('setFontSize', $event, 'text_size', 'largest')
+            ->call('setFontSize', $event, 'heading_size', 'smaller')
+            ->call('setFontSize', $event, 'text_size', 'huge')
+            ->call('setFontSize', $event, 'color', 'larger')
+            ->assertSet('sections.1.text_size', 'largest')
+            ->call('save');
+
+        $template = $this->template->fresh();
+        $this->assertSame(['large', 'normal'], [$template->decoration['text_scale'], $template->decoration['heading_scale'] ?? 'normal']);
+        $this->assertSame(['smaller', 'largest'], [$template->schema['sections'][1]['heading_size'], $template->schema['sections'][1]['text_size']]);
+        $this->assertArrayNotHasKey('text_size', $template->schema['sections'][0]);
+
+        $invitation = app(InvitationService::class)->createFromTemplate(User::factory()->client()->create(), $template, [
+            'title' => 'Ana & Budi', 'event_type' => 'wedding', 'timezone' => 'Asia/Jakarta',
+        ]);
+        $invitation->forceFill(['status' => 'published', 'published_at' => now()])->save();
+        $invitation->settings()->update(['decoration' => $template->decoration]);
+
+        $this->get(route('invitations.public', $invitation->slug))
+            ->assertSee('data-inv-heading-scale="normal" data-inv-text-scale="large"', false)
+            ->assertSee('inv-heading-size--smaller inv-text-size--largest', false);
+    }
+
     public function test_the_last_section_cannot_be_removed(): void
     {
         $this->template->update(['schema' => ['sections' => ['cover']]]);

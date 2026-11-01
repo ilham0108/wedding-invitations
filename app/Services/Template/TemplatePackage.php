@@ -3,12 +3,16 @@
 namespace App\Services\Template;
 
 use App\Enums\EventType;
+use App\Enums\IllustrationCategory;
 use App\Enums\TemplateStatus;
+use App\Models\Illustration;
 use App\Models\InvitationTemplate;
+use App\Models\MusicTrack;
 use App\Models\TemplateCategory;
 use App\Models\User;
 use App\Services\AuditLogger;
 use App\Services\MediaService;
+use App\Support\AudioFormat;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -24,6 +28,10 @@ use ZipArchive;
  * are capped (no zip bombs), images are checked by their contents, the configuration goes
  * through TemplateSchema, and an imported template always starts as a draft.
  * Bundled files ("/illustrations/…", "/images/…") ship with the code and are not packed.
+ *
+ * Library items the template points at by ULID travel in "library": the image under section
+ * headings (decoration heading_ornament_image) and the default music (music.track). Uploaded ones
+ * are packed and become new library entries on import; bundled ones are matched by their path.
  */
 class TemplatePackage
 {
@@ -73,6 +81,8 @@ class TemplatePackage
             ? 'assets/thumbnail.'.Str::lower(pathinfo($template->thumbnail, PATHINFO_EXTENSION))
             : null;
 
+        $library = $this->exportLibrary($definition);
+
         $manifest = [
             'format' => self::FORMAT,
             'version' => self::VERSION,
@@ -91,6 +101,7 @@ class TemplatePackage
             ],
             'thumbnail' => $thumbnail,
             'assets' => $assets,
+            'library' => $library['manifest'],
         ];
 
         $file = tempnam(sys_get_temp_dir(), 'template');
@@ -104,6 +115,10 @@ class TemplatePackage
 
         if ($thumbnail !== null) {
             $zip->addFromString($thumbnail, (string) $disk->get($template->thumbnail));
+        }
+
+        foreach ($library['files'] as $entry => $contents) {
+            $zip->addFromString($entry, $contents);
         }
 
         $zip->close();
@@ -134,6 +149,7 @@ class TemplatePackage
             $manifest = $this->manifest($zip);
             $definition = $this->schema->validate($manifest['template']['definition'] ?? []);
             $files = $this->readAssets($zip, $manifest);
+            $libraryFiles = $this->readLibrary($zip, $manifest);
         } finally {
             $zip->close();
         }
@@ -141,7 +157,7 @@ class TemplatePackage
         $stored = [];
 
         try {
-            return DB::transaction(function () use ($manifest, $definition, $files, $admin, &$stored): InvitationTemplate {
+            return DB::transaction(function () use ($manifest, $definition, $files, $libraryFiles, $admin, &$stored): InvitationTemplate {
                 $directory = self::IMPORT_DIRECTORY.'/'.Str::lower((string) Str::ulid());
                 $urls = [];
 
@@ -157,6 +173,9 @@ class TemplatePackage
                     $stored[] = $thumbnail = $directory.'/thumbnail.'.$files['thumbnail'][1];
                     Storage::disk(MediaService::DISK)->put($thumbnail, $files['thumbnail'][0], 'public');
                 }
+
+                // The validated definition has lost library references unknown here; put the new ones in.
+                $definition = $this->withLibrary($definition, $manifest['template']['definition'] ?? [], $this->importLibrary($libraryFiles, $stored));
 
                 $data = $manifest['template'];
                 $template = InvitationTemplate::query()->create([
@@ -258,8 +277,7 @@ class TemplatePackage
         }
 
         $contents = (string) $zip->getFromName($entry);
-        $info = @getimagesizefromstring($contents);
-        $extension = is_array($info) ? (self::IMAGE_TYPES[$info[2]] ?? null) : null;
+        $extension = $this->imageExtension($contents);
 
         if ($extension === null) {
             $this->fail(__('The archive contains a file that is not a PNG, JPG or WebP image.'));
@@ -283,6 +301,240 @@ class TemplatePackage
             'is_active' => false,
             'sort_order' => (int) TemplateCategory::query()->max('sort_order') + 1,
         ]);
+    }
+
+    /**
+     * Library items of the definition: manifest entries and the packed file contents (by archive entry).
+     *
+     * @param  array<string, mixed>  $definition
+     * @return array{manifest: array<string, array<string, mixed>>, files: array<string, string>}
+     */
+    private function exportLibrary(array $definition): array
+    {
+        $manifest = [];
+        $files = [];
+
+        $ornamentUlid = ($definition['decoration']['heading_ornament'] ?? null) === 'image' ? ($definition['decoration']['heading_ornament_image'] ?? null) : null;
+        $illustration = is_string($ornamentUlid) && $ornamentUlid !== '' ? Illustration::query()->where('ulid', $ornamentUlid)->first() : null;
+
+        if ($illustration !== null) {
+            $item = $this->libraryItem($illustration->disk, $illustration->path, 'heading-ornament', $files);
+            $manifest['heading_ornament'] = $item === null ? null : [...$item, 'name' => $illustration->name];
+        }
+
+        $trackUlid = $definition['music']['track'] ?? null;
+        $track = is_string($trackUlid) ? MusicTrack::query()->where('ulid', $trackUlid)->first() : null;
+
+        if ($track !== null) {
+            $item = $this->libraryItem($track->disk, $track->path, 'music', $files);
+            $manifest['music'] = $item === null ? null : [...$item, 'title' => $track->title, 'artist' => $track->artist, 'is_premium' => (bool) $track->is_premium];
+        }
+
+        return ['manifest' => array_filter($manifest), 'files' => $files];
+    }
+
+    /**
+     * A bundled file is referenced by its path; an uploaded one is packed under library/.
+     *
+     * @param  array<string, string>  $files
+     * @return array{bundled?: string, entry?: string}|null null when the uploaded file is gone
+     */
+    private function libraryItem(?string $disk, string $path, string $name, array &$files): ?array
+    {
+        if ($disk === null) {
+            return ['bundled' => ltrim($path, '/')];
+        }
+
+        if (! Storage::disk($disk)->exists($path)) {
+            return null;
+        }
+
+        $entry = 'library/'.$name.'.'.Str::lower(pathinfo($path, PATHINFO_EXTENSION));
+        $files[$entry] = (string) Storage::disk($disk)->get($path);
+
+        return ['entry' => $entry];
+    }
+
+    /**
+     * Read and check the packed library files: the heading ornament must be a PNG/JPG/WebP image,
+     * the music an MP3 or audio-only M4A within the library upload limit.
+     *
+     * @param  array<string, mixed>  $manifest
+     * @return array<string, array<string, mixed>>
+     */
+    private function readLibrary(ZipArchive $zip, array $manifest): array
+    {
+        $library = [];
+
+        foreach (['heading_ornament', 'music'] as $kind) {
+            $item = $manifest['library'][$kind] ?? null;
+
+            if (! is_array($item)) {
+                continue;
+            }
+
+            if (is_string($item['bundled'] ?? null)) {
+                $library[$kind] = [...$item, 'contents' => null];
+
+                continue;
+            }
+
+            $entry = $item['entry'] ?? null;
+            $stat = is_string($entry) ? $zip->statName($entry) : false;
+            $limit = $kind === 'music' ? (int) config('invitation.music.max_library_upload_kb') * 1024 : self::MAX_ASSET_BYTES;
+
+            if (! is_string($entry) || ! preg_match('#^library/[A-Za-z0-9_.-]+$#', $entry) || $stat === false || $stat['size'] > $limit) {
+                $this->fail(__('The archive lists an invalid file.'));
+            }
+
+            $contents = (string) $zip->getFromName($entry);
+            $extension = $kind === 'music' ? $this->audioExtension($contents) : $this->imageExtension($contents);
+
+            if ($extension === null) {
+                $this->fail($kind === 'music'
+                    ? __('The archive contains music that is not an MP3 or M4A file.')
+                    : __('The archive contains a file that is not a PNG, JPG or WebP image.'));
+            }
+
+            $library[$kind] = [...$item, 'contents' => $contents, 'extension' => $extension];
+        }
+
+        return $library;
+    }
+
+    /**
+     * Create the library entries for packed files (or find the bundled ones) and return their ULIDs.
+     *
+     * @param  array<string, array<string, mixed>>  $library
+     * @param  array<int, string>  $stored  paths written, for the cleanup when the import fails
+     * @return array{heading_ornament: ?string, music: ?string}
+     */
+    private function importLibrary(array $library, array &$stored): array
+    {
+        $disk = Storage::disk(MediaService::DISK);
+        $ulids = ['heading_ornament' => null, 'music' => null];
+
+        if ($item = $library['heading_ornament'] ?? null) {
+            if ($item['contents'] === null) {
+                $illustration = Illustration::query()->whereNull('disk')->where('path', $item['bundled'])->first();
+            } elseif ($existing = $this->sameFile(Illustration::query()->where('category', IllustrationCategory::Ornament)->whereNotNull('disk')->get(), $item['contents'])) {
+                // Imported again on this installation: reuse the copy instead of filling the library with duplicates.
+                $illustration = $existing;
+            } else {
+                $stored[] = $path = 'illustrations/'.IllustrationCategory::Ornament->value.'/'.Str::lower((string) Str::ulid()).'.'.$item['extension'];
+                $disk->put($path, $item['contents'], 'public');
+                [$width, $height] = getimagesizefromstring($item['contents']) ?: [0, 0];
+
+                $illustration = Illustration::query()->create([
+                    'category' => IllustrationCategory::Ornament,
+                    'name' => Str::limit(trim((string) ($item['name'] ?? '')) ?: __('Imported ornament'), 80, ''),
+                    'disk' => MediaService::DISK,
+                    'path' => $path,
+                    'width' => $width,
+                    'height' => $height,
+                    'is_premium' => false,
+                    'sort_order' => (int) Illustration::query()->where('category', IllustrationCategory::Ornament)->max('sort_order') + 1,
+                ]);
+            }
+
+            $ulids['heading_ornament'] = $illustration?->ulid;
+        }
+
+        if ($item = $library['music'] ?? null) {
+            if ($item['contents'] === null) {
+                $track = MusicTrack::query()->whereNull('disk')->where('path', $item['bundled'])->first();
+            } elseif ($existing = $this->sameFile(MusicTrack::query()->whereNotNull('disk')->where('size', strlen($item['contents']))->get(), $item['contents'])) {
+                $track = $existing;
+            } else {
+                $stored[] = $path = 'music/library/'.Str::lower((string) Str::ulid()).'.'.$item['extension'];
+                $disk->put($path, $item['contents'], 'public');
+
+                $track = MusicTrack::query()->create([
+                    'title' => Str::limit(trim((string) ($item['title'] ?? '')) ?: __('Imported song'), 120, ''),
+                    'artist' => Str::limit(trim((string) ($item['artist'] ?? '')), 120, '') ?: null,
+                    'disk' => MediaService::DISK,
+                    'path' => $path,
+                    'size' => strlen($item['contents']),
+                    'is_premium' => (bool) ($item['is_premium'] ?? false),
+                    'sort_order' => (int) MusicTrack::query()->max('sort_order') + 1,
+                ]);
+            }
+
+            $ulids['music'] = $track?->ulid;
+        }
+
+        return $ulids;
+    }
+
+    /**
+     * Point the definition at this installation's library entries. Without one, the heading
+     * ornament falls back to the design's own and the template has no music.
+     *
+     * @param  array<string, mixed>  $definition  validated definition
+     * @param  array<string, mixed>  $exported  definition as exported (keeps the music settings)
+     * @param  array{heading_ornament: ?string, music: ?string}  $ulids
+     * @return array<string, mixed>
+     */
+    private function withLibrary(array $definition, array $exported, array $ulids): array
+    {
+        if (($definition['decoration']['heading_ornament'] ?? null) === 'image') {
+            $definition['decoration'] = $ulids['heading_ornament'] !== null
+                ? [...$definition['decoration'], 'heading_ornament_image' => $ulids['heading_ornament']]
+                : [...$definition['decoration'], 'heading_ornament' => 'design', 'heading_ornament_image' => ''];
+        }
+
+        $definition['music'] = $ulids['music'] !== null && is_array($exported['music'] ?? null)
+            ? [...$exported['music'], 'track' => $ulids['music']]
+            : [];
+
+        return $definition;
+    }
+
+    /**
+     * The library entry (illustration or music track) whose stored file has exactly these contents.
+     *
+     * @template TModel of Illustration|MusicTrack
+     *
+     * @param  iterable<TModel>  $candidates
+     * @return TModel|null
+     */
+    private function sameFile(iterable $candidates, string $contents): Illustration|MusicTrack|null
+    {
+        $size = strlen($contents);
+        $hash = sha1($contents);
+
+        foreach ($candidates as $candidate) {
+            $disk = Storage::disk($candidate->disk);
+
+            if ($disk->exists($candidate->path) && $disk->size($candidate->path) === $size && sha1((string) $disk->get($candidate->path)) === $hash) {
+                return $candidate;
+            }
+        }
+
+        return null;
+    }
+
+    private function imageExtension(string $contents): ?string
+    {
+        $info = @getimagesizefromstring($contents);
+
+        return is_array($info) ? (self::IMAGE_TYPES[$info[2]] ?? null) : null;
+    }
+
+    /**
+     * Judged by the contents, like library uploads (App\Support\AudioFormat).
+     */
+    private function audioExtension(string $contents): ?string
+    {
+        $file = tempnam(sys_get_temp_dir(), 'music');
+
+        try {
+            file_put_contents($file, $contents);
+
+            return AudioFormat::detect($file, (string) (new \finfo(FILEINFO_MIME_TYPE))->file($file));
+        } finally {
+            @unlink($file);
+        }
     }
 
     /**

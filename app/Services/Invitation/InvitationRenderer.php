@@ -9,6 +9,7 @@ use App\Models\InvitationTemplate;
 use App\Services\MusicService;
 use App\Services\Rsvp\GuestbookService;
 use App\Services\Rsvp\RsvpService;
+use App\Services\Template\TemplateSchema;
 use App\Support\SafeUrl;
 use App\Support\VideoEmbed;
 use Carbon\CarbonImmutable;
@@ -54,6 +55,9 @@ class InvitationRenderer
                 type: $section->type,
                 variant: $section->variant,
                 background: $section->theme['background'] ?? null,
+                height: $section->theme['height'] ?? null,
+                headingSize: $section->theme['heading_size'] ?? null,
+                textSize: $section->theme['text_size'] ?? null,
                 config: array_replace(
                     $this->registry->defaults($section->type),
                     $section->configuration ?? [],
@@ -76,7 +80,7 @@ class InvitationRenderer
             theme: $theme,
             cssVariables: $this->themes->cssVariables($theme),
             fontStylesheetUrl: $this->themes->fontStylesheetUrl($theme, $this->designs->fonts($design)),
-            decoration: $this->decorations->resolve($settings?->decoration ?? []),
+            decoration: $this->decorations->forPage($settings?->decoration ?? []),
             design: $design,
             pageView: $this->designs->pageView($design),
             assets: $this->designs->assets($design),
@@ -156,6 +160,9 @@ class InvitationRenderer
                 type: $blueprint['type'],
                 variant: $blueprint['variant'],
                 background: $blueprint['background'],
+                height: $blueprint['height'],
+                headingSize: $blueprint['heading_size'],
+                textSize: $blueprint['text_size'],
                 config: array_replace(
                     $this->registry->defaults($blueprint['type']),
                     $templateDefaults[$blueprint['type']] ?? [],
@@ -178,7 +185,7 @@ class InvitationRenderer
             theme: $theme,
             cssVariables: $this->themes->cssVariables($theme),
             fontStylesheetUrl: $this->themes->fontStylesheetUrl($theme, $this->designs->fonts($design)),
-            decoration: $this->decorations->resolve($template->decoration ?? []),
+            decoration: $this->decorations->forPage($template->decoration ?? []),
             design: $design,
             pageView: $this->designs->pageView($design),
             assets: $this->designs->assets($design),
@@ -203,9 +210,9 @@ class InvitationRenderer
 
     /**
      * @param  array<string, mixed>  $config
-     * @return array{key: string, type: string, variant: string, view: string, native: bool, background: string, config: array<string, mixed>, ornaments: array<int, array<string, mixed>>, desktop_ornaments: array<int, array<string, mixed>>}
+     * @return array{key: string, type: string, variant: string, view: string, native: bool, background: string, height: string, heading_size: string, text_size: string, config: array<string, mixed>, ornaments: array<int, array<string, mixed>>, desktop_ornaments: array<int, array<string, mixed>>}
      */
-    private function buildSection(string $key, string $type, ?string $variant, ?string $background, array $config, string $timezone, string $design, mixed $ornaments = [], mixed $desktopOrnaments = []): array
+    private function buildSection(string $key, string $type, ?string $variant, ?string $background, array $config, string $timezone, string $design, mixed $ornaments = [], mixed $desktopOrnaments = [], ?string $height = null, ?string $headingSize = null, ?string $textSize = null): array
     {
         $variant = $this->registry->resolveVariant($type, $variant);
         $view = $this->designs->sectionView($design, $type, $variant);
@@ -217,6 +224,9 @@ class InvitationRenderer
             'view' => $view['view'],
             'native' => $view['native'],
             'background' => in_array($background, self::BACKGROUNDS, true) ? $background : 'default',
+            'height' => in_array($height, TemplateSchema::HEIGHTS, true) ? $height : 'auto',
+            'heading_size' => in_array($headingSize, TemplateSchema::FONT_SIZES, true) ? $headingSize : 'default',
+            'text_size' => in_array($textSize, TemplateSchema::FONT_SIZES, true) ? $textSize : 'default',
             'config' => $this->normalizeConfig($type, $config, $timezone),
             'ornaments' => $this->ornaments->clean($ornaments),
             // Only the cover uses these, on the desktop side panel of designs that have one.
@@ -273,7 +283,7 @@ class InvitationRenderer
                 'notes' => $this->lines($config['notes'] ?? ''),
             ],
             'gift' => [...$config, 'wishlist' => $this->mapList($config['wishlist'] ?? [], fn (array $item): array => [...$item, 'url' => $this->safeUrl($item['url'] ?? null)])],
-            'closing' => [...$config, 'inviters' => $this->lines($config['inviters'] ?? '')],
+            'closing' => [...$config, 'photo' => $this->safeUrl($config['photo'] ?? null), 'inviters' => $this->lines($config['inviters'] ?? '')],
             'health_protocol' => [...$config, 'items' => $this->mapList($config['items'] ?? [], fn (array $item): array => [
                 ...$item,
                 'icon_class' => config('invitation.health_protocol_icons')[$item['icon'] ?? ''] ?? 'fa-solid fa-circle-check',

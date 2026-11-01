@@ -29,8 +29,6 @@
     $panelPosition = \App\Support\PhotoStyle::background(filled($panel['desktop_image'] ?? null) ? ($panel['desktop_image_focus'] ?? null) : ($panel['background_image_focus'] ?? null));
     $panelSubtitle = filled($panel['desktop_subtitle'] ?? null) ? $panel['desktop_subtitle'] : ($panel['subtitle'] ?? '');
     $panelTitle = filled($panel['desktop_title'] ?? null) ? $panel['desktop_title'] : $names;
-    // Footer: the date of the cover and the calendar link of the first event that offers one.
-    $calendarUrl = $sections->where('type', 'event')->pluck('config.events')->flatten(1)->pluck('calendar_url')->filter()->first();
 @endphp
 
 <div class="bc" data-bc-root>
@@ -74,7 +72,7 @@
                     {{-- Sections without a Botanical Cream view keep their classic layout inside a cream card. --}}
                     <section id="section-{{ $section['key'] }}" data-section="{{ $section['type'] }}"
                         @include('invitation.partials.backdrop-attributes')
-                        @class(['bc-section bc-bg-'.$section['background'], 'inv-has-ornaments' => ! empty($section['ornaments'])])>
+                        @class(['bc-section bc-bg-'.$section['background'], 'inv-has-ornaments' => ! empty($section['ornaments']), 'inv-section--screen inv-section--'.$section['height'] => $section['height'] !== 'auto', 'inv-heading-size--'.$section['heading_size'] => $section['heading_size'] !== 'default', 'inv-text-size--'.$section['text_size'] => $section['text_size'] !== 'default'])>
                         <div class="inv-section-body bc-card bc-classic inv-animate">
                             @include($section['view'], ['config' => $section['config'], 'variant' => $section['variant']])
                         </div>
@@ -85,19 +83,10 @@
                 <p class="bc-section bc-lead">{{ __('This invitation has no visible sections yet.') }}</p>
             @endforelse
 
-            <footer class="bc-footer inv-animate">
-                <p class="bc-title">{{ __('See you on our happy day') }}</p>
-                @if (filled($panel['date_text'] ?? null))
-                    <p class="bc-footer__date">{{ $panel['date_text'] }}</p>
-                @endif
-                @include('designs.botanical-cream.partials.sprig')
-                @if ($calendarUrl)
-                    <a class="bc-btn" href="{{ $calendarUrl }}" target="_blank" rel="noopener noreferrer"><i class="fa-regular fa-calendar-plus" aria-hidden="true"></i>{{ __('Save to calendar') }}</a>
-                @endif
-                @if ($showBranding)
-                    <p class="bc-branding">{{ __('Made with') }} <i class="fa-solid fa-heart" aria-hidden="true"></i> <a href="{{ route('home') }}">{{ config('app.name') }}</a></p>
-                @endif
-            </footer>
+            {{-- Plan branding only (free plans); invitations without branding end with their last section. --}}
+            @if ($showBranding)
+                <p class="bc-branding">{{ __('Made with') }} <i class="fa-solid fa-heart" aria-hidden="true"></i> <a href="{{ route('home') }}">{{ config('app.name') }}</a></p>
+            @endif
         </main>
 
         @if ($navItems->count() > 1)

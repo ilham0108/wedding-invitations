@@ -68,36 +68,37 @@
                     </div>
                 </div>
 
-                <div x-show="open" x-cloak class="grid grid-cols-3 gap-2 border-t border-line p-2 text-[11px] text-muted">
+                {{-- Six columns: numbers take two (three per row), selects three (two per row) so their labels fit. --}}
+                <div x-show="open" x-cloak class="grid grid-cols-6 gap-2 border-t border-line p-2 text-[11px] text-muted">
                     @foreach (['x' => [__('Horizontal (%)'), -50, 150, 1], 'y' => [__('Vertical (%)'), -50, 150, 1], 'width' => [__('Width (%)'), 2, 150, 1]] as $key => [$label, $min, $max, $step])
-                        <label>{{ $label }}
+                        <label class="col-span-2">{{ $label }}
                             <input type="number" min="{{ $min }}" max="{{ $max }}" step="{{ $step }}" value="{{ $ornament[$key] }}"
-                                wire:change="updateOrnament({{ $index }}, '{{ $key }}', $event.target.value)" class="{{ $inputClass }} mt-0.5">
+                                x-on:change="$el.value = Math.min({{ $max }}, Math.max({{ $min }}, Number($el.value === '' ? {{ $ornament[$key] }} : $el.value))); $wire.updateOrnament({{ $index }}, '{{ $key }}', $el.value)" class="{{ $inputClass }} mt-0.5">
                         </label>
                     @endforeach
 
-                    <label class="col-span-2">{{ __('Anchor point') }}
+                    <label class="col-span-3">{{ __('Anchor point') }}
                         <select wire:change="updateOrnament({{ $index }}, 'anchor', $event.target.value)" class="{{ $inputClass }} mt-0.5">
                             @foreach ($ornamentAnchors as $value => $label)
                                 <option value="{{ $value }}" @selected($ornament['anchor'] === $value)>{{ __($label) }}</option>
                             @endforeach
                         </select>
                     </label>
-                    <label>{{ __('Layer') }}
+                    <label class="col-span-3">{{ __('Layer') }}
                         <select wire:change="updateOrnament({{ $index }}, 'layer', $event.target.value)" class="{{ $inputClass }} mt-0.5">
-                            <option value="front" @selected($ornament['layer'] === 'front')>{{ __('In front') }}</option>
-                            <option value="back" @selected($ornament['layer'] === 'back')>{{ __('Behind content') }}</option>
+                            <option value="front" @selected($ornament['layer'] === 'front')>{{ __('Front') }}</option>
+                            <option value="back" @selected($ornament['layer'] === 'back')>{{ __('Behind') }}</option>
                         </select>
                     </label>
 
-                    <label class="col-span-2">{{ __('Entrance') }}
+                    <label class="col-span-3">{{ __('Entrance') }}
                         <select wire:change="updateOrnament({{ $index }}, 'enter', $event.target.value)" class="{{ $inputClass }} mt-0.5">
                             @foreach ($ornamentEnters as $value => $label)
                                 <option value="{{ $value }}" @selected($ornament['enter'] === $value)>{{ __($label) }}</option>
                             @endforeach
                         </select>
                     </label>
-                    <label>{{ __('Motion') }}
+                    <label class="col-span-3">{{ __('Motion') }}
                         <select wire:change="updateOrnament({{ $index }}, 'motion', $event.target.value)" class="{{ $inputClass }} mt-0.5">
                             @foreach ($ornamentMotions as $value => $label)
                                 <option value="{{ $value }}" @selected($ornament['motion'] === $value)>{{ __($label) }}</option>
@@ -105,13 +106,14 @@
                         </select>
                     </label>
 
-                    @foreach (['duration' => __('Duration (s)'), 'delay' => __('Delay (s)')] as $key => $label)
-                        <label>{{ $label }}
-                            <input type="number" min="{{ $key === 'duration' ? 0.2 : 0 }}" max="8" step="0.1" value="{{ $ornament[$key] }}"
-                                wire:change="updateOrnament({{ $index }}, '{{ $key }}', $event.target.value)" class="{{ $inputClass }} mt-0.5">
+                    @foreach (['duration' => [__('Duration (s)'), 0.2], 'delay' => [__('Delay (s)'), 0]] as $key => [$label, $min])
+                        @php($max = 8)
+                        <label class="col-span-2">{{ $label }}
+                            <input type="number" min="{{ $min }}" max="{{ $max }}" step="0.1" value="{{ $ornament[$key] }}"
+                                x-on:change="$el.value = Math.min({{ $max }}, Math.max({{ $min }}, Number($el.value === '' ? {{ $ornament[$key] }} : $el.value))); $wire.updateOrnament({{ $index }}, '{{ $key }}', $el.value)" class="{{ $inputClass }} mt-0.5">
                         </label>
                     @endforeach
-                    <label class="flex items-end gap-1.5 pb-1 text-ink-soft">
+                    <label class="col-span-2 flex items-end gap-1.5 pb-1 text-ink-soft">
                         <input type="checkbox" @checked($ornament['flip']) wire:change="updateOrnament({{ $index }}, 'flip', $event.target.checked ? '1' : '0')" class="rounded border-line text-sage focus:ring-sage">
                         {{ __('Mirror') }}
                     </label>

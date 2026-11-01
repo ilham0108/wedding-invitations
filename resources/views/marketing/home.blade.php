@@ -1,14 +1,31 @@
 {{--
     Marketing home (botanical design). Copy and photos come from the admin CMS ($content,
-    config/site-content.php); templates and plans from the database. Without uploaded photos,
-    illustrated phones and line-art leaves stand in.
+    config/site-content.php); templates and plans from the database. The page leads with the
+    product itself: a real published template running in a phone frame.
 --}}
 @php
     $hero = $content['hero'];
+    $demo = $content['demo'];
     $steps = $content['steps'];
     $featureItems = $content['features']['items'];
     $cta = $content['cta'];
     $em = fn (?string $text): string => \App\Support\Emphasis::html($text);
+
+    $demoTemplate = $templates->firstWhere('slug', $demo['template']) ?? $templates->first();
+    $demoOptions = $templates->map(fn ($template): array => [
+        'slug' => $template->slug,
+        'name' => $template->name,
+        'embed' => route('templates.preview', ['template' => $template, 'embed' => 1]),
+        'full' => route('templates.preview', $template),
+    ])->values();
+    $sectionLabels = collect(config('invitation.sections'))->map(fn (array $section): string => __($section['label']));
+
+    // Rows of the pricing table: features at least one plan includes, in catalogue order.
+    $planFeatures = $plans->mapWithKeys(fn ($plan): array => [$plan->id => $plan->resolvedFeatures()]);
+    $featureRows = collect($features)->keys()->filter(
+        fn (string $key): bool => $planFeatures->contains(fn (array $values): bool => ($values[$key] ?? false) !== false)
+    );
+    $categoryOf = fn ($template): string => (string) $template->category->slug;
 @endphp
 
 <x-layouts.marketing :title="\App\Support\Emphasis::plain($hero['title'])" :description="$hero['subtitle']">
@@ -21,234 +38,353 @@
             @else
                 <div class="mk-hero-fallback absolute inset-0"></div>
                 <x-motif.sulur class="absolute -right-6 top-10 w-72 -scale-x-100 text-olive/30" accent="#d9b8ad" />
-                <x-motif.sulur class="absolute bottom-0 left-10 w-56 text-olive/25" accent="#d9b8ad" />
                 <div class="absolute inset-0 bg-gradient-to-r from-cream via-cream/10 to-transparent"></div>
             @endif
         </div>
 
-        <div class="relative mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 lg:min-h-[34rem] lg:grid-cols-2 lg:py-20">
+        <div class="relative mx-auto grid max-w-6xl items-center gap-10 px-4 pb-14 pt-12 sm:px-6 lg:min-h-[36rem] lg:grid-cols-2 lg:py-20">
             <div>
                 @if (filled($hero['badge']))
                     <p class="mk-eyebrow mk-rise">{{ $hero['badge'] }}</p>
                 @endif
-                <h1 class="mk-serif mk-rise mk-rise-2 mt-4 text-[2.7rem] leading-[1.08] text-ink sm:text-[3.4rem]">{!! $em($hero['title']) !!}</h1>
+                <h1 class="mk-serif mk-rise mk-rise-2 mt-3 text-[2.6rem] leading-[1.06] text-ink sm:text-[3.6rem]">{!! $em($hero['title']) !!}</h1>
                 @if (filled($hero['subtitle']))
                     <p class="mk-rise mk-rise-3 mt-5 max-w-md text-[1.05rem] leading-relaxed text-ink-soft">{{ $hero['subtitle'] }}</p>
                 @endif
 
-                <div class="mk-rise mk-rise-3 mt-8 flex flex-wrap gap-3">
-                    @if (filled($hero['secondary_label']))
-                        <a href="#templates" class="inline-flex h-11 items-center gap-2 rounded-full bg-olive px-6 text-sm font-medium text-white transition hover:bg-olive-dark">
-                            {{ $hero['secondary_label'] }} <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
-                        </a>
+                {{-- Signing up is the main action; browsing templates is the quieter second one. --}}
+                <div class="mk-rise mk-rise-3 mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                    <a href="{{ route('register') }}" class="inline-flex h-12 items-center justify-center rounded-full bg-olive px-7 text-sm font-medium text-white transition hover:bg-olive-dark active:bg-olive-dark">{{ $hero['primary_label'] }}</a>
+                    @if (filled($hero['secondary_label']) && $templates->isNotEmpty())
+                        <a href="#templates" class="inline-flex h-12 items-center justify-center rounded-full border border-ink/25 bg-white/40 px-7 text-sm font-medium text-ink transition hover:border-ink/50 hover:bg-white/70">{{ $hero['secondary_label'] }}</a>
                     @endif
-                    <a href="{{ route('register') }}" class="inline-flex h-11 items-center rounded-full border border-ink/25 bg-white/40 px-6 text-sm font-medium text-ink transition hover:border-ink/50">{{ $hero['primary_label'] }}</a>
                 </div>
 
                 @if ($hero['items'] !== [])
-                    <ul class="mk-rise mk-rise-3 mt-12 grid max-w-md grid-cols-2 gap-6 sm:grid-cols-4">
+                    <ul class="mk-rise mk-rise-3 mt-10 flex max-w-lg flex-wrap gap-x-6 gap-y-2 text-sm text-ink-soft">
                         @foreach ($hero['items'] as $item)
-                            <li class="text-center">
-                                <i class="{{ $item['icon'] }} text-xl text-ink-soft" aria-hidden="true"></i>
-                                <p class="mt-2 text-[0.72rem] leading-snug text-ink-soft">{{ $item['title'] }}</p>
+                            <li class="flex items-center gap-2">
+                                <i class="{{ $item['icon'] }} text-olive" aria-hidden="true"></i>
+                                <span>{{ $item['title'] }}</span>
                             </li>
                         @endforeach
                     </ul>
                 @endif
             </div>
 
-            @unless ($hero['image'])
-                {{-- Illustrated invitation on a phone. --}}
-                <x-marketing.phone class="mk-rise mk-rise-2 mx-auto w-full max-w-[15.5rem] rotate-[4deg]">
-                    <div class="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
-                        <div class="absolute inset-x-7 bottom-16 top-14 rounded-t-full border border-olive/25"></div>
-                        <p class="relative text-[8px] uppercase tracking-[0.3em] text-muted">{{ __('The Wedding of') }}</p>
-                        <p class="mk-serif relative mt-3 text-[1.9rem] italic leading-[1.05] text-olive">Ana<br><span class="text-xl">&amp;</span><br>Budi</p>
-                        <p class="relative mt-4 text-[9px] tracking-[0.25em] text-ink-soft">14 . 12 . 2026</p>
-                        <span class="relative mt-6 rounded-full bg-olive px-4 py-1.5 text-[9px] font-medium text-white">{{ __('Open Invitation') }}</span>
-                    </div>
-                </x-marketing.phone>
-            @else
-                <img src="{{ $hero['image'] }}" alt="" class="w-full rounded-2xl object-cover lg:hidden">
-            @endunless
+            @if ($hero['image'])
+                <img src="{{ $hero['image'] }}" alt="" class="aspect-[4/3] w-full rounded-2xl object-cover lg:hidden" fetchpriority="high">
+            @endif
         </div>
     </section>
 
-    {{-- Featured templates --}}
-    @if ($templates->isNotEmpty())
-        <section id="templates" class="scroll-mt-20 bg-white/60 py-20" x-data="{ all: false }">
-            <div class="mx-auto max-w-6xl px-4 sm:px-6">
-                <div class="flex flex-wrap items-end justify-between gap-6">
-                    <div class="max-w-xl">
-                        @if (filled($content['templates']['eyebrow']))
-                            <p class="mk-eyebrow">{{ $content['templates']['eyebrow'] }}</p>
-                        @endif
-                        <h2 class="mk-serif mt-3 text-4xl text-ink sm:text-[2.6rem]">{!! $em($content['templates']['heading']) !!}</h2>
-                        @if (filled($content['templates']['subtitle']))
-                            <p class="mt-3 leading-relaxed text-ink-soft">{{ $content['templates']['subtitle'] }}</p>
-                        @endif
-                    </div>
-                    @if ($templates->count() > 5 && filled($content['templates']['link_label']))
-                        <button type="button" x-on:click="all = ! all" class="inline-flex items-center gap-2 text-sm text-ink-soft hover:text-ink">
-                            <span x-text="all ? @js(__('Show fewer')) : @js($content['templates']['link_label'])">{{ $content['templates']['link_label'] }}</span>
-                            <i class="fa-solid fa-arrow-right text-xs transition" x-bind:class="all && 'rotate-90'" aria-hidden="true"></i>
-                        </button>
+    {{-- Live demo: the focal point. A real template scrolls to the part each item names. --}}
+    @if ($demoTemplate)
+        <section id="demo" class="scroll-mt-16 bg-olive-dark py-16 text-white sm:py-24"
+            x-data="mkDemo(@js($demoOptions), @js($demoTemplate->slug))">
+            <div class="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_auto] lg:gap-20">
+                <div class="lg:order-1">
+                    @if (filled($demo['eyebrow']))
+                        <p class="mk-eyebrow mk-eyebrow--light">{{ $demo['eyebrow'] }}</p>
+                    @endif
+                    <h2 class="mk-serif mk-em-light mt-2 text-4xl leading-tight sm:text-[2.9rem]">{!! $em($demo['heading']) !!}</h2>
+                    @if (filled($demo['subtitle']))
+                        <p class="mt-4 max-w-lg leading-relaxed text-white/85">{{ $demo['subtitle'] }}</p>
+                    @endif
+
+                    @if ($demo['items'] !== [])
+                        {{-- Phones get compact chips so the phone frame stays in view right below them. --}}
+                        <ul class="mt-8 grid grid-cols-2 gap-2 lg:grid-cols-1 lg:gap-1">
+                            @foreach ($demo['items'] as $item)
+                                <li>
+                                    <button type="button" x-on:click="go(@js($item['section']))"
+                                        x-bind:disabled="! has(@js($item['section']))"
+                                        x-bind:aria-pressed="(active === @js($item['section'])).toString()"
+                                        x-bind:class="active === @js($item['section']) ? 'bg-cream text-ink' : 'text-white hover:bg-white/10'"
+                                        class="flex min-h-11 w-full items-start gap-3 rounded-xl border border-white/15 px-3 py-2.5 text-left text-sm transition disabled:cursor-not-allowed disabled:opacity-50 lg:gap-4 lg:border-transparent lg:px-4 lg:py-3 lg:text-base">
+                                        <i class="{{ $item['icon'] }} mt-1 w-5 shrink-0 text-center" aria-hidden="true"></i>
+                                        <span>
+                                            <span class="block font-medium">{{ $item['title'] }}</span>
+                                            @if (filled($item['description'] ?? null))
+                                                <span class="mt-0.5 hidden text-sm leading-relaxed opacity-85 lg:block">{{ $item['description'] }}</span>
+                                            @endif
+                                            <span x-show="loaded && ! has(@js($item['section']))" x-cloak class="mt-0.5 block text-xs">{{ __('Not in this design (:section)', ['section' => $sectionLabels[$item['section']] ?? $item['section']]) }}</span>
+                                        </span>
+                                    </button>
+                                </li>
+                            @endforeach
+                        </ul>
                     @endif
                 </div>
 
-                <div class="mt-10 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
-                    @foreach ($templates as $template)
-                        <div @if ($loop->index >= 5) x-show="all" x-cloak x-transition.opacity @endif>
-                            <x-template-card :template="$template" compact />
+                <div class="mx-auto w-full max-w-[18.5rem] lg:order-2 lg:w-[18.5rem]">
+                    {{-- Phone frame; the iframe is the bare template preview (?embed=1). --}}
+                    <div class="rounded-[2.6rem] border-[10px] border-[#20241d] bg-[#20241d] shadow-[0_40px_80px_-40px_rgb(0_0_0/0.7)]">
+                        <div class="relative overflow-hidden rounded-[2rem] bg-cream">
+                            <iframe x-ref="frame" src="{{ route('templates.preview', ['template' => $demoTemplate, 'embed' => 1]) }}"
+                                x-on:load="ready()" title="{{ __('Live invitation demo') }}" loading="lazy"
+                                width="270" height="560" class="block h-[34rem] w-full sm:h-[35rem]"></iframe>
+                            <p x-show="! loaded" class="absolute inset-0 flex items-center justify-center text-sm text-ink-soft">{{ __('Loading the invitation...') }}</p>
                         </div>
-                    @endforeach
+                    </div>
+
+                    <div class="mt-5 flex items-end gap-3">
+                        <div class="min-w-0 flex-1">
+                            <label for="mk-demo-template" class="block text-xs text-white/80">{{ __('Design') }}</label>
+                            <select id="mk-demo-template" x-model="slug" x-on:change="switchTo()" class="mt-1 block w-full rounded-full border-white/25 bg-white/10 py-2.5 pl-4 pr-9 text-sm text-white focus:border-cream focus:ring-cream">
+                                @foreach ($demoOptions as $option)
+                                    <option value="{{ $option['slug'] }}" class="text-ink">{{ $option['name'] }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <a x-bind:href="current().full" href="{{ route('templates.preview', $demoTemplate) }}" target="_blank" rel="noopener"
+                            class="inline-flex h-11 shrink-0 items-center gap-2 rounded-full px-3 text-sm text-white/90 underline-offset-4 hover:text-white hover:underline">
+                            {{ __('Full screen') }} <i class="fa-solid fa-arrow-up-right-from-square text-xs" aria-hidden="true"></i>
+                            <span class="sr-only">({{ __('opens in a new tab') }})</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </section>
     @endif
 
-    {{-- How it works, with a phone that reaches down into the features. --}}
-    @if ($steps['items'] !== [])
-        <section id="how-it-works" class="relative scroll-mt-20 py-20">
+    {{-- Template catalogue, filtered by category. --}}
+    @if ($templates->isNotEmpty())
+        <section id="templates" class="scroll-mt-16 py-16 sm:py-20" x-data="{ category: 'all', all: false }">
             <div class="mx-auto max-w-6xl px-4 sm:px-6">
-                <div class="max-w-3xl">
-                    @if (filled($steps['eyebrow']))
-                        <p class="mk-eyebrow">{{ $steps['eyebrow'] }}</p>
-                    @endif
-                    <h2 class="mk-serif mt-3 text-4xl text-ink sm:text-[2.6rem]">{!! $em($steps['heading']) !!}</h2>
-                    @if (filled($steps['subtitle']))
-                        <p class="mt-3 leading-relaxed text-ink-soft">{{ $steps['subtitle'] }}</p>
-                    @endif
+                <div class="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
+                    <div class="max-w-xl">
+                        @if (filled($content['templates']['eyebrow']))
+                            <p class="mk-eyebrow">{{ $content['templates']['eyebrow'] }}</p>
+                        @endif
+                        <h2 class="mk-serif mt-2 text-4xl text-ink sm:text-[2.6rem]">{!! $em($content['templates']['heading']) !!}</h2>
+                        @if (filled($content['templates']['subtitle']))
+                            <p class="mt-3 leading-relaxed text-ink-soft">{{ $content['templates']['subtitle'] }}</p>
+                        @endif
+                    </div>
 
-                    <ol class="mt-10 grid gap-8 sm:grid-cols-2 lg:flex lg:items-start lg:gap-3">
-                        @foreach ($steps['items'] as $index => $step)
-                            <li class="flex flex-1 items-start gap-3 lg:contents">
-                                <div class="text-center lg:flex-1">
-                                    <span class="mk-icon-circle mx-auto h-16 w-16 text-xl"><i class="{{ $step['icon'] }}" aria-hidden="true"></i></span>
-                                    <p class="mt-4 text-sm font-semibold text-ink">{{ $index + 1 }}. {{ $step['title'] }}</p>
-                                    @if (filled($step['description'] ?? null))
-                                        <p class="mx-auto mt-1.5 max-w-[11rem] text-[0.8rem] leading-relaxed text-muted">{{ $step['description'] }}</p>
-                                    @endif
-                                </div>
-                                @unless ($loop->last)
-                                    <i class="fa-solid fa-arrow-right-long mt-6 hidden text-lg text-olive-line lg:block" aria-hidden="true"></i>
-                                @endunless
-                            </li>
-                        @endforeach
-                    </ol>
-                </div>
-            </div>
-
-            <div class="pointer-events-none absolute -bottom-40 right-[max(1rem,calc(50%-36rem))] z-10 hidden w-56 lg:block xl:w-60">
-                @if ($steps['image'])
-                    <img src="{{ $steps['image'] }}" alt="" class="mk-float w-full drop-shadow-2xl">
-                @else
-                    <x-marketing.phone class="mk-float">
-                        <div class="absolute inset-0 flex flex-col">
-                            <div class="h-[42%] bg-gradient-to-br from-[#c9d3c4] via-[#e3e6dc] to-[#cfd6cc]"></div>
-                            <div class="flex flex-1 flex-col items-center px-5 pt-5 text-center">
-                                <p class="mk-serif text-[1.2rem] leading-tight text-ink">{{ __('Your presence means a lot') }}</p>
-                                <p class="mt-2 text-[8px] leading-relaxed text-muted">{{ __('We would be honoured if you could attend and give us your blessing.') }}</p>
-                                <span class="mt-4 w-full rounded-full bg-olive py-1.5 text-[8px] font-medium text-white">{{ __('Confirm attendance') }}</span>
-                                <span class="mt-2 w-full rounded-full border border-ink/20 py-1.5 text-[8px] text-ink">{{ __('See location') }}</span>
-                            </div>
+                    @if ($categories->count() > 1)
+                        <div class="flex flex-wrap gap-2" role="group" aria-label="{{ __('Filter by category') }}">
+                            @foreach ([['all', __('All')], ...$categories->map(fn ($category): array => [$category->slug, $category->name])] as [$slug, $name])
+                                <button type="button" x-on:click="category = @js($slug)" x-bind:aria-pressed="(category === @js($slug)).toString()"
+                                    x-bind:class="category === @js($slug) ? 'border-olive bg-olive text-white' : 'border-olive-line text-ink-soft hover:border-ink/40 hover:text-ink'"
+                                    class="h-11 rounded-full border px-4 text-sm transition">{{ $name }}</button>
+                            @endforeach
                         </div>
-                    </x-marketing.phone>
+                    @endif
+                </div>
+
+                <div class="mt-10 grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 lg:grid-cols-5">
+                    @foreach ($templates as $template)
+                        <div x-show="(category === 'all' || category === @js($categoryOf($template))) && (all || category !== 'all' || {{ $loop->index }} < 10)" x-transition.opacity>
+                            <x-template-card :template="$template" compact />
+                        </div>
+                    @endforeach
+                </div>
+
+                @if ($templates->count() > 10 && filled($content['templates']['link_label']))
+                    <div class="mt-10 text-center" x-show="category === 'all'">
+                        <button type="button" x-on:click="all = ! all" class="h-11 rounded-full border border-olive-line px-6 text-sm text-ink transition hover:border-ink/40">
+                            <span x-text="all ? @js(__('Show fewer')) : @js($content['templates']['link_label'])">{{ $content['templates']['link_label'] }}</span>
+                        </button>
+                    </div>
                 @endif
             </div>
         </section>
     @endif
 
-    {{-- Features --}}
-    @if ($featureItems !== [])
-        <section id="features" class="scroll-mt-20 bg-cream-deep/70 py-20">
+    {{-- How it works: serif numerals read like the numbered pages of a printed invitation. --}}
+    @if ($steps['items'] !== [])
+        <section id="how-it-works" class="scroll-mt-16 border-t border-olive-line/70 py-16 sm:py-20">
             <div class="mx-auto max-w-6xl px-4 sm:px-6">
-                <div class="max-w-xl">
+                <div class="grid gap-4 lg:grid-cols-[1fr_1fr] lg:items-end">
+                    <div>
+                        @if (filled($steps['eyebrow']))
+                            <p class="mk-eyebrow">{{ $steps['eyebrow'] }}</p>
+                        @endif
+                        <h2 class="mk-serif mt-2 text-4xl text-ink sm:text-[2.6rem]">{!! $em($steps['heading']) !!}</h2>
+                    </div>
+                    @if (filled($steps['subtitle']))
+                        <p class="max-w-md leading-relaxed text-ink-soft lg:justify-self-end">{{ $steps['subtitle'] }}</p>
+                    @endif
+                </div>
+
+                <ol @class([
+                    'mt-10 grid gap-x-8 gap-y-8 sm:grid-cols-2',
+                    'lg:grid-cols-4' => count($steps['items']) === 4,
+                    'lg:grid-cols-3' => count($steps['items']) !== 4,
+                ])>
+                    @foreach ($steps['items'] as $index => $step)
+                        <li class="border-t border-olive-line pt-5">
+                            <div class="flex items-baseline justify-between gap-3">
+                                <span class="mk-serif text-[2.6rem] leading-none text-olive">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
+                                <i class="{{ $step['icon'] }} text-ink-soft" aria-hidden="true"></i>
+                            </div>
+                            <h3 class="mt-4 font-semibold text-ink">{{ $step['title'] }}</h3>
+                            @if (filled($step['description'] ?? null))
+                                <p class="mt-1.5 text-sm leading-relaxed text-ink-soft">{{ $step['description'] }}</p>
+                            @endif
+                        </li>
+                    @endforeach
+                </ol>
+            </div>
+        </section>
+    @endif
+
+    {{-- Features: heading held on the left, the list runs down the right like an index. --}}
+    @if ($featureItems !== [])
+        <section id="features" class="scroll-mt-16 bg-cream-deep/70 py-16 sm:py-20">
+            <div class="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.75fr_1.6fr] lg:gap-16">
+                <div class="lg:sticky lg:top-28 lg:self-start">
                     @if (filled($content['features']['eyebrow']))
                         <p class="mk-eyebrow">{{ $content['features']['eyebrow'] }}</p>
                     @endif
-                    <h2 class="mk-serif mt-3 text-4xl text-ink sm:text-[2.6rem]">{!! $em($content['features']['heading']) !!}</h2>
+                    <h2 class="mk-serif mt-2 text-4xl text-ink sm:text-[2.6rem]">{!! $em($content['features']['heading']) !!}</h2>
                     @if (filled($content['features']['subtitle']))
                         <p class="mt-3 leading-relaxed text-ink-soft">{{ $content['features']['subtitle'] }}</p>
                     @endif
                 </div>
 
-                <div class="mt-12 grid gap-x-10 gap-y-9 sm:grid-cols-2 lg:mt-16 lg:grid-cols-3">
+                <ul class="grid gap-x-10 sm:grid-cols-2">
                     @foreach ($featureItems as $feature)
-                        <div class="flex items-start gap-4">
-                            <span class="mk-icon-circle h-14 w-14 text-lg"><i class="{{ $feature['icon'] }}" aria-hidden="true"></i></span>
+                        <li class="flex items-start gap-4 border-t border-olive-line py-5">
+                            <i class="{{ $feature['icon'] }} mt-1 w-5 shrink-0 text-center text-olive" aria-hidden="true"></i>
                             <div>
                                 <h3 class="font-semibold text-ink">{{ $feature['title'] }}</h3>
                                 @if (filled($feature['description'] ?? null))
-                                    <p class="mt-1 text-sm leading-relaxed text-muted">{{ $feature['description'] }}</p>
+                                    <p class="mt-1 text-sm leading-relaxed text-ink-soft">{{ $feature['description'] }}</p>
                                 @endif
                             </div>
-                        </div>
+                        </li>
                     @endforeach
-                </div>
+                </ul>
             </div>
         </section>
     @endif
 
-    {{-- Pricing (plans and prices from the database) --}}
+    {{-- Pricing (plans and prices from the database): a comparison table on wide screens, cards below. --}}
     @if ($plans->isNotEmpty())
-        <section id="pricing" class="scroll-mt-20 py-20">
+        <section id="pricing" class="scroll-mt-16 py-16 sm:py-20">
             <div class="mx-auto max-w-6xl px-4 sm:px-6">
-                <div class="mx-auto max-w-xl text-center">
+                <div class="max-w-xl">
                     @if (filled($content['pricing']['eyebrow']))
                         <p class="mk-eyebrow">{{ $content['pricing']['eyebrow'] }}</p>
                     @endif
-                    <h2 class="mk-serif mt-3 text-4xl text-ink sm:text-[2.6rem]">{!! $em($content['pricing']['heading']) !!}</h2>
+                    <h2 class="mk-serif mt-2 text-4xl text-ink sm:text-[2.6rem]">{!! $em($content['pricing']['heading']) !!}</h2>
                     @if (filled($content['pricing']['subtitle']))
                         <p class="mt-3 leading-relaxed text-ink-soft">{{ $content['pricing']['subtitle'] }}</p>
                     @endif
                 </div>
 
-                <div class="mt-12 grid items-stretch gap-5 md:grid-cols-2 lg:grid-cols-4">
+                <table class="mt-12 hidden w-full table-fixed border-collapse text-sm lg:table">
+                    <caption class="sr-only">{{ __('Plan comparison') }}</caption>
+                    <colgroup>
+                        <col class="w-[22%]">
+                        @foreach ($plans as $plan)
+                            <col @class(['bg-olive-soft/60' => $plan->is_highlighted])>
+                        @endforeach
+                    </colgroup>
+                    {{-- Name, price and button sit in their own rows so they line up across plans. --}}
+                    <thead>
+                        <tr class="align-top">
+                            <td></td>
+                            @foreach ($plans as $plan)
+                                <th scope="col" class="px-5 pt-6 text-left font-normal">
+                                    <span class="flex items-center gap-2">
+                                        <span class="text-base font-semibold text-ink">{{ $plan->name }}</span>
+                                        @if ($plan->is_highlighted)
+                                            <span class="rounded-full bg-olive px-2 py-0.5 text-[0.7rem] font-medium text-white">{{ __('Popular') }}</span>
+                                        @endif
+                                    </span>
+                                    @if ($plan->description)
+                                        <span class="mt-1 block text-ink-soft">{{ $plan->description }}</span>
+                                    @endif
+                                </th>
+                            @endforeach
+                        </tr>
+                        <tr class="align-top">
+                            <td></td>
+                            @foreach ($plans as $plan)
+                                <td class="px-5">@include('marketing.partials.plan-price', ['plan' => $plan, 'compact' => true])</td>
+                            @endforeach
+                        </tr>
+                        <tr>
+                            <td></td>
+                            @foreach ($plans as $plan)
+                                <td class="px-5 pb-6 pt-2">
+                                    <a href="{{ route('register') }}" @class([
+                                        'inline-flex h-11 w-full items-center justify-center rounded-full text-sm font-medium transition',
+                                        'bg-olive text-white hover:bg-olive-dark' => $plan->is_highlighted,
+                                        'border border-ink/20 text-ink hover:border-ink/40 hover:bg-white' => ! $plan->is_highlighted,
+                                    ])>{{ $plan->is_free ? __('Get started for free') : __('Choose :plan', ['plan' => $plan->name]) }}</a>
+                                </td>
+                            @endforeach
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($featureRows as $feature)
+                            <tr class="border-t border-olive-line">
+                                <th scope="row" class="py-3.5 pr-4 text-left font-normal text-ink-soft">
+                                    {{ __($features[$feature]['label']) }}
+                                    @if ($features[$feature]['coming_soon'] ?? false)
+                                        <span class="ml-1 whitespace-nowrap rounded-full border border-olive-line px-2 py-0.5 text-[0.7rem] text-ink-soft">{{ __('Coming soon') }}</span>
+                                    @endif
+                                </th>
+                                @foreach ($plans as $plan)
+                                    @php($value = $planFeatures[$plan->id][$feature] ?? false)
+                                    <td class="px-5 py-3.5 text-ink">
+                                        @if ($value === false)
+                                            <i class="fa-solid fa-minus text-xs text-ink-soft/60" aria-hidden="true"></i><span class="sr-only">{{ __('Not included') }}</span>
+                                        @elseif ($features[$feature]['type'] === 'limit')
+                                            <span class="font-medium">{{ $value === null ? __('Unlimited') : Number::format($value) }}</span>
+                                        @else
+                                            <i class="fa-solid fa-check text-olive" aria-hidden="true"></i><span class="sr-only">{{ __('Included') }}</span>
+                                        @endif
+                                    </td>
+                                @endforeach
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+
+                <div class="mt-10 grid gap-5 md:grid-cols-2 lg:hidden">
                     @foreach ($plans as $plan)
-                        @php($dark = $plan->is_highlighted)
                         <article @class([
-                            'relative flex flex-col rounded-2xl p-7',
-                            'bg-olive text-white shadow-[0_30px_60px_-30px_rgb(58_69_50/0.8)]' => $dark,
-                            'border border-olive-line bg-white/70' => ! $dark,
+                            'flex flex-col rounded-2xl border p-6',
+                            'border-olive bg-olive-soft/60' => $plan->is_highlighted,
+                            'border-olive-line bg-white/60' => ! $plan->is_highlighted,
                         ])>
-                            @if ($dark)
-                                <span class="absolute -top-3 left-7 rounded-full bg-cream px-3 py-1 text-[0.7rem] font-semibold text-olive">{{ __('Popular') }}</span>
-                            @endif
-                            <h3 @class(['font-semibold', 'text-white' => $dark, 'text-ink' => ! $dark])>{{ $plan->name }}</h3>
-                            @if ($plan->description)
-                                <p @class(['mt-1 min-h-[2.5rem] text-sm', 'text-white/70' => $dark, 'text-muted' => ! $dark])>{{ $plan->description }}</p>
-                            @endif
-                            <div class="mt-5">
-                                @if ($plan->is_free || $plan->activePrices->isEmpty())
-                                    <p @class(['mk-serif text-4xl', 'text-white' => $dark, 'text-ink' => ! $dark])>{{ __('Free') }}</p>
-                                @else
-                                    @foreach ($plan->activePrices as $price)
-                                        <p @class(['mk-serif text-4xl' => $loop->first, 'mt-1 text-sm' => ! $loop->first, 'text-white' => $dark, 'text-ink' => ! $dark])>
-                                            {{ \App\Support\Money::format($price->amount, $price->currency) }}
-                                            <span @class(['font-sans text-sm', 'text-white/70' => $dark, 'text-muted' => ! $dark])>{{ $price->periodLabel() }}</span>
-                                        </p>
-                                    @endforeach
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-base font-semibold text-ink">{{ $plan->name }}</h3>
+                                @if ($plan->is_highlighted)
+                                    <span class="rounded-full bg-olive px-2 py-0.5 text-[0.7rem] font-medium text-white">{{ __('Popular') }}</span>
                                 @endif
                             </div>
-                            <ul @class(['mt-6 flex-1 space-y-2.5 border-t pt-6 text-sm', 'border-white/15' => $dark, 'border-olive-line' => ! $dark])>
-                                @foreach ($plan->resolvedFeatures() as $feature => $value)
-                                    @continue($value === false)
-                                    <li @class(['flex items-start gap-2.5', 'text-white/85' => $dark, 'text-ink-soft' => ! $dark])>
-                                        <i @class(['fa-solid fa-check mt-1 text-xs', 'text-white' => $dark, 'text-olive' => ! $dark]) aria-hidden="true"></i>
+                            @if ($plan->description)
+                                <p class="mt-1 text-sm text-ink-soft">{{ $plan->description }}</p>
+                            @endif
+                            @include('marketing.partials.plan-price', ['plan' => $plan])
+                            <ul class="mt-5 flex-1 space-y-2 border-t border-olive-line pt-5 text-sm text-ink-soft">
+                                @foreach ($planFeatures[$plan->id] as $feature => $value)
+                                    @continue($value === false || ! isset($features[$feature]))
+                                    <li class="flex items-start gap-2.5">
+                                        <i class="fa-solid fa-check mt-1 text-xs text-olive" aria-hidden="true"></i>
                                         <span>
                                             @if ($features[$feature]['type'] === 'limit')
-                                                <span @class(['font-semibold', 'text-white' => $dark, 'text-ink' => ! $dark])>{{ $value === null ? __('Unlimited') : Number::format($value) }}</span>
+                                                <span class="font-semibold text-ink">{{ $value === null ? __('Unlimited') : Number::format($value) }}</span>
                                             @endif
                                             {{ __($features[$feature]['label']) }}
+                                            @if ($features[$feature]['coming_soon'] ?? false)
+                                                <span class="ml-1 whitespace-nowrap rounded-full border border-olive-line px-2 py-0.5 text-[0.7rem]">{{ __('Coming soon') }}</span>
+                                            @endif
                                         </span>
                                     </li>
                                 @endforeach
                             </ul>
                             <a href="{{ route('register') }}" @class([
-                                'mt-8 inline-flex h-11 items-center justify-center rounded-full text-sm font-medium transition',
-                                'bg-cream text-olive hover:bg-white' => $dark,
-                                'border border-ink/20 text-ink hover:border-ink/40' => ! $dark,
+                                'mt-6 inline-flex h-11 items-center justify-center rounded-full text-sm font-medium transition',
+                                'bg-olive text-white hover:bg-olive-dark' => $plan->is_highlighted,
+                                'border border-ink/20 text-ink hover:border-ink/40 hover:bg-white' => ! $plan->is_highlighted,
                             ])>{{ $plan->is_free ? __('Get started for free') : __('Choose :plan', ['plan' => $plan->name]) }}</a>
                         </article>
                     @endforeach
@@ -259,13 +395,13 @@
 
     {{-- FAQ (hidden until the admin adds a question) --}}
     @if ($content['faq']['items'] !== [])
-        <section id="faq" class="scroll-mt-20 bg-white/60 py-20">
-            <div class="mx-auto grid max-w-6xl gap-12 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr]">
+        <section id="faq" class="scroll-mt-16 border-t border-olive-line/70 py-16 sm:py-20">
+            <div class="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:gap-12">
                 <div>
                     @if (filled($content['faq']['eyebrow']))
                         <p class="mk-eyebrow">{{ $content['faq']['eyebrow'] }}</p>
                     @endif
-                    <h2 class="mk-serif mt-3 text-4xl text-ink sm:text-[2.6rem]">{!! $em($content['faq']['heading']) !!}</h2>
+                    <h2 class="mk-serif mt-2 text-4xl text-ink sm:text-[2.6rem]">{!! $em($content['faq']['heading']) !!}</h2>
                     @if (filled($content['contact']['email']))
                         <p class="mt-4 text-ink-soft">{{ __('Still have a question?') }} <a href="mailto:{{ $content['contact']['email'] }}" class="font-medium text-olive underline-offset-4 hover:underline">{{ $content['contact']['email'] }}</a></p>
                     @endif
@@ -277,7 +413,7 @@
                                 {{ $item['question'] }}
                                 <i class="fa-solid fa-plus text-xs text-olive transition group-open:rotate-45" aria-hidden="true"></i>
                             </summary>
-                            <p class="mt-3 whitespace-pre-line pr-8 leading-relaxed text-muted">{{ $item['answer'] }}</p>
+                            <p class="mt-3 whitespace-pre-line pr-8 leading-relaxed text-ink-soft">{{ $item['answer'] }}</p>
                         </details>
                     @endforeach
                 </div>
@@ -285,28 +421,26 @@
         </section>
     @endif
 
-    {{-- Call to action over a wide photo (or a soft illustrated background). --}}
-    <section class="relative overflow-hidden">
+    {{-- Closing, set like the card inside an invitation envelope: a double hairline frame. --}}
+    <section class="relative overflow-hidden px-4 py-16 sm:px-6 sm:py-24">
         @if ($cta['image'])
             <img src="{{ $cta['image'] }}" alt="" class="absolute inset-0 h-full w-full object-cover" loading="lazy">
-            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgb(247_244_238/0.92),rgb(247_244_238/0.55)_70%)]"></div>
+            <div class="absolute inset-0 bg-cream/70"></div>
         @else
             <div class="mk-hero-fallback absolute inset-0"></div>
-            <x-motif.sulur class="absolute -left-4 bottom-0 hidden w-64 text-olive/30 sm:block" accent="#d9b8ad" />
-            <x-motif.sulur class="absolute -right-4 top-0 hidden w-64 -scale-100 text-olive/30 sm:block" accent="#d9b8ad" />
         @endif
 
-        <div class="relative mx-auto max-w-2xl px-4 py-24 text-center sm:px-6">
-            @if (filled($cta['eyebrow']))
-                <p class="mk-eyebrow">{{ $cta['eyebrow'] }}</p>
-            @endif
-            <h2 class="mk-serif mt-4 text-4xl leading-tight text-ink sm:text-[2.8rem]">{!! $em($cta['heading']) !!}</h2>
-            @if (filled($cta['text']))
-                <p class="mx-auto mt-4 max-w-md leading-relaxed text-ink-soft">{{ $cta['text'] }}</p>
-            @endif
-            <a href="{{ route('register') }}" class="mt-8 inline-flex h-11 items-center gap-2 rounded-full bg-olive px-7 text-sm font-medium text-white transition hover:bg-olive-dark">
-                {{ $cta['button_label'] }} <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
-            </a>
+        <div class="relative mx-auto max-w-2xl border border-olive-line bg-cream/90 p-2">
+            <div class="border border-olive-line px-6 py-12 text-center sm:px-12 sm:py-16">
+                @if (filled($cta['eyebrow']))
+                    <p class="mk-eyebrow">{{ $cta['eyebrow'] }}</p>
+                @endif
+                <h2 class="mk-serif mt-3 text-4xl leading-tight text-ink sm:text-[2.7rem]">{!! $em($cta['heading']) !!}</h2>
+                @if (filled($cta['text']))
+                    <p class="mx-auto mt-4 max-w-md leading-relaxed text-ink-soft">{{ $cta['text'] }}</p>
+                @endif
+                <a href="{{ route('register') }}" class="mt-8 inline-flex h-12 items-center rounded-full bg-olive px-8 text-sm font-medium text-white transition hover:bg-olive-dark active:bg-olive-dark">{{ $cta['button_label'] }}</a>
+            </div>
         </div>
     </section>
 </x-layouts.marketing>

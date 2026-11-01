@@ -6,9 +6,10 @@
                 <img src="{{ $template->thumbnailUrl() }}" alt="" loading="lazy" decoding="async" class="h-full w-full object-cover">
             @elseif ($coverImage)
                 <link rel="stylesheet" href="{{ $fontStylesheetUrl }}">
-                <span class="absolute inset-0 flex flex-col items-center justify-center px-3 text-center text-white" style="{{ $styleVariables }}">
+                {{-- Primary colour shows while the photo loads; the scrim keeps white text readable on light covers. --}}
+                <span class="absolute inset-0 flex flex-col items-center justify-center px-3 text-center text-white" style="{{ $styleVariables }} background: var(--inv-primary);">
                     <img src="{{ $coverImage }}" alt="" loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105">
-                    @if ($coverOverlay)<span class="absolute inset-0 bg-gradient-to-b from-black/10 via-black/25 to-black/60"></span>@endif
+                    <span @class(['absolute inset-0', 'bg-gradient-to-b from-black/10 via-black/25 to-black/60' => $coverOverlay, 'bg-black/30' => ! $coverOverlay])></span>
                     <span class="relative" style="text-shadow: 0 2px 10px rgb(0 0 0 / .45);">
                         @if (filled($coverSubtitle))<span class="block text-[8px] uppercase tracking-[0.3em] opacity-90">{{ $coverSubtitle }}</span>@endif
                         <span class="mt-2 block text-2xl leading-tight" style="font-family: var(--inv-font-heading);">{{ $sampleTitle }}</span>

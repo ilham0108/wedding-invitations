@@ -3,11 +3,13 @@
 namespace App\Providers;
 
 use App\Models\Page;
+use App\Models\Plan;
 use App\Models\User;
 use App\Services\LogoService;
 use App\Services\SiteContentService;
 use App\Services\Subscription\SubscriptionLimitService;
 use App\Services\SystemSettings;
+use App\Services\TemplateCatalog;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\LocaleUpdated;
@@ -60,9 +62,18 @@ class AppServiceProvider extends ServiceProvider
         // Footer and menu of the marketing site come from the admin CMS; an uploaded logo replaces the leaf wordmark.
         View::composer('components.layouts.marketing', function (ViewInstance $view): void {
             $content = $this->app->make(SiteContentService::class)->all();
+            $hasTemplates = $this->app->make(TemplateCatalog::class)->publishedTemplates()->isNotEmpty();
 
             $view->with([
                 'siteContact' => $content['contact'],
+                // Menu links only for sections the home page actually renders.
+                'homeSections' => [
+                    'demo' => $hasTemplates,
+                    'templates' => $hasTemplates,
+                    'how-it-works' => $content['steps']['items'] !== [],
+                    'features' => $content['features']['items'] !== [],
+                    'pricing' => Plan::query()->active()->exists(),
+                ],
                 'hasFaq' => $content['faq']['items'] !== [],
                 'hasUploadedLogo' => $this->app->make(LogoService::class)->exists(),
                 'footerPages' => Page::query()->published()->where('show_in_footer', true)->ordered()->get(['slug', 'title']),

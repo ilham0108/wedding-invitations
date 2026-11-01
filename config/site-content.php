@@ -50,6 +50,26 @@ return [
                 ],
             ],
         ],
+        // Live demo: a real published template in a phone frame; each item jumps the frame to one
+        // section type (config invitation.sections), so guests' view is shown, not described.
+        'demo' => [
+            'label' => 'Live demo',
+            'defaults' => [
+                'eyebrow' => 'Coba sendiri',
+                'heading' => 'Begini undangan Anda *dibuka* tamu',
+                'subtitle' => 'Ini undangan sungguhan dari salah satu template kami. Pilih bagian di bawah, atau gulir langsung di layar ponsel.',
+                // Slug of the template shown first; empty = the first published template.
+                'template' => '',
+                'items' => [
+                    ['icon' => 'fa-regular fa-envelope-open', 'section' => 'cover', 'title' => 'Sampul dengan nama tamu', 'description' => 'Setiap tamu membuka tautan yang menyapa namanya sendiri.'],
+                    ['icon' => 'fa-regular fa-calendar-days', 'section' => 'event', 'title' => 'Waktu dan tempat acara', 'description' => 'Akad, resepsi, atau acara lain lengkap dengan jamnya.'],
+                    ['icon' => 'fa-regular fa-map', 'section' => 'maps', 'title' => 'Peta lokasi', 'description' => 'Tamu langsung membuka petunjuk arah dari undangan.'],
+                    ['icon' => 'fa-regular fa-circle-check', 'section' => 'rsvp', 'title' => 'Konfirmasi kehadiran', 'description' => 'Jawaban tamu masuk ke dasbor Anda beserta jumlah orangnya.'],
+                    ['icon' => 'fa-regular fa-comment', 'section' => 'wishes', 'title' => 'Ucapan dan doa', 'description' => 'Tampil langsung, atau setelah Anda setujui dari dasbor.'],
+                    ['icon' => 'fa-solid fa-gift', 'section' => 'gift', 'title' => 'Amplop digital', 'description' => 'Nomor rekening atau dompet digital yang bisa disalin tamu.'],
+                ],
+            ],
+        ],
         'templates' => [
             'label' => 'Templates',
             'defaults' => [
@@ -65,8 +85,6 @@ return [
                 'eyebrow' => 'Mudah dan Praktis',
                 'heading' => 'Cara Kerja',
                 'subtitle' => 'Buat undangan digital impian Anda hanya dalam beberapa langkah.',
-                // Phone picture beside the steps.
-                'image' => null,
                 'items' => [
                     ['icon' => 'fa-solid fa-table-cells-large', 'title' => 'Pilih Template', 'description' => 'Pilih desain yang sesuai dengan tema acara.'],
                     ['icon' => 'fa-solid fa-pencil', 'title' => 'Sesuaikan Konten', 'description' => 'Isi detail acara, foto, dan informasi penting.'],
@@ -137,6 +155,6 @@ return [
     ],
 
     // Lists are capped so the page stays readable.
-    'max_items' => ['hero' => 6, 'steps' => 6, 'features' => 24, 'faq' => 30],
+    'max_items' => ['hero' => 6, 'demo' => 8, 'steps' => 6, 'features' => 24, 'faq' => 30],
 
 ];

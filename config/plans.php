@@ -26,8 +26,9 @@ return [
         'premium_music' => ['type' => 'boolean', 'label' => 'Premium music', 'default' => false],
         'custom_music' => ['type' => 'boolean', 'label' => 'Upload own music', 'default' => false],
         'theme_customization' => ['type' => 'boolean', 'label' => 'Theme customization', 'default' => false],
-        'analytics' => ['type' => 'boolean', 'label' => 'Analytics', 'default' => false],
-        'custom_domain' => ['type' => 'boolean', 'label' => 'Custom domain', 'default' => false],
+        // coming_soon: in the plan already, not built yet; the pricing page labels it so (no unbuilt feature sold as ready).
+        'analytics' => ['type' => 'boolean', 'label' => 'Analytics', 'default' => false, 'coming_soon' => true],
+        'custom_domain' => ['type' => 'boolean', 'label' => 'Custom domain', 'default' => false, 'coming_soon' => true],
     ],
 
     // Days before a paid plan ends when the owner is reminded to renew.

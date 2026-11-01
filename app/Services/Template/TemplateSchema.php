@@ -27,6 +27,12 @@ class TemplateSchema
 
     public const BACKGROUNDS = ['default', 'muted', 'primary'];
 
+    /** Section height: as tall as its content, or at least one screen with the content at the top, middle or bottom. */
+    public const HEIGHTS = ['auto', 'screen-top', 'screen-center', 'screen-bottom'];
+
+    /** Section heading/text size relative to the theme's (decoration heading_scale / text_scale). */
+    public const FONT_SIZES = ['default', 'smaller', 'larger', 'largest'];
+
     private const MAX_SECTIONS = 30;
 
     public function __construct(
@@ -67,6 +73,9 @@ class TemplateSchema
                 'type' => $section['type'],
                 'variant' => $this->registry->resolveVariant($section['type'], $section['variant']),
                 'background' => $section['background'] ?? 'default',
+                'height' => in_array($section['height'] ?? null, [null, 'auto'], true) ? null : $section['height'],
+                'heading_size' => in_array($section['heading_size'] ?? null, [null, 'default'], true) ? null : $section['heading_size'],
+                'text_size' => in_array($section['text_size'] ?? null, [null, 'default'], true) ? null : $section['text_size'],
                 // Only sections that have ornaments carry the key.
                 'ornaments' => $this->ornaments->clean($section['ornaments'] ?? []) ?: null,
                 'desktop_ornaments' => $this->ornaments->clean($section['desktop_ornaments'] ?? []) ?: null,
@@ -99,6 +108,9 @@ class TemplateSchema
                 'type' => $section['type'] ?? null,
                 'variant' => $section['variant'] ?? null,
                 'background' => $section['background'] ?? null,
+                'height' => $section['height'] ?? null,
+                'heading_size' => $section['heading_size'] ?? null,
+                'text_size' => $section['text_size'] ?? null,
                 'ornaments' => $section['ornaments'] ?? $legacy,
                 'desktop_ornaments' => $section['desktop_ornaments'] ?? [],
             ],
@@ -127,6 +139,9 @@ class TemplateSchema
             $path = "schema.sections.{$index}";
             $rules["{$path}.type"] = ['required', 'string', Rule::in($this->registry->types())];
             $rules["{$path}.background"] = ['nullable', Rule::in(self::BACKGROUNDS)];
+            $rules["{$path}.height"] = ['nullable', Rule::in(self::HEIGHTS)];
+            $rules["{$path}.heading_size"] = ['nullable', Rule::in(self::FONT_SIZES)];
+            $rules["{$path}.text_size"] = ['nullable', Rule::in(self::FONT_SIZES)];
             $rules = array_merge($rules, $this->ornamentRules("{$path}.ornaments"), $this->ornamentRules("{$path}.desktop_ornaments"));
 
             if (is_string($section['type']) && $this->registry->has($section['type'])) {

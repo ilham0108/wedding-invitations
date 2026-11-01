@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\IllustrationCategory;
 use App\Models\Illustration;
 use App\Models\InvitationSection;
+use App\Models\InvitationSetting;
 use App\Models\InvitationTemplate;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
@@ -59,7 +60,10 @@ class IllustrationService
                 ->where(fn ($query) => $query->where('default_configuration', 'like', $needle)
                     ->orWhere('sample_content', 'like', $needle)
                     ->orWhere('schema', 'like', $needle))
-                ->exists();
+                ->exists()
+            // The image under section headings is referenced by ULID in the decoration.
+            || InvitationTemplate::withTrashed()->where('decoration', 'like', '%'.$illustration->ulid.'%')->exists()
+            || InvitationSetting::query()->where('decoration', 'like', '%'.$illustration->ulid.'%')->exists();
     }
 
     /**

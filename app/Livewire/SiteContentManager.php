@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Livewire\Concerns\Notifies;
 use App\Services\MediaService;
 use App\Services\SiteContentService;
+use App\Services\TemplateCatalog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
@@ -21,7 +22,7 @@ class SiteContentManager extends Component
     use Notifies, WithFileUploads;
 
     /** List items with an icon; the ones also in DESCRIBED have a description. */
-    private const DESCRIBED = ['steps', 'features'];
+    private const DESCRIBED = ['demo', 'steps', 'features'];
 
     #[Url(except: 'hero')]
     public string $tab = 'hero';
@@ -74,6 +75,7 @@ class SiteContentManager extends Component
 
         $this->form['items'][] = match (true) {
             $this->tab === 'faq' => ['question' => '', 'answer' => ''],
+            $this->tab === 'demo' => ['icon' => $icon, 'section' => 'cover', 'title' => '', 'description' => ''],
             in_array($this->tab, self::DESCRIBED, true) => ['icon' => $icon, 'title' => '', 'description' => ''],
             default => ['icon' => $icon, 'title' => ''],
         };
@@ -120,16 +122,19 @@ class SiteContentManager extends Component
         $this->form['image'] = null;
     }
 
-    public function render(SiteContentService $content): View
+    public function render(SiteContentService $content, TemplateCatalog $catalog): View
     {
         return view('livewire.site-content-manager', [
             'sections' => $content->sections(),
             'icons' => config('site-content.icons'),
             'maxItems' => config('site-content.max_items')[$this->tab] ?? 0,
             'described' => in_array($this->tab, self::DESCRIBED, true),
+            'sectionTypes' => $this->tab === 'demo'
+                ? collect(config('invitation.sections'))->map(fn (array $section): string => __($section['label']))->all()
+                : [],
+            'demoTemplates' => $this->tab === 'demo' ? $catalog->publishedTemplates()->pluck('name', 'slug')->all() : [],
             'imageHelp' => [
                 'hero' => __('Photo filling the right side of the hero (e.g. a phone with flowers). Without one, an illustrated phone is shown.'),
-                'steps' => __('Picture beside the steps, e.g. a phone showing an invitation. Without one, an illustrated phone is shown.'),
                 'cta' => __('Wide background photo behind the call to action. Without one, a soft background with leaves is shown.'),
             ][$this->tab] ?? null,
         ]);

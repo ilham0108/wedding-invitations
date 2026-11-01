@@ -85,17 +85,20 @@ class InvitationTemplate extends Model
      * Ordered section blueprint from the schema. Entries may be a plain type string
      * or ['type' => 'cover', 'variant' => 'framed', 'background' => 'muted', 'ornaments' => [...]].
      *
-     * @return array<int, array{type: string, variant: ?string, background: ?string, ornaments: array<int, array<string, mixed>>, desktop_ornaments: array<int, array<string, mixed>>}>
+     * @return array<int, array{type: string, variant: ?string, background: ?string, height: ?string, heading_size: ?string, text_size: ?string, ornaments: array<int, array<string, mixed>>, desktop_ornaments: array<int, array<string, mixed>>}>
      */
     public function sectionBlueprint(): array
     {
         return collect($this->schema['sections'] ?? [])
             ->map(fn (array|string $section): array => is_string($section)
-                ? ['type' => $section, 'variant' => null, 'background' => null, 'ornaments' => [], 'desktop_ornaments' => []]
+                ? ['type' => $section, 'variant' => null, 'background' => null, 'height' => null, 'heading_size' => null, 'text_size' => null, 'ornaments' => [], 'desktop_ornaments' => []]
                 : [
                     'type' => (string) ($section['type'] ?? ''),
                     'variant' => $section['variant'] ?? null,
                     'background' => $section['background'] ?? null,
+                    'height' => $section['height'] ?? null,
+                    'heading_size' => $section['heading_size'] ?? null,
+                    'text_size' => $section['text_size'] ?? null,
                     'ornaments' => is_array($section['ornaments'] ?? null) ? $section['ornaments'] : [],
                     'desktop_ornaments' => is_array($section['desktop_ornaments'] ?? null) ? $section['desktop_ornaments'] : [],
                 ])
