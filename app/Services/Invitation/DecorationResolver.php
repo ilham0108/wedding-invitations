@@ -32,8 +32,8 @@ class DecorationResolver
 
     public function isValid(string $key, mixed $value): bool
     {
-        // The heading ornament image is an illustration ULID (never a URL), or empty.
-        if ($key === 'heading_ornament_image') {
+        // Ornament images (under headings, as divider) are illustration ULIDs (never a URL), or empty.
+        if (in_array($key, ['heading_ornament_image', 'divider_image'], true)) {
             return $value === '' || (is_string($value) && Str::isUlid($value));
         }
 
@@ -41,8 +41,8 @@ class DecorationResolver
     }
 
     /**
-     * The decoration of a rendered page: resolve() plus "heading_ornament_url". A library image that is
-     * gone turns the heading ornament back into the design's own.
+     * The decoration of a rendered page: resolve() plus "heading_ornament_url" and "divider_url". A library
+     * image that is gone turns the heading ornament / divider back into the design's own.
      *
      * @param  array<string, mixed>  ...$layers
      * @return array<string, string>
@@ -51,12 +51,30 @@ class DecorationResolver
     {
         $decoration = $this->resolve(...$layers);
         $url = $this->headingOrnamentUrl($decoration);
+        $dividerUrl = $this->dividerUrl($decoration);
 
         if ($url === null && $decoration['heading_ornament'] === 'image') {
             $decoration['heading_ornament'] = 'design';
         }
 
-        return [...$decoration, 'heading_ornament_url' => (string) $url];
+        if ($dividerUrl === null && $decoration['divider'] === 'image') {
+            $decoration['divider'] = 'line';
+        }
+
+        return [...$decoration, 'heading_ornament_url' => (string) $url, 'divider_url' => (string) $dividerUrl];
+    }
+
+    /**
+     * URL of the library ornament used as divider, or null when the divider is not an image
+     * (or its image is missing or hidden).
+     *
+     * @param  array<string, string>  $decoration  resolved decoration
+     */
+    public function dividerUrl(array $decoration): ?string
+    {
+        return $decoration['divider'] === 'image' && $decoration['divider_image'] !== ''
+            ? Illustration::query()->active()->where('ulid', Str::lower($decoration['divider_image']))->first()?->url()
+            : null;
     }
 
     /**

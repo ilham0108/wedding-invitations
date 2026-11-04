@@ -1293,6 +1293,19 @@ body:has(.inv-preview-bar) .mg-home { min-height: calc(100svh - 40px - 84px - 40
     font-size: 0.8rem;
 }
 
+/* Couple "Photo beside": invitation.css (.inv-person-beside) places the columns; the portrait fills its column. */
+.mg-people-beside {
+    display: grid;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.mg-people-beside .mg-person { margin-top: 0; }
+.mg-people-beside :is(.mg-portrait, .mg-portrait-shape) { margin: 0; }
+.mg-people-beside .mg-portrait { border-radius: 18px; }
+.mg-people-beside .mg-person h3 { font-size: 1.3rem; }
+.mg-people-beside .inv-person-beside--right .mg-socials { justify-content: flex-end; }
+
 /* Gallery "Grid" and "Masonry" (the original design is "Slideshow"). */
 .mg-gallery__grid {
     display: grid;

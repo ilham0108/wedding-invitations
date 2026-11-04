@@ -55,7 +55,7 @@ class ThemeResolverTest extends TestCase
         $theme = $resolver->resolve(['preset' => 'romantic']);
 
         $this->assertStringContainsString("--inv-font-heading: 'Great Vibes', cursive;", $resolver->cssVariables($theme));
-        $this->assertSame('https://fonts.bunny.net/css?family=great-vibes:400|lora:400,500,600&display=swap', $resolver->fontStylesheetUrl($theme));
+        $this->assertSame('https://fonts.bunny.net/css?family=great-vibes:400|lora:400,500,600,700&display=swap', $resolver->fontStylesheetUrl($theme));
     }
 
     public function test_text_on_primary_color_stays_readable(): void

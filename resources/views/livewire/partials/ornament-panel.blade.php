@@ -61,7 +61,7 @@
         @forelse ($ornaments as $index => $ornament)
             <li wire:key="ornament-{{ $selectedSection['key'] }}-{{ $ornamentList }}-{{ $index }}" x-data="{ open: false }" class="rounded-lg border border-line">
                 <div class="flex items-center gap-2 p-2">
-                    <img src="{{ $ornament['image'] }}" alt="" @class(['h-10 w-10 shrink-0 rounded bg-paper object-contain', '-scale-x-100' => $ornament['flip']])>
+                    <img src="{{ $ornament['image'] }}" alt="" @class(['h-10 w-10 shrink-0 rounded bg-paper object-contain', '-scale-x-100' => $ornament['flip'], '-scale-y-100' => $ornament['flip_y'] ?? false])>
                     <button type="button" x-on:click="open = ! open" class="min-w-0 flex-1 text-left text-xs">
                         <span class="block font-medium text-ink">#{{ $index + 1 }} · {{ __($ornamentAnchors[$ornament['anchor']]) }} · {{ $ornament['width'] }}%</span>
                         <span class="block text-muted">{{ __($ornamentEnters[$ornament['enter']]) }} · {{ __($ornamentMotions[$ornament['motion']]) }} · {{ $ornament['layer'] === 'back' ? __('Behind content') : __('In front') }}</span>
@@ -119,10 +119,12 @@
                                 x-on:change="$el.value = Math.min({{ $max }}, Math.max({{ $min }}, Number($el.value === '' ? {{ $ornament[$key] }} : $el.value))); $wire.updateOrnament({{ $index }}, '{{ $key }}', $el.value)" class="{{ $inputClass }} mt-0.5">
                         </label>
                     @endforeach
-                    <label class="col-span-2 flex items-end gap-1.5 pb-1 text-ink-soft">
-                        <input type="checkbox" @checked($ornament['flip']) wire:change="updateOrnament({{ $index }}, 'flip', $event.target.checked ? '1' : '0')" class="rounded border-line text-sage focus:ring-sage">
-                        {{ __('Mirror') }}
-                    </label>
+                    @foreach (['flip' => __('Flip horizontally'), 'flip_y' => __('Flip vertically')] as $key => $label)
+                        <label class="col-span-3 flex items-center gap-1.5 text-ink-soft">
+                            <input type="checkbox" @checked($ornament[$key] ?? false) wire:change="updateOrnament({{ $index }}, '{{ $key }}', $event.target.checked ? '1' : '0')" class="rounded border-line text-sage focus:ring-sage">
+                            {{ $label }}
+                        </label>
+                    @endforeach
                 </div>
             </li>
         @empty

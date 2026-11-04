@@ -5,7 +5,7 @@
     <div class="bc-card inv-animate">
         @forelse ($config['events'] as $event)
             @if (! $loop->first)
-                @include('designs.botanical-cream.partials.sprig', ['class' => 'bc-sprig bc-sprig--divider'])
+                @include('designs.botanical-cream.partials.divider', ['mark' => 'sprig', 'class' => 'bc-sprig bc-sprig--divider'])
             @endif
             @include('designs.botanical-cream.partials.event')
         @empty

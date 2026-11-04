@@ -12,7 +12,7 @@
     'bc-cover--left' => ($config['alignment'] ?? 'center') === 'left',
     'bc-cover--no-photo' => ! $hasImage,
     'bc-cover--dim' => $config['overlay'],
-])>
+]) {!! \App\Support\CoverTitle::attributes($config['title_position'] ?? null) !!} style="{{ \App\Support\CoverTitle::style($config['title_offset'] ?? 0) }}">
     @if ($hasImage)
         <div class="bc-cover__photo">
             <img src="{{ $config['background_image'] }}" alt="" fetchpriority="high" decoding="async"

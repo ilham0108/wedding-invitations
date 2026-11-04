@@ -36,6 +36,7 @@ class InvitationRenderer
         private RsvpService $rsvps,
         private GuestbookService $guestbook,
         private MusicService $music,
+        private SectionFonts $sectionFonts,
     ) {}
 
     public function forInvitation(Invitation $invitation, bool $isPreview = false, ?Guest $guest = null): RenderedInvitation
@@ -58,6 +59,7 @@ class InvitationRenderer
                 height: $section->theme['height'] ?? null,
                 headingSize: $section->theme['heading_size'] ?? null,
                 textSize: $section->theme['text_size'] ?? null,
+                fonts: $section->theme['fonts'] ?? [],
                 config: array_replace(
                     $this->registry->defaults($section->type),
                     $section->configuration ?? [],
@@ -79,7 +81,7 @@ class InvitationRenderer
             timezone: $invitation->timezone,
             theme: $theme,
             cssVariables: $this->themes->cssVariables($theme),
-            fontStylesheetUrl: $this->themes->fontStylesheetUrl($theme, $this->designs->fonts($design)),
+            fontStylesheetUrl: $this->themes->fontStylesheetUrl($theme, [...$this->designs->fonts($design), ...$this->sectionFonts->families($sections)]),
             decoration: $this->decorations->forPage($settings?->decoration ?? []),
             design: $design,
             pageView: $this->designs->pageView($design),
@@ -163,6 +165,7 @@ class InvitationRenderer
                 height: $blueprint['height'],
                 headingSize: $blueprint['heading_size'],
                 textSize: $blueprint['text_size'],
+                fonts: $blueprint['fonts'],
                 config: array_replace(
                     $this->registry->defaults($blueprint['type']),
                     $templateDefaults[$blueprint['type']] ?? [],
@@ -184,7 +187,7 @@ class InvitationRenderer
             timezone: self::PREVIEW_TIMEZONE,
             theme: $theme,
             cssVariables: $this->themes->cssVariables($theme),
-            fontStylesheetUrl: $this->themes->fontStylesheetUrl($theme, $this->designs->fonts($design)),
+            fontStylesheetUrl: $this->themes->fontStylesheetUrl($theme, [...$this->designs->fonts($design), ...$this->sectionFonts->families($sections)]),
             decoration: $this->decorations->forPage($template->decoration ?? []),
             design: $design,
             pageView: $this->designs->pageView($design),
@@ -210,12 +213,13 @@ class InvitationRenderer
 
     /**
      * @param  array<string, mixed>  $config
-     * @return array{key: string, type: string, variant: string, view: string, native: bool, background: string, height: string, heading_size: string, text_size: string, config: array<string, mixed>, ornaments: array<int, array<string, mixed>>, desktop_ornaments: array<int, array<string, mixed>>}
+     * @return array{key: string, type: string, variant: string, view: string, native: bool, background: string, height: string, heading_size: string, text_size: string, fonts: array<string, string>, font_style: string, config: array<string, mixed>, ornaments: array<int, array<string, mixed>>, desktop_ornaments: array<int, array<string, mixed>>}
      */
-    private function buildSection(string $key, string $type, ?string $variant, ?string $background, array $config, string $timezone, string $design, mixed $ornaments = [], mixed $desktopOrnaments = [], ?string $height = null, ?string $headingSize = null, ?string $textSize = null): array
+    private function buildSection(string $key, string $type, ?string $variant, ?string $background, array $config, string $timezone, string $design, mixed $ornaments = [], mixed $desktopOrnaments = [], ?string $height = null, ?string $headingSize = null, ?string $textSize = null, mixed $fonts = []): array
     {
         $variant = $this->registry->resolveVariant($type, $variant);
         $view = $this->designs->sectionView($design, $type, $variant);
+        $fonts = $this->sectionFonts->clean($fonts);
 
         return [
             'key' => $key,
@@ -227,6 +231,9 @@ class InvitationRenderer
             'height' => in_array($height, TemplateSchema::HEIGHTS, true) ? $height : 'auto',
             'heading_size' => in_array($headingSize, TemplateSchema::FONT_SIZES, true) ? $headingSize : 'default',
             'text_size' => in_array($textSize, TemplateSchema::FONT_SIZES, true) ? $textSize : 'default',
+            // The section's own fonts (follow the theme when empty), applied by invitation.partials.section-fonts.
+            'fonts' => $fonts,
+            'font_style' => $this->sectionFonts->style($fonts),
             'config' => $this->normalizeConfig($type, $config, $timezone),
             'ornaments' => $this->ornaments->clean($ornaments),
             // Only the cover uses these, on the desktop side panel of designs that have one.

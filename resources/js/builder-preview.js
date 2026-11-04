@@ -83,6 +83,14 @@ function applyPatch(frame, patch) {
         }
     }
 
+    if (patch.kind === 'cover-title') {
+        // Same attributes as the cover views print (App\Support\CoverTitle).
+        doc.querySelectorAll('[data-inv-cover]').forEach((cover) => {
+            patch.position ? cover.setAttribute('data-inv-title-position', patch.position) : cover.removeAttribute('data-inv-title-position');
+            patch.offset ? cover.style.setProperty('--inv-title-offset', patch.offset) : cover.style.removeProperty('--inv-title-offset');
+        });
+    }
+
     if (patch.kind === 'ornament') {
         const selector = `[data-inv-ornament-owner="${patch.owner}"][data-inv-ornament-list="${patch.list}"] [data-inv-ornament-index="${patch.index}"]`;
         doc.querySelectorAll(selector).forEach((box) => {

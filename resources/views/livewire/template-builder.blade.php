@@ -17,10 +17,10 @@
     x-init="preview = window.builderPreview.attach($refs.frame, $el, (index, x, y, width) => $wire.placeOrnament(index, x, y, width))"
     data-ornament-owner="{{ $ornamentOwner }}" data-ornament-list="{{ $ornamentList }}"
     {{-- Events come from TemplateBuilder ($wire.$watch does not fire for $set() changes in Livewire 4). --}}
-    x-on:template-preview-patch.window="preview.apply($event.detail.patch)"
+    x-on:template-preview-patch.window="$event.detail.patch.group && $event.detail.patch.group !== $wire.content ? refresh() : preview.apply($event.detail.patch)"
     x-on:template-preview-refresh.window="refresh()"
     x-on:builder-section-selected.window="window.previewFrame.scrollTo($refs.frame, $event.detail.anchor)"
-    x-on:template-draft-updated.window="refresh()"
+    x-on:template-draft-updated.window="$event.detail.patched || refresh()"
     class="flex h-[calc(100svh-4rem)] flex-col overflow-clip">
 
     {{-- Toolbar --}}
@@ -185,19 +185,6 @@
                         </div>
 
                         <div class="mb-6">
-                            <p class="mb-2 text-sm font-medium text-ink">{{ __('Divider') }}</p>
-                            <p class="mb-2 text-xs text-muted">{{ __('Shown under section headings and on the cover, in the accent color.') }}</p>
-                            <div class="grid grid-cols-4 gap-2">
-                                @foreach ($dividers as $key => [$dividerLabel, $dividerSample])
-                                    <button type="button" wire:click="setDecoration('divider', '{{ $key }}')"
-                                        @class(['flex flex-col items-center gap-1 rounded-lg border px-1 py-2.5 text-xs', 'border-ink bg-paper font-medium text-ink' => $decoration['divider'] === $key, 'border-line text-ink-soft hover:border-ink/30' => $decoration['divider'] !== $key])>
-                                        <span class="font-semibold tracking-tight text-accent" aria-hidden="true">{{ $dividerSample }}</span>{{ __($dividerLabel) }}
-                                    </button>
-                                @endforeach
-                            </div>
-                        </div>
-
-                        <div class="mb-6">
                             <p class="mb-2 text-sm font-medium text-ink">{{ __('Texture') }}</p>
                             <p class="mb-2 text-xs text-muted">{{ __('A faint pattern on the page background; photos are not covered.') }}</p>
                             <div class="flex rounded-lg border border-line p-0.5">
@@ -208,6 +195,57 @@
                             </div>
                         </div>
                     @endif
+
+                    {{-- Divider: classic styles, or a library ornament that every design uses for its divider marks. --}}
+                    <div class="mb-6">
+                        <p class="mb-2 text-sm font-medium text-ink">{{ __('Divider') }}</p>
+                        <p class="mb-2 text-xs text-muted">{{ __('The separating mark on the cover, between events and in the closing. An ornament image keeps its own colors.') }}</p>
+                        <div @class(['grid gap-2', 'grid-cols-5' => count($dividers) > 2, 'grid-cols-3' => count($dividers) <= 2])>
+                            @foreach ($dividers as $key => [$dividerLabel, $dividerSample])
+                                <button type="button" wire:click="setDecoration('divider', '{{ $key }}')"
+                                    @class(['flex flex-col items-center justify-center gap-1 rounded-lg border px-1 py-2.5 text-xs', 'border-ink bg-paper font-medium text-ink' => $decoration['divider'] === $key, 'border-line text-ink-soft hover:border-ink/30' => $decoration['divider'] !== $key])>
+                                    <span class="font-semibold tracking-tight text-accent" aria-hidden="true">{{ $dividerSample }}</span>{{ __($dividerLabel) }}
+                                </button>
+                            @endforeach
+                            <button type="button" wire:click="$toggle('dividerPicker')" aria-expanded="{{ $dividerPicker ? 'true' : 'false' }}"
+                                @class(['flex flex-col items-center justify-center gap-1 rounded-lg border px-1 py-2 text-xs', 'border-ink bg-paper font-medium text-ink' => $decoration['divider'] === 'image', 'border-line text-ink-soft hover:border-ink/30' => $decoration['divider'] !== 'image'])>
+                                @if ($dividerImage)
+                                    <img src="{{ $dividerImage }}" alt="" class="h-4 w-16 object-contain">
+                                @else
+                                    <i class="fa-regular fa-image" aria-hidden="true"></i>
+                                @endif
+                                {{ __('Own image') }}
+                            </button>
+                        </div>
+
+                        @if ($dividerPicker)
+                            <div class="mt-3 rounded-lg border border-line p-2">
+                                @if ($dividerIllustrations->isEmpty())
+                                    <p class="p-2 text-xs text-muted">{{ __('No ornaments in the library yet. Upload one under Illustrations → Ornament.') }}</p>
+                                @else
+                                    <div class="grid max-h-56 grid-cols-3 gap-2 overflow-y-auto">
+                                        @foreach ($dividerIllustrations as $illustration)
+                                            <button type="button" wire:key="divider-ornament-{{ $illustration->ulid }}" wire:click="chooseDividerImage('{{ $illustration->ulid }}')"
+                                                class="flex aspect-square items-center justify-center rounded-md border border-line bg-paper p-1 hover:border-ink/30" title="{{ $illustration->name }}">
+                                                <img src="{{ $illustration->url() }}" alt="{{ $illustration->name }}" loading="lazy" class="max-h-full max-w-full object-contain">
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+
+                        @if ($decoration['divider'] === 'image')
+                            <p class="mb-2 mt-4 text-xs font-medium text-ink">{{ __('Size') }}</p>
+                            <div class="flex rounded-lg border border-line p-0.5">
+                                @foreach ($headingOrnamentSizes as $key => $sizeLabel)
+                                    <button type="button" wire:click="setDecoration('divider_size', '{{ $key }}')"
+                                        @class(['flex-1 rounded-md px-2 py-1.5 text-xs', 'bg-ink text-white' => $decoration['divider_size'] === $key, 'text-ink-soft hover:bg-paper' => $decoration['divider_size'] !== $key])>{{ __($sizeLabel) }}</button>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+
                     <div class="mb-6">
                         <p class="mb-2 text-sm font-medium text-ink">{{ __('Font sizes') }}</p>
                         <p class="mb-2 text-xs text-muted">{{ __('For every section; a section can still make its own headings or text smaller or larger.') }}</p>
@@ -325,7 +363,8 @@
                                 </div>
                             </div>
 
-                            <div>
+                            {{-- The cover is always screen height; its title is placed with the cover's own position fields. --}}
+                            <div @class(['hidden' => $selectedSection['type'] === 'cover'])>
                                 <label for="section-height" class="mb-2 block text-sm font-medium text-ink">{{ __('Section height') }}</label>
                                 <select id="section-height" x-on:change="$wire.setHeight('{{ $selectedSection['key'] }}', $event.target.value)"
                                     class="block w-full rounded-lg border-line text-sm focus:border-sage focus:ring-sage">
@@ -350,6 +389,35 @@
                                 </div>
                             @endforeach
                         </div>
+
+                        {{-- The section's own fonts. Weights: only those the font loads, so the browser never fakes a bold. --}}
+                        @php($weightNames = app(\App\Services\FontRegistry::class)->weightNames())
+                        @foreach (['font_heading' => [__('Heading font'), 'heading_weight', __('Heading weight')], 'font_body' => [__('Body font'), 'body_weight', __('Text weight')]] as $fontKey => [$fontLabel, $weightKey, $weightLabel])
+                            <div class="space-y-2">
+                                <label for="section-{{ $fontKey }}" class="block text-sm font-medium text-ink">{{ $fontLabel }}</label>
+                                <select id="section-{{ $fontKey }}" x-on:change="$wire.setSectionFont('{{ $selectedSection['key'] }}', '{{ $fontKey }}', $event.target.value)"
+                                    class="block w-full rounded-lg border-line text-sm focus:border-sage focus:ring-sage">
+                                    <option value="default">{{ __('Follow the theme (:font)', ['font' => $theme[$fontKey] ?? '']) }}</option>
+                                    @foreach ($fontsByCategory as $category => $fonts)
+                                        <optgroup label="{{ __(ucfirst($category)) }}">
+                                            @foreach ($fonts as $font)
+                                                <option value="{{ $font['name'] }}" @selected(($selectedSection['fonts'][$fontKey] ?? null) === $font['name'])>{{ $font['name'] }}</option>
+                                            @endforeach
+                                        </optgroup>
+                                    @endforeach
+                                </select>
+                                <div class="flex items-center gap-3">
+                                    <label for="section-{{ $weightKey }}" class="shrink-0 text-xs text-ink-soft">{{ $weightLabel }}</label>
+                                    <select id="section-{{ $weightKey }}" x-on:change="$wire.setSectionFont('{{ $selectedSection['key'] }}', '{{ $weightKey }}', $event.target.value)"
+                                        class="block w-full rounded-lg border-line py-1.5 text-xs focus:border-sage focus:ring-sage">
+                                        <option value="default">{{ __('Follow the theme') }}</option>
+                                        @foreach ($sectionFontWeights[$weightKey] as $weight)
+                                            <option value="{{ $weight }}" @selected(($selectedSection['fonts'][$weightKey] ?? null) === $weight)>{{ $weight }} · {{ $weightNames[$weight] ?? $weight }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        @endforeach
 
                         @include('livewire.partials.ornament-panel')
 

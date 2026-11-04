@@ -51,7 +51,16 @@
             @break
 
         @case('number')
-            <input id="{{ $inputId }}" type="number" step="any" wire:model.live.debounce.700ms="config.{{ $path }}" class="{{ $inputClass }}">
+            @if ($field['slider'] ?? false)
+                {{-- Slider with its value beside it; saved shortly after the thumb stops. --}}
+                <div class="flex items-center gap-3" x-data="{ value: @js((float) ($value ?? 0)) }">
+                    <input id="{{ $inputId }}" type="range" min="{{ $field['min'] }}" max="{{ $field['max'] }}" step="{{ $field['step'] ?? 1 }}"
+                        x-model="value" wire:model.live.debounce.200ms="config.{{ $path }}" class="w-full accent-sage">
+                    <output for="{{ $inputId }}" class="w-12 shrink-0 text-right text-xs tabular-nums text-ink-soft" x-text="(value > 0 ? '+' : '') + value + '%'"></output>
+                </div>
+            @else
+                <input id="{{ $inputId }}" type="number" step="any" wire:model.live.debounce.700ms="config.{{ $path }}" class="{{ $inputClass }}">
+            @endif
             @break
 
         @case('image')

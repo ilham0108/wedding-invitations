@@ -37,7 +37,7 @@
     </div>
 
     @php
-        $weightNames = ['100' => __('Thin'), '200' => __('Extra light'), '300' => __('Light'), '400' => __('Regular'), '500' => __('Medium'), '600' => __('Semibold'), '700' => __('Bold'), '800' => __('Extra bold'), '900' => __('Black')];
+        $weightNames = app(\App\Services\FontRegistry::class)->weightNames();
     @endphp
     @foreach (['font_heading' => [__('Heading font'), 'heading_weight', __('Heading weight')], 'font_body' => [__('Body font'), 'body_weight', __('Text weight')]] as $key => [$label, $weightKey, $weightLabel])
         <div class="space-y-2">

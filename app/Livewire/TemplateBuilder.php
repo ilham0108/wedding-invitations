@@ -11,6 +11,7 @@ use App\Services\FontRegistry;
 use App\Services\Invitation\DecorationResolver;
 use App\Services\Invitation\DesignRegistry;
 use App\Services\Invitation\Ornaments;
+use App\Services\Invitation\SectionFonts;
 use App\Services\Invitation\SectionRegistry;
 use App\Services\Invitation\ThemeResolver;
 use App\Services\MusicService;
@@ -36,7 +37,7 @@ class TemplateBuilder extends Component
     use Notifies;
 
     /** Decoration keys the preview applies in place (body data-inv-* attributes); the rest reload it. */
-    private const LIVE_DECORATIONS = ['divider', 'texture', 'heading_ornament_size', 'heading_scale', 'text_scale'];
+    private const LIVE_DECORATIONS = ['divider', 'divider_size', 'texture', 'heading_ornament_size', 'heading_scale', 'text_scale'];
 
     #[Locked]
     public string $templateUlid = '';
@@ -44,7 +45,7 @@ class TemplateBuilder extends Component
     /**
      * Ordered sections. "key" only identifies an item inside the builder; it is never stored.
      *
-     * @var array<int, array{key: string, type: string, variant: string, background: string, ornaments: array<int, array<string, mixed>>, desktop_ornaments: array<int, array<string, mixed>>}>
+     * @var array<int, array{key: string, type: string, variant: string, background: string, fonts: array<string, string>, ornaments: array<int, array<string, mixed>>, desktop_ornaments: array<int, array<string, mixed>>}>
      */
     #[Locked]
     public array $sections = [];
@@ -72,6 +73,9 @@ class TemplateBuilder extends Component
 
     /** Library picker for the image under section headings (decoration "heading_ornament" = image). */
     public bool $headingOrnamentPicker = false;
+
+    /** Library picker for the divider image (decoration "divider" = image). */
+    public bool $dividerPicker = false;
 
     /** Which ornament list of the selected section is edited: "ornaments", or the cover's "desktop_ornaments". */
     public string $ornamentTarget = 'ornaments';
@@ -107,7 +111,7 @@ class TemplateBuilder extends Component
         }
 
         $key = $this->newKey();
-        $this->sections[] = ['key' => $key, 'type' => $type, 'variant' => $registry->resolveVariant($type, null), 'background' => 'default', 'height' => 'auto', 'heading_size' => 'default', 'text_size' => 'default', 'ornaments' => [], 'desktop_ornaments' => []];
+        $this->sections[] = ['key' => $key, 'type' => $type, 'variant' => $registry->resolveVariant($type, null), 'background' => 'default', 'height' => 'auto', 'heading_size' => 'default', 'text_size' => 'default', 'fonts' => [], 'ornaments' => [], 'desktop_ornaments' => []];
         $this->selected = $key;
         $this->panel = 'section';
         $this->persistSections();
@@ -201,6 +205,32 @@ class TemplateBuilder extends Component
         }
     }
 
+    /**
+     * A section's own font or weight ($which: font_heading | font_body | heading_weight | body_weight).
+     * "default" goes back to the theme's. The preview reloads, so a newly chosen font gets loaded.
+     */
+    public function setSectionFont(string $key, string $which, string $value, SectionFonts $sectionFonts): void
+    {
+        $index = $this->sectionIndex($key);
+
+        if (! in_array($which, [...SectionFonts::FONTS, ...SectionFonts::WEIGHTS], true)) {
+            return;
+        }
+
+        $fonts = $this->sections[$index]['fonts'] ?? [];
+
+        if ($value === 'default') {
+            unset($fonts[$which]);
+        } elseif ($sectionFonts->isValid($which, $value)) {
+            $fonts[$which] = $value;
+        } else {
+            return;
+        }
+
+        $this->sections[$index]['fonts'] = $fonts;
+        $this->persistSections();
+    }
+
     public function updatedContent(string $content): void
     {
         if (! in_array($content, TemplateSectionContent::GROUPS, true)) {
@@ -242,8 +272,9 @@ class TemplateBuilder extends Component
      */
     public function setDecoration(string $key, string $value, DecorationResolver $decorations): void
     {
-        // The heading ornament image is only picked from the library (chooseHeadingOrnamentImage).
-        if (! $decorations->isValid($key, $value) || $key === 'heading_ornament_image' || ($key === 'heading_ornament' && $value === 'image')) {
+        // Ornament images are only picked from the library (chooseHeadingOrnamentImage, chooseDividerImage).
+        if (! $decorations->isValid($key, $value) || in_array($key, ['heading_ornament_image', 'divider_image'], true)
+            || (in_array($key, ['heading_ornament', 'divider'], true) && $value === 'image')) {
             return;
         }
 
@@ -271,6 +302,23 @@ class TemplateBuilder extends Component
             ...($definition['decoration'] ?? []),
             'heading_ornament' => 'image',
             'heading_ornament_image' => $illustration->ulid,
+        ]]);
+    }
+
+    /**
+     * Use a library ornament as the divider, in every design. Same rules as the heading ornament:
+     * active "ornament" illustrations only, stored by ULID.
+     */
+    public function chooseDividerImage(string $illustrationUlid): void
+    {
+        $illustration = Illustration::query()->active()->where('category', IllustrationCategory::Ornament)->where('ulid', $illustrationUlid)->firstOrFail();
+
+        $this->decoration = [...$this->decoration, 'divider' => 'image', 'divider_image' => $illustration->ulid];
+        $this->dividerPicker = false;
+        $this->persist(fn (array $definition): array => [...$definition, 'decoration' => [
+            ...($definition['decoration'] ?? []),
+            'divider' => 'image',
+            'divider_image' => $illustration->ulid,
         ]]);
     }
 
@@ -312,13 +360,13 @@ class TemplateBuilder extends Component
     {
         $index = $this->selectedIndex();
         $ornaments = $this->sections[$index][$this->ornamentList()] ?? [];
-        $editable = ['x', 'y', 'width', 'anchor', 'flip', 'layer', 'enter', 'duration', 'delay', 'motion'];
+        $editable = ['x', 'y', 'width', 'anchor', 'flip', 'flip_y', 'layer', 'enter', 'duration', 'delay', 'motion'];
 
         if (! isset($ornaments[$ornament]) || ! in_array($key, $editable, true)) {
             return;
         }
 
-        $ornaments[$ornament][$key] = $key === 'flip' ? $value === '1' : $value;
+        $ornaments[$ornament][$key] = in_array($key, ['flip', 'flip_y'], true) ? $value === '1' : $value;
         // A new layer moves the ornament into another container, which needs a fresh render.
         $this->setOrnaments($index, $ornaments, $key === 'layer' ? null : $ornament);
     }
@@ -417,8 +465,11 @@ class TemplateBuilder extends Component
         $this->persistMusic([...$stored, 'start_at' => (int) ($this->music['start_at'] ?? 0), 'loop' => (bool) ($this->music['loop'] ?? true)]);
     }
 
+    /**
+     * $patched: the preview was already updated in place (TemplateSectionContent cover title).
+     */
     #[On('template-draft-updated')]
-    public function draftUpdated(): void
+    public function draftUpdated(bool $patched = false): void
     {
         $this->hasChanges = true;
     }
@@ -464,7 +515,8 @@ class TemplateBuilder extends Component
             'heights' => ['auto' => 'Fit content', 'screen-top' => 'Screen height, content at the top', 'screen-center' => 'Screen height, content in the middle', 'screen-bottom' => 'Screen height, content at the bottom'],
             'previewUrl' => route('admin.templates.builder.preview', $template),
             'presets' => array_keys($themes->presets()),
-            'fontsByCategory' => app(FontRegistry::class)->forPicker([$this->theme['font_heading'] ?? '', $this->theme['font_body'] ?? '']),
+            'fontsByCategory' => app(FontRegistry::class)->forPicker([$this->theme['font_heading'] ?? '', $this->theme['font_body'] ?? '', ...array_values(array_intersect_key($selected['fonts'] ?? [], array_flip(SectionFonts::FONTS)))]),
+            'sectionFontWeights' => $selected ? $this->sectionWeights($selected['fonts'] ?? []) : [],
             'fontWeights' => app(FontRegistry::class)->themeWeights($this->theme),
             'themeOptions' => config('invitation.theme_options'),
             'designs' => app(DesignRegistry::class)->all(),
@@ -494,7 +546,15 @@ class TemplateBuilder extends Component
             'selectedTrack' => $this->music['track'] ? MusicTrack::query()->where('ulid', $this->music['track'])->first() : null,
             'maxStartAt' => (int) config('invitation.music.max_start_at'),
             // Label and a small text sample of each decoration choice.
-            'dividers' => ['line' => ['Line', '———'], 'dots' => ['Dots', '• • •'], 'flourish' => ['Flourish', '~◆~'], 'none' => ['None', '∅']],
+            // Designs with their own page draw their own divider marks: there "line" means the design's own,
+            // and the classic-only styles (dots, flourish) are not offered.
+            'dividers' => app(DesignRegistry::class)->hasDesktopLayouts($this->design)
+                ? ['line' => ['Line', '─────'], 'dots' => ['Dots', '• • •'], 'flourish' => ['Flourish', '~◆~'], 'none' => ['None', '∅']]
+                : ['line' => ['Design default', '◆'], 'none' => ['None', '∅']],
+            'dividerImage' => app(DecorationResolver::class)->dividerUrl($this->decoration),
+            'dividerIllustrations' => $this->dividerPicker
+                ? Illustration::query()->active()->where('category', IllustrationCategory::Ornament)->ordered()->get()
+                : collect(),
             'textures' => ['none' => 'None', 'paper' => 'Paper', 'linen' => 'Linen', 'grain' => 'Grain'],
             'headingOrnaments' => ['design' => 'Design default', 'none' => 'None', 'sprig' => 'Sprig', 'heart' => 'Heart', 'diamond' => 'Diamond', 'flower' => 'Flower', 'dots' => 'Dots', 'line' => 'Line'],
             'headingOrnamentSizes' => ['small' => 'Small', 'medium' => 'Medium', 'large' => 'Large'],
@@ -538,6 +598,7 @@ class TemplateBuilder extends Component
                 'height' => $section['height'] ?? 'auto',
                 'heading_size' => $section['heading_size'] ?? 'default',
                 'text_size' => $section['text_size'] ?? 'default',
+                'fonts' => app(SectionFonts::class)->clean($section['fonts']),
                 'ornaments' => app(Ornaments::class)->clean($section['ornaments']),
                 'desktop_ornaments' => app(Ornaments::class)->clean($section['desktop_ornaments']),
             ])
@@ -565,6 +626,7 @@ class TemplateBuilder extends Component
             'height' => $section['height'] ?? 'auto',
             'heading_size' => $section['heading_size'] ?? 'default',
             'text_size' => $section['text_size'] ?? 'default',
+            'fonts' => $section['fonts'] ?? [],
             'ornaments' => $section['ornaments'] ?? [],
             'desktop_ornaments' => $section['desktop_ornaments'] ?? [],
         ], $this->sections);
@@ -674,7 +736,10 @@ class TemplateBuilder extends Component
         return [
             'kind' => 'theme',
             'css' => $themes->cssVariables($theme),
-            'font' => $themes->fontStylesheetUrl($theme, app(DesignRegistry::class)->fonts($this->design)),
+            'font' => $themes->fontStylesheetUrl($theme, [
+                ...app(DesignRegistry::class)->fonts($this->design),
+                ...app(SectionFonts::class)->families($this->sections),
+            ]),
             'button' => $theme['button_style'],
             // Body attributes as in layouts.invitation; null removes the attribute (back to the design's weights).
             'attributes' => [
@@ -702,6 +767,26 @@ class TemplateBuilder extends Component
             'style' => $ornaments->style($list[$ornament], $ornaments->phase($list, $ornament)),
             'classes' => $ornaments->classes($list[$ornament]),
         ];
+    }
+
+    /**
+     * Weight choices of a section: the weights its font loads (its own font, else the theme's), plus its
+     * current weight so that stays selected after the font changed.
+     *
+     * @param  array<string, string>  $fonts
+     * @return array{heading_weight: array<int, string>, body_weight: array<int, string>}
+     */
+    private function sectionWeights(array $fonts): array
+    {
+        $choices = fn (string $font, string $weight): array => collect(app(FontRegistry::class)->weights($fonts[$font] ?? $this->theme[$font] ?? ''))
+            ->map(fn (int $value): string => (string) $value)
+            ->when(isset($fonts[$weight]), fn ($weights) => $weights->push($fonts[$weight]))
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
+
+        return ['heading_weight' => $choices('font_heading', 'heading_weight'), 'body_weight' => $choices('font_body', 'body_weight')];
     }
 
     private function sectionIndex(string $key): int

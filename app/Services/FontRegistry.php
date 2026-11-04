@@ -79,6 +79,17 @@ class FontRegistry
     }
 
     /**
+     * Display names of the CSS font weights, for the weight pickers.
+     *
+     * @return array<string, string>
+     */
+    public function weightNames(): array
+    {
+        return ['100' => __('Thin'), '200' => __('Extra light'), '300' => __('Light'), '400' => __('Regular'), '500' => __('Medium'),
+            '600' => __('Semibold'), '700' => __('Bold'), '800' => __('Extra bold'), '900' => __('Black')];
+    }
+
+    /**
      * Weight choices for a theme's heading and body font: the weights each font loads, plus the theme's
      * current value so it stays selected after the font changed.
      *

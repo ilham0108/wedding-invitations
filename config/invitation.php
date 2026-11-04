@@ -36,6 +36,9 @@ return [
             ['key' => 'overlay', 'label' => 'Dark overlay on image', 'type' => 'toggle'],
             ['key' => 'frame_style', 'label' => 'Frame style', 'type' => 'select', 'variants' => ['framed'], 'options' => ['blur' => 'Blur (frosted glass)', 'transparent' => 'Transparent (outline only)', 'solid' => 'Solid']],
             ['key' => 'alignment', 'label' => 'Alignment', 'type' => 'select', 'options' => ['center' => 'Center', 'left' => 'Left']],
+            // Vertical place of the cover title in every design (App\Support\CoverTitle, invitation.css "Cover title").
+            ['key' => 'title_position', 'label' => 'Title position (vertical)', 'type' => 'select', 'admin_only' => true, 'options' => ['design' => 'Design default', 'top' => 'Top', 'center' => 'Middle', 'bottom' => 'Bottom']],
+            ['key' => 'title_offset', 'label' => 'Move the title up or down (% of the screen height)', 'type' => 'number', 'slider' => true, 'min' => -30, 'max' => 30, 'step' => 1, 'admin_only' => true],
             ['key' => 'button_label', 'label' => 'Button label', 'type' => 'text'],
             // Desktop side panel (designs with the "desktop_panel" feature); empty fields reuse the cover's.
             // Admin only (the owner's choice, 2026-10-25): the template sets the panel, clients only fill the cover.
@@ -49,6 +52,8 @@ return [
             $heading,
             ['key' => 'opening', 'label' => 'Opening line (e.g. Bismillah in Arabic)', 'type' => 'text'],
             ['key' => 'intro', 'label' => 'Introduction', 'type' => 'textarea'],
+            // Layout "Photo beside": which side each portrait sits on; "alternate" starts left and swaps every person.
+            ['key' => 'photo_side', 'label' => 'Photo position', 'type' => 'select', 'variants' => ['photo-beside'], 'options' => ['left' => 'Left of the name', 'right' => 'Right of the name', 'alternate' => 'Alternate (left, then right)']],
             // Portrait mask and an optional frame image laid over every person's photo (invitation.partials.framed-photo).
             ['key' => 'photo_shape', 'label' => 'Photo shape', 'type' => 'select', 'admin_only' => true, 'options' => ['default' => 'Design default', 'rounded' => 'Rounded rectangle', 'circle' => 'Circle', 'oval' => 'Oval', 'arch' => 'Arch']],
             ['key' => 'photo_frame', 'label' => 'Photo frame (transparent image with an opening in the middle)', 'type' => 'image', 'admin_only' => true, 'illustrations' => 'frame'],
@@ -217,13 +222,13 @@ return [
             'label' => 'Cover',
             'icon' => 'fa-regular fa-image',
             'variants' => ['centered', 'framed'],
-            'defaults' => ['title' => '', 'subtitle' => '', 'date_text' => '', 'background_image' => null, 'background_motion' => 'none', 'overlay' => true, 'frame_style' => 'blur', 'alignment' => 'center', 'button_label' => 'Open Invitation', 'desktop_image' => null, 'desktop_subtitle' => '', 'desktop_title' => '', 'desktop_text' => '', 'desktop_text_position' => 'center'],
+            'defaults' => ['title' => '', 'subtitle' => '', 'date_text' => '', 'background_image' => null, 'background_motion' => 'none', 'overlay' => true, 'frame_style' => 'blur', 'alignment' => 'center', 'title_position' => 'design', 'title_offset' => 0, 'button_label' => 'Open Invitation', 'desktop_image' => null, 'desktop_subtitle' => '', 'desktop_title' => '', 'desktop_text' => '', 'desktop_text_position' => 'center'],
         ],
         'couple' => [
             'label' => 'Couple / Host',
             'icon' => 'fa-solid fa-user-group',
-            'variants' => ['side-by-side', 'stacked'],
-            'defaults' => ['heading' => 'The Hosts', 'opening' => '', 'intro' => '', 'photo_shape' => 'default', 'photo_frame' => null, 'photo_frame_inset' => 12, 'people' => []],
+            'variants' => ['side-by-side', 'stacked', 'photo-beside'],
+            'defaults' => ['heading' => 'The Hosts', 'opening' => '', 'intro' => '', 'photo_side' => 'left', 'photo_shape' => 'default', 'photo_frame' => null, 'photo_frame_inset' => 12, 'people' => []],
         ],
         'quote' => [
             'label' => 'Quote',
@@ -355,21 +360,21 @@ return [
     | this list — arbitrary external font URLs are never accepted.
     */
     'fonts' => [
-        'Playfair Display' => ['category' => 'serif', 'bunny' => 'playfair-display:400,500,600', 'fallback' => 'Georgia, serif'],
-        'Cormorant Garamond' => ['category' => 'serif', 'bunny' => 'cormorant-garamond:400,500,600', 'fallback' => 'Georgia, serif'],
-        'Lora' => ['category' => 'serif', 'bunny' => 'lora:400,500,600', 'fallback' => 'Georgia, serif'],
-        'Libre Baskerville' => ['category' => 'serif', 'bunny' => 'libre-baskerville:400,700', 'fallback' => 'Georgia, serif'],
-        'DM Sans' => ['category' => 'sans-serif', 'bunny' => 'dm-sans:400,500,600', 'fallback' => 'system-ui, sans-serif'],
-        'Inter' => ['category' => 'sans-serif', 'bunny' => 'inter:400,500,600', 'fallback' => 'system-ui, sans-serif'],
-        'Poppins' => ['category' => 'sans-serif', 'bunny' => 'poppins:400,500,600', 'fallback' => 'system-ui, sans-serif'],
-        'Montserrat' => ['category' => 'sans-serif', 'bunny' => 'montserrat:400,500,600', 'fallback' => 'system-ui, sans-serif'],
-        'Jost' => ['category' => 'sans-serif', 'bunny' => 'jost:300,400,500', 'fallback' => 'system-ui, sans-serif'],
-        'Cinzel' => ['category' => 'display', 'bunny' => 'cinzel:400,500,600', 'fallback' => 'Georgia, serif'],
+        'Playfair Display' => ['category' => 'serif', 'bunny' => 'playfair-display:400,500,600,700', 'fallback' => 'Georgia, serif'],
+        'Cormorant Garamond' => ['category' => 'serif', 'bunny' => 'cormorant-garamond:300,400,500,600,700', 'fallback' => 'Georgia, serif'],
+        'Lora' => ['category' => 'serif', 'bunny' => 'lora:400,500,600,700', 'fallback' => 'Georgia, serif'],
+        'Libre Baskerville' => ['category' => 'serif', 'bunny' => 'libre-baskerville:400,500,600,700', 'fallback' => 'Georgia, serif'],
+        'DM Sans' => ['category' => 'sans-serif', 'bunny' => 'dm-sans:300,400,500,600,700', 'fallback' => 'system-ui, sans-serif'],
+        'Inter' => ['category' => 'sans-serif', 'bunny' => 'inter:300,400,500,600,700', 'fallback' => 'system-ui, sans-serif'],
+        'Poppins' => ['category' => 'sans-serif', 'bunny' => 'poppins:300,400,500,600,700', 'fallback' => 'system-ui, sans-serif'],
+        'Montserrat' => ['category' => 'sans-serif', 'bunny' => 'montserrat:300,400,500,600,700', 'fallback' => 'system-ui, sans-serif'],
+        'Jost' => ['category' => 'sans-serif', 'bunny' => 'jost:300,400,500,600,700', 'fallback' => 'system-ui, sans-serif'],
+        'Cinzel' => ['category' => 'display', 'bunny' => 'cinzel:400,500,600,700', 'fallback' => 'Georgia, serif'],
         'Cinzel Decorative' => ['category' => 'display', 'bunny' => 'cinzel-decorative:400,700', 'fallback' => 'Georgia, serif'],
         'Amiri' => ['category' => 'serif', 'bunny' => 'amiri:400,700', 'fallback' => 'serif'],
         'Marcellus' => ['category' => 'display', 'bunny' => 'marcellus:400', 'fallback' => 'Georgia, serif'],
         'Great Vibes' => ['category' => 'handwritten', 'bunny' => 'great-vibes:400', 'fallback' => 'cursive'],
-        'Dancing Script' => ['category' => 'handwritten', 'bunny' => 'dancing-script:400,600', 'fallback' => 'cursive'],
+        'Dancing Script' => ['category' => 'handwritten', 'bunny' => 'dancing-script:400,500,600,700', 'fallback' => 'cursive'],
         'Parisienne' => ['category' => 'handwritten', 'bunny' => 'parisienne:400', 'fallback' => 'cursive'],
     ],
 
@@ -463,7 +468,10 @@ return [
     | it is copied onto an invitation when the invitation is created.
     */
     'decoration_options' => [
-        'divider' => ['line', 'dots', 'flourish', 'none'],
+        // "line" is also each design pack's own divider mark; "image" is a library ornament ("divider_image"
+        // = illustration ULID, resolved like heading_ornament_image) at "divider_size", in every design.
+        'divider' => ['line', 'dots', 'flourish', 'none', 'image'],
+        'divider_size' => ['small', 'medium', 'large'],
         'texture' => ['none', 'paper', 'linen', 'grain'],
         // Entrance animation of sections and design blocks (.inv-animate), see resources/css/invitation.css.
         'animation' => ['none', 'fade', 'fade-up', 'zoom', 'slide'],
@@ -488,6 +496,8 @@ return [
         'heading_scale' => 'normal',
         'text_scale' => 'normal',
         'divider' => 'line',
+        'divider_image' => '',
+        'divider_size' => 'medium',
         'texture' => 'none',
         'animation' => 'none',
         'animation_speed' => 'normal',
@@ -508,7 +518,7 @@ return [
         'layers' => ['front', 'back'],
         'enters' => ['none', 'fade', 'fade-up', 'fade-down', 'fade-left', 'fade-right', 'zoom-in', 'zoom-in-up', 'zoom-in-left', 'zoom-in-right', 'zoom-out'],
         'motions' => ['none', 'sway', 'float'],
-        'defaults' => ['x' => 0, 'y' => 100, 'width' => 35, 'anchor' => 'bottom-left', 'flip' => false, 'layer' => 'front', 'enter' => 'fade-up', 'duration' => 1.6, 'delay' => 0, 'motion' => 'sway'],
+        'defaults' => ['x' => 0, 'y' => 100, 'width' => 35, 'anchor' => 'bottom-left', 'flip' => false, 'flip_y' => false, 'layer' => 'front', 'enter' => 'fade-up', 'duration' => 1.6, 'delay' => 0, 'motion' => 'sway'],
     ],
 
 ];

@@ -46,7 +46,12 @@
     {{-- Theme font weights, only when chosen (values come from --inv-heading-weight / --inv-body-weight). --}}
     @if (($invitation->theme['heading_weight'] ?? 'default') !== 'default') data-inv-heading-weight="{{ $invitation->theme['heading_weight'] }}" @endif
     @if (($invitation->theme['body_weight'] ?? 'default') !== 'default') data-inv-body-weight="{{ $invitation->theme['body_weight'] }}" @endif
-    @if (filled($invitation->decoration['heading_ornament_url'] ?? null)) style="--inv-heading-ornament: {{ \App\Support\CssUrl::wrap($invitation->decoration['heading_ornament_url']) }}" @endif>
+    data-inv-divider-size="{{ $invitation->decoration['divider_size'] ?? 'medium' }}"
+    @php($ornamentImages = array_filter([
+        '--inv-heading-ornament' => $invitation->decoration['heading_ornament_url'] ?? null,
+        '--inv-divider-image' => $invitation->decoration['divider_url'] ?? null,
+    ], 'filled'))
+    @if ($ornamentImages !== []) style="{{ collect($ornamentImages)->map(fn (string $url, string $name): string => $name.': '.\App\Support\CssUrl::wrap($url))->implode('; ') }}" @endif>
     {{ $slot }}
 </body>
 

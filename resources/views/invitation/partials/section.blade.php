@@ -1,6 +1,7 @@
 {{-- One rendered section with its anchor, background and data attributes. Shared by the classic page and design pages. --}}
 <section id="section-{{ $section['key'] }}" data-section="{{ $section['type'] }}"
     @include('invitation.partials.backdrop-attributes')
+    @include('invitation.partials.section-fonts')
     @class([
         $sectionClass ?? '',
         'inv-has-ornaments' => ! empty($section['ornaments']),

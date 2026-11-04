@@ -50,7 +50,9 @@
     </aside>
 
     @if ($cover)
-        <div class="mg-cover" data-mg-cover>
+        <div class="mg-cover" data-mg-cover {!! \App\Support\CoverTitle::attributes($cover['config']['title_position'] ?? null) !!}
+            @include('invitation.partials.section-fonts', ['section' => $cover, 'withStyle' => false])
+            style="{{ \App\Support\CoverTitle::style($cover['config']['title_offset'] ?? 0) }} {{ $cover['font_style'] }}">
             <div class="mg-photo inv-bg-motion--{{ $cover['config']['background_motion'] }}" @if ($photo) style="background-image: {{ \App\Support\CssUrl::wrap($photo) }}; {{ $photoPosition }}" @endif></div>
             @if (filled($cover['config']['subtitle']))
                 <span class="mg-tag">{{ $cover['config']['subtitle'] }}</span>
@@ -87,6 +89,7 @@
                     {{-- Sections without a Mocha Glass view keep their classic layout inside a glass card. --}}
                     <section id="section-{{ $section['key'] }}" data-section="{{ $section['type'] }}"
                         @include('invitation.partials.backdrop-attributes')
+                        @include('invitation.partials.section-fonts')
                         @class(['mg-section mg-bg-'.$section['background'], 'inv-has-ornaments' => ! empty($section['ornaments']), 'inv-section--screen inv-section--'.$section['height'] => $section['height'] !== 'auto', 'inv-heading-size--'.$section['heading_size'] => $section['heading_size'] !== 'default', 'inv-text-size--'.$section['text_size'] => $section['text_size'] !== 'default'])>
                         <div class="inv-section-body mg-card mg-classic inv-animate">
                             @include($section['view'], ['config' => $section['config'], 'variant' => $section['variant']])

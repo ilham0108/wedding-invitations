@@ -10,10 +10,10 @@
     @endif
 
     <div class="bc-closing__body">
-        @include('designs.botanical-cream.partials.diamond')
+        @include('designs.botanical-cream.partials.divider', ['mark' => 'diamond'])
         @if (filled($config['heading']))
             <h2 class="bc-closing__title">{{ $config['heading'] }}</h2>
-            @include('designs.botanical-cream.partials.diamond')
+            @include('designs.botanical-cream.partials.divider', ['mark' => 'diamond'])
         @endif
         @if (filled($config['message']))
             <p class="bc-closing__message">{{ $config['message'] }}</p>

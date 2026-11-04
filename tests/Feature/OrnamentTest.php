@@ -39,7 +39,7 @@ class OrnamentTest extends TestCase
     {
         return [
             'image' => '/illustrations/ornament-flower-corner.svg', 'x' => 0, 'y' => 100, 'width' => 35, 'anchor' => 'bottom-left',
-            'flip' => false, 'layer' => 'front', 'enter' => 'fade-up', 'duration' => 1.6, 'delay' => 0, 'motion' => 'sway', ...$overrides,
+            'flip' => false, 'flip_y' => false, 'layer' => 'front', 'enter' => 'fade-up', 'duration' => 1.6, 'delay' => 0, 'motion' => 'sway', ...$overrides,
         ];
     }
 
@@ -53,13 +53,35 @@ class OrnamentTest extends TestCase
         ]);
 
         $this->assertSame([
-            ['image' => '/illustrations/a.svg', 'x' => 120.46, 'y' => -50.0, 'width' => 150.0, 'anchor' => 'center', 'flip' => true, 'layer' => 'back',
+            ['image' => '/illustrations/a.svg', 'x' => 120.46, 'y' => -50.0, 'width' => 150.0, 'anchor' => 'center', 'flip' => true, 'flip_y' => false, 'layer' => 'back',
                 'enter' => 'zoom-in-up', 'duration' => 8.0, 'delay' => 0.0, 'motion' => 'float'],
-            ['image' => '/illustrations/b.svg', 'x' => 0.0, 'y' => 100.0, 'width' => 35.0, 'anchor' => 'bottom-left', 'flip' => false, 'layer' => 'front',
+            ['image' => '/illustrations/b.svg', 'x' => 0.0, 'y' => 100.0, 'width' => 35.0, 'anchor' => 'bottom-left', 'flip' => false, 'flip_y' => false, 'layer' => 'front',
                 'enter' => 'fade-up', 'duration' => 1.6, 'delay' => 0.0, 'motion' => 'sway'],
         ], $clean);
 
         $this->assertCount(60, app(Ornaments::class)->clean(array_fill(0, 80, ['image' => '/x.svg'])));
+    }
+
+    public function test_ornaments_flip_vertically_and_keep_their_entrance_direction(): void
+    {
+        $ornaments = app(Ornaments::class);
+        $flipped = $ornaments->clean([$this->item(['flip_y' => '1', 'anchor' => 'bottom-left', 'enter' => 'fade-up'])])[0];
+
+        $this->assertTrue($flipped['flip_y']);
+        $this->assertSame('inv-ornament inv-ornament--enter inv-ornament--sway inv-ornament--flip-y', $ornaments->classes($flipped));
+        // Pivot mirrored to the top; the entrance offset mirrored so it still rises on screen.
+        $this->assertStringContainsString('--inv-ornament-origin: 0% 0%; --inv-ornament-from: translateY(-40px);', $ornaments->style($flipped, 0));
+
+        $both = $ornaments->clean([$this->item(['flip' => true, 'flip_y' => true, 'anchor' => 'top-right', 'enter' => 'zoom-in-left'])])[0];
+        $this->assertStringContainsString('inv-ornament--flip inv-ornament--flip-y', $ornaments->classes($both));
+        $this->assertStringContainsString('--inv-ornament-origin: 0% 100%; --inv-ornament-from: translateX(-40px) scale(0.6);', $ornaments->style($both, 0));
+
+        // Without flips the entrance is unchanged.
+        $this->assertStringContainsString('--inv-ornament-from: translateY(40px) scale(0.6);', $ornaments->style($ornaments->clean([$this->item(['enter' => 'zoom-in-up'])])[0], 0));
+        $this->assertStringContainsString('--inv-ornament-from: none;', $ornaments->style($ornaments->clean([$this->item(['enter' => 'fade'])])[0], 0));
+
+        $this->expectException(ValidationException::class);
+        app(TemplateSchema::class)->validate(['schema' => ['sections' => [['type' => 'cover', 'ornaments' => [$this->item(['flip_y' => 'upside'])]]]]]);
     }
 
     public function test_the_template_schema_keeps_ornaments_per_section(): void
@@ -85,7 +107,7 @@ class OrnamentTest extends TestCase
 
         foreach ($definition['schema']['sections'] as $section) {
             $this->assertSame([[
-                'image' => '/illustrations/a.svg', 'x' => 100.0, 'y' => 0.0, 'width' => 52.0, 'anchor' => 'top-right', 'flip' => true,
+                'image' => '/illustrations/a.svg', 'x' => 100.0, 'y' => 0.0, 'width' => 52.0, 'anchor' => 'top-right', 'flip' => true, 'flip_y' => false,
                 'layer' => 'front', 'enter' => 'fade-down', 'duration' => 1.3, 'delay' => 0.0, 'motion' => 'sway',
             ]], $section['ornaments']);
         }

@@ -284,6 +284,38 @@ class TemplatePackageTest extends TestCase
         $this->assertSame(['track' => $newTrack->ulid, 'start_at' => 12, 'loop' => false], $imported->music);
     }
 
+    public function test_the_divider_image_travels_with_the_template_and_falls_back_when_it_cannot(): void
+    {
+        Storage::disk('public')->put('illustrations/ornament/batik.png', $this->png());
+        $ornament = Illustration::factory()->create(['category' => IllustrationCategory::Ornament, 'name' => 'Batik', 'disk' => 'public', 'path' => 'illustrations/ornament/batik.png']);
+
+        $template = $this->template();
+        $template->update(['decoration' => ['divider' => 'image', 'divider_image' => $ornament->ulid, 'divider_size' => 'large']]);
+
+        $package = $this->export($template->fresh());
+        $zip = new ZipArchive;
+        $zip->open($package);
+        $this->assertSame('Batik', json_decode($zip->getFromName('template.json'), true)['library']['divider']['name']);
+        $this->assertNotFalse($zip->getFromName('library/divider.png'));
+        $zip->close();
+
+        // Another installation without the ornament: it is created from the package.
+        $ornament->forceDelete();
+        Storage::disk('public')->deleteDirectory('illustrations');
+
+        $imported = app(TemplatePackage::class)->import($package, $this->admin);
+        $newOrnament = Illustration::query()->where('ulid', $imported->decoration['divider_image'])->firstOrFail();
+        $this->assertSame([IllustrationCategory::Ornament, 'Batik', 'image', 'large'], [$newOrnament->category, $newOrnament->name, $imported->decoration['divider'], $imported->decoration['divider_size']]);
+        Storage::disk('public')->assertExists($newOrnament->path);
+
+        // A package whose divider image is gone (no library entry): the divider goes back to the design's own.
+        $newOrnament->forceDelete();
+        Storage::disk('public')->deleteDirectory('illustrations');
+        $template->update(['decoration' => ['divider' => 'image', 'divider_image' => strtolower((string) \Illuminate\Support\Str::ulid())]]);
+        $fallback = app(TemplatePackage::class)->import($this->export($template->fresh()), $this->admin);
+        $this->assertSame(['line', ''], [$fallback->decoration['divider'], $fallback->decoration['divider_image']]);
+    }
+
     public function test_importing_again_on_the_same_installation_reuses_the_library_copies(): void
     {
         Storage::disk('public')->put('illustrations/ornament/divider.png', $this->png());

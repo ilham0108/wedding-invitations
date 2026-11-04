@@ -70,7 +70,7 @@ class FontManagementTest extends TestCase
 
         // Bunny-only themes keep the plain Bunny URL.
         $url = app(ThemeResolver::class)->fontStylesheetUrl(['font_heading' => 'Pacifico', 'font_body' => 'Lora']);
-        $this->assertSame('https://fonts.bunny.net/css?family=pacifico:400|lora:400,500,600&display=swap', $url);
+        $this->assertSame('https://fonts.bunny.net/css?family=pacifico:400|lora:400,500,600,700&display=swap', $url);
     }
 
     public function test_bunny_being_unreachable_is_reported(): void
@@ -106,7 +106,7 @@ class FontManagementTest extends TestCase
         $this->assertStringStartsWith(route('fonts.stylesheet'), $url);
 
         $css = $this->get($url)->assertOk()->assertHeader('Content-Type', 'text/css; charset=UTF-8')->getContent();
-        $this->assertStringStartsWith('@import url("https://fonts.bunny.net/css?family=lora:400,500,600&display=swap");', $css);
+        $this->assertStringStartsWith('@import url("https://fonts.bunny.net/css?family=lora:400,500,600,700&display=swap");', $css);
         $this->assertStringContainsString("@font-face { font-family: 'Brand Serif'; src: url('{$font->files[0]->url()}') format('woff2'); font-weight: 400; font-style: normal;", $css);
         $this->assertStringContainsString("format('truetype'); font-weight: 700; font-style: italic;", $css);
         $this->assertStringNotContainsString('Nope', $this->get(route('fonts.stylesheet', ['families' => 'Nope|Brand Serif']))->getContent());

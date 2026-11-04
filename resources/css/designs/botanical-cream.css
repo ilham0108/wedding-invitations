@@ -636,6 +636,29 @@ body:has(.inv-preview-bar) .bc-topbar { top: 40px; }
 
 .bc-people--grid .bc-person { overflow-wrap: anywhere; }
 
+/* Photo beside: invitation.css (.inv-person-beside) places the columns; the portrait fills its column here. */
+.bc-people--beside {
+    display: grid;
+    gap: 28px;
+}
+
+.bc-people--beside .bc-person { margin-top: 0; }
+
+.bc-people--beside :is(.bc-portrait, .bc-portrait-shape) {
+    width: 100%;
+    margin: 0;
+}
+
+.bc-people--beside .bc-portrait {
+    height: auto;
+    aspect-ratio: 1;
+    border-width: 4px;
+}
+
+.bc-people--beside .bc-person__name { font-size: 1.3rem; }
+.bc-people--beside .inv-person-beside .bc-socials { justify-content: flex-start; }
+.bc-people--beside .inv-person-beside--right .bc-socials { justify-content: flex-end; }
+
 .bc-person__role {
     color: var(--inv-secondary);
     font-size: 0.75rem;

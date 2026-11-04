@@ -11,6 +11,7 @@ use App\Services\Invitation\DesignRegistry;
 use App\Services\Invitation\SectionRegistry;
 use App\Services\MediaService;
 use App\Services\Template\TemplateDraft;
+use App\Support\CoverTitle;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -47,6 +48,12 @@ class TemplateSectionContent extends Component
 
     /** Layout of the selected section; only decides which layout-specific fields are shown. */
     public string $variant = '';
+
+    /** Cover fields the preview applies in place (data-inv-cover attributes); every other change reloads it. */
+    private const LIVE_COVER_FIELDS = ['title_position', 'title_offset'];
+
+    /** Set by updatedConfig() for one save: patch the preview instead of reloading it. */
+    private bool $patchCoverTitle = false;
 
     public function mount(string $templateUlid, string $type, string $group, SectionRegistry $registry, ?string $variant = null): void
     {
@@ -94,7 +101,32 @@ class TemplateSectionContent extends Component
         }
 
         $this->savedAt = now()->format('H:i:s');
+
+        if ($this->patchCoverTitle) {
+            // Same values as the cover views print (App\Support\CoverTitle); "group" lets the builder
+            // reload instead when its preview shows the other content group.
+            $this->dispatch('template-preview-patch', patch: [
+                'kind' => 'cover-title',
+                'group' => $this->group,
+                'position' => CoverTitle::position($config['title_position'] ?? null),
+                'offset' => CoverTitle::offset($config['title_offset'] ?? 0),
+            ]);
+            $this->dispatch('template-draft-updated', patched: true);
+
+            return;
+        }
+
         $this->dispatch('template-draft-updated');
+    }
+
+    /**
+     * Livewire hook for config.* changes (overrides EditsSectionFields::updatedConfig()).
+     */
+    public function updatedConfig(mixed $value = null, ?string $key = null): void
+    {
+        $this->patchCoverTitle = $this->type === 'cover' && in_array($key, self::LIVE_COVER_FIELDS, true);
+        $this->save();
+        $this->patchCoverTitle = false;
     }
 
     /**

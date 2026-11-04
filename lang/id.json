@@ -1489,5 +1489,16 @@
     "Semibold": "Agak tebal",
     "Bold": "Tebal",
     "Extra bold": "Ekstra tebal",
-    "Black": "Paling tebal"
+    "Black": "Paling tebal",
+    "The separating mark on the cover, between events and in the closing. An ornament image keeps its own colors.": "Tanda pemisah di sampul, di antara acara, dan di penutup. Gambar ornamen tetap memakai warnanya sendiri.",
+    "Title position (vertical)": "Posisi judul (vertikal)",
+    "Move the title up or down (% of the screen height)": "Geser judul naik atau turun (% tinggi layar)",
+    "Middle": "Tengah",
+    "Follow the theme (:font)": "Ikuti tema (:font)",
+    "photo beside": "foto di samping",
+    "Left of the name": "Di kiri nama",
+    "Right of the name": "Di kanan nama",
+    "Alternate (left, then right)": "Selang-seling (kiri, lalu kanan)",
+    "Flip horizontally": "Balik horizontal",
+    "Flip vertically": "Balik vertikal"
 }

@@ -30,12 +30,21 @@ use ZipArchive;
  * Bundled files ("/illustrations/…", "/images/…") ship with the code and are not packed.
  *
  * Library items the template points at by ULID travel in "library": the image under section
- * headings (decoration heading_ornament_image) and the default music (music.track). Uploaded ones
- * are packed and become new library entries on import; bundled ones are matched by their path.
+ * headings (decoration heading_ornament_image), the divider image (decoration divider_image) and
+ * the default music (music.track). Uploaded ones are packed and become new library entries on
+ * import; bundled ones are matched by their path.
  */
 class TemplatePackage
 {
     public const FORMAT = 'invitefully-template';
+
+    /**
+     * Ornament images in the decoration: library kind => [mode key, image key, fallback mode when the image is missing].
+     */
+    private const ORNAMENTS = [
+        'heading_ornament' => ['heading_ornament', 'heading_ornament_image', 'design'],
+        'divider' => ['divider', 'divider_image', 'line'],
+    ];
 
     public const VERSION = 1;
 
@@ -314,12 +323,14 @@ class TemplatePackage
         $manifest = [];
         $files = [];
 
-        $ornamentUlid = ($definition['decoration']['heading_ornament'] ?? null) === 'image' ? ($definition['decoration']['heading_ornament_image'] ?? null) : null;
-        $illustration = is_string($ornamentUlid) && $ornamentUlid !== '' ? Illustration::query()->where('ulid', $ornamentUlid)->first() : null;
+        foreach (self::ORNAMENTS as $kind => [$modeKey, $imageKey]) {
+            $ornamentUlid = ($definition['decoration'][$modeKey] ?? null) === 'image' ? ($definition['decoration'][$imageKey] ?? null) : null;
+            $illustration = is_string($ornamentUlid) && $ornamentUlid !== '' ? Illustration::query()->where('ulid', $ornamentUlid)->first() : null;
 
-        if ($illustration !== null) {
-            $item = $this->libraryItem($illustration->disk, $illustration->path, 'heading-ornament', $files);
-            $manifest['heading_ornament'] = $item === null ? null : [...$item, 'name' => $illustration->name];
+            if ($illustration !== null) {
+                $item = $this->libraryItem($illustration->disk, $illustration->path, str_replace('_', '-', $kind), $files);
+                $manifest[$kind] = $item === null ? null : [...$item, 'name' => $illustration->name];
+            }
         }
 
         $trackUlid = $definition['music']['track'] ?? null;
@@ -366,7 +377,7 @@ class TemplatePackage
     {
         $library = [];
 
-        foreach (['heading_ornament', 'music'] as $kind) {
+        foreach ([...array_keys(self::ORNAMENTS), 'music'] as $kind) {
             $item = $manifest['library'][$kind] ?? null;
 
             if (! is_array($item)) {
@@ -407,37 +418,17 @@ class TemplatePackage
      *
      * @param  array<string, array<string, mixed>>  $library
      * @param  array<int, string>  $stored  paths written, for the cleanup when the import fails
-     * @return array{heading_ornament: ?string, music: ?string}
+     * @return array{heading_ornament: ?string, divider: ?string, music: ?string}
      */
     private function importLibrary(array $library, array &$stored): array
     {
         $disk = Storage::disk(MediaService::DISK);
-        $ulids = ['heading_ornament' => null, 'music' => null];
+        $ulids = ['heading_ornament' => null, 'divider' => null, 'music' => null];
 
-        if ($item = $library['heading_ornament'] ?? null) {
-            if ($item['contents'] === null) {
-                $illustration = Illustration::query()->whereNull('disk')->where('path', $item['bundled'])->first();
-            } elseif ($existing = $this->sameFile(Illustration::query()->where('category', IllustrationCategory::Ornament)->whereNotNull('disk')->get(), $item['contents'])) {
-                // Imported again on this installation: reuse the copy instead of filling the library with duplicates.
-                $illustration = $existing;
-            } else {
-                $stored[] = $path = 'illustrations/'.IllustrationCategory::Ornament->value.'/'.Str::lower((string) Str::ulid()).'.'.$item['extension'];
-                $disk->put($path, $item['contents'], 'public');
-                [$width, $height] = getimagesizefromstring($item['contents']) ?: [0, 0];
-
-                $illustration = Illustration::query()->create([
-                    'category' => IllustrationCategory::Ornament,
-                    'name' => Str::limit(trim((string) ($item['name'] ?? '')) ?: __('Imported ornament'), 80, ''),
-                    'disk' => MediaService::DISK,
-                    'path' => $path,
-                    'width' => $width,
-                    'height' => $height,
-                    'is_premium' => false,
-                    'sort_order' => (int) Illustration::query()->where('category', IllustrationCategory::Ornament)->max('sort_order') + 1,
-                ]);
+        foreach (array_keys(self::ORNAMENTS) as $kind) {
+            if ($item = $library[$kind] ?? null) {
+                $ulids[$kind] = $this->importOrnament($item, $stored)?->ulid;
             }
-
-            $ulids['heading_ornament'] = $illustration?->ulid;
         }
 
         if ($item = $library['music'] ?? null) {
@@ -467,20 +458,55 @@ class TemplatePackage
     }
 
     /**
+     * The ornament illustration of a packed (or bundled) library item, created when this installation lacks it.
+     *
+     * @param  array<string, mixed>  $item
+     * @param  array<int, string>  $stored
+     */
+    private function importOrnament(array $item, array &$stored): ?Illustration
+    {
+        if ($item['contents'] === null) {
+            return Illustration::query()->whereNull('disk')->where('path', $item['bundled'])->first();
+        }
+
+        // Imported again on this installation: reuse the copy instead of filling the library with duplicates.
+        if ($existing = $this->sameFile(Illustration::query()->where('category', IllustrationCategory::Ornament)->whereNotNull('disk')->get(), $item['contents'])) {
+            return $existing;
+        }
+
+        $stored[] = $path = 'illustrations/'.IllustrationCategory::Ornament->value.'/'.Str::lower((string) Str::ulid()).'.'.$item['extension'];
+        Storage::disk(MediaService::DISK)->put($path, $item['contents'], 'public');
+        [$width, $height] = getimagesizefromstring($item['contents']) ?: [0, 0];
+
+        return Illustration::query()->create([
+            'category' => IllustrationCategory::Ornament,
+            'name' => Str::limit(trim((string) ($item['name'] ?? '')) ?: __('Imported ornament'), 80, ''),
+            'disk' => MediaService::DISK,
+            'path' => $path,
+            'width' => $width,
+            'height' => $height,
+            'is_premium' => false,
+            'sort_order' => (int) Illustration::query()->where('category', IllustrationCategory::Ornament)->max('sort_order') + 1,
+        ]);
+    }
+
+    /**
      * Point the definition at this installation's library entries. Without one, the heading
-     * ornament falls back to the design's own and the template has no music.
+     * ornament and the divider fall back to the design's own and the template has no music.
      *
      * @param  array<string, mixed>  $definition  validated definition
      * @param  array<string, mixed>  $exported  definition as exported (keeps the music settings)
-     * @param  array{heading_ornament: ?string, music: ?string}  $ulids
+     * @param  array{heading_ornament: ?string, divider: ?string, music: ?string}  $ulids
      * @return array<string, mixed>
      */
     private function withLibrary(array $definition, array $exported, array $ulids): array
     {
-        if (($definition['decoration']['heading_ornament'] ?? null) === 'image') {
-            $definition['decoration'] = $ulids['heading_ornament'] !== null
-                ? [...$definition['decoration'], 'heading_ornament_image' => $ulids['heading_ornament']]
-                : [...$definition['decoration'], 'heading_ornament' => 'design', 'heading_ornament_image' => ''];
+        foreach (self::ORNAMENTS as $kind => [$modeKey, $imageKey, $fallback]) {
+            if (($definition['decoration'][$modeKey] ?? null) === 'image') {
+                $definition['decoration'] = $ulids[$kind] !== null
+                    ? [...$definition['decoration'], $imageKey => $ulids[$kind]]
+                    : [...$definition['decoration'], $modeKey => $fallback, $imageKey => ''];
+            }
         }
 
         $definition['music'] = $ulids['music'] !== null && is_array($exported['music'] ?? null)

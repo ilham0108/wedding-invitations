@@ -10,6 +10,21 @@
     [x-cloak] {
         display: none !important;
     }
+
+    /*
+    | Pointer cursor on every enabled control (antislop R-39); Tailwind's preflight only covers buttons.
+    | Same rule in app.css and invitation.css, the two stylesheets each page loads one of.
+    */
+    :is(a[href], button, summary, select, label[for], [role='button'], [role='tab'], [role='switch'],
+        input:is([type='checkbox'], [type='radio'], [type='file'], [type='color'], [type='range'], [type='submit'], [type='button'])):not(:disabled),
+    label:has(> input:is([type='checkbox'], [type='radio']):not(:disabled)) {
+        cursor: pointer;
+    }
+
+    :is(button, select, input, textarea):disabled,
+    [aria-disabled='true'] {
+        cursor: not-allowed;
+    }
 }
 
 /*

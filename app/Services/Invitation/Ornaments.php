@@ -18,18 +18,18 @@ class Ornaments
         'bottom-left' => [0, 100], 'bottom' => [50, 100], 'bottom-right' => [100, 100],
     ];
 
-    /** Starting transform of each entrance (it ends at "none"). */
+    /** Where each entrance starts (it ends at "none"): x and y offset in px, and scale. */
     private const ENTER_FROM = [
-        'fade' => 'none',
-        'fade-up' => 'translateY(40px)',
-        'fade-down' => 'translateY(-40px)',
-        'fade-left' => 'translateX(40px)',
-        'fade-right' => 'translateX(-40px)',
-        'zoom-in' => 'scale(0.6)',
-        'zoom-in-up' => 'translateY(40px) scale(0.6)',
-        'zoom-in-left' => 'translateX(40px) scale(0.6)',
-        'zoom-in-right' => 'translateX(-40px) scale(0.6)',
-        'zoom-out' => 'scale(1.3)',
+        'fade' => [0, 0, 1],
+        'fade-up' => [0, 40, 1],
+        'fade-down' => [0, -40, 1],
+        'fade-left' => [40, 0, 1],
+        'fade-right' => [-40, 0, 1],
+        'zoom-in' => [0, 0, 0.6],
+        'zoom-in-up' => [0, 40, 0.6],
+        'zoom-in-left' => [40, 0, 0.6],
+        'zoom-in-right' => [-40, 0, 0.6],
+        'zoom-out' => [0, 0, 1.3],
     ];
 
     /**
@@ -42,12 +42,14 @@ class Ornaments
     public function style(array $ornament, int $phase): string
     {
         [$anchorX, $anchorY] = self::ANCHOR_POINTS[$ornament['anchor']];
-        // A mirrored box mirrors what is inside it: flip the pivot, and the horizontal entrance back.
-        $originX = $ornament['flip'] ? 100 - $anchorX : $anchorX;
-        $enter = $ornament['flip'] ? strtr($ornament['enter'], ['left' => 'right', 'right' => 'left']) : $ornament['enter'];
+        $flipX = $ornament['flip'];
+        $flipY = $ornament['flip_y'] ?? false;
+        // A mirrored box mirrors what is inside it: flip the pivot, and the entrance back, on each mirrored axis.
+        $originX = $flipX ? 100 - $anchorX : $anchorX;
+        $originY = $flipY ? 100 - $anchorY : $anchorY;
 
         return "left: {$ornament['x']}%; top: {$ornament['y']}%; width: {$ornament['width']}%; translate: -{$anchorX}% -{$anchorY}%; "
-            ."--inv-ornament-origin: {$originX}% {$anchorY}%; --inv-ornament-from: ".(self::ENTER_FROM[$enter] ?? 'none').'; '
+            ."--inv-ornament-origin: {$originX}% {$originY}%; --inv-ornament-from: ".$this->enterFrom($ornament['enter'], $flipX, $flipY).'; '
             ."--inv-ornament-duration: {$ornament['duration']}s; --inv-ornament-delay: {$ornament['delay']}s; --inv-ornament-phase: ".($phase * -1.3).'s;';
     }
 
@@ -61,6 +63,7 @@ class Ornaments
             $ornament['enter'] !== 'none' ? 'inv-ornament--enter' : null,
             'inv-ornament--'.$ornament['motion'],
             $ornament['flip'] ? 'inv-ornament--flip' : null,
+            ($ornament['flip_y'] ?? false) ? 'inv-ornament--flip-y' : null,
         ])->filter()->implode(' ');
     }
 
@@ -75,7 +78,7 @@ class Ornaments
     }
 
     /**
-     * @return array<int, array{image: string, x: float, y: float, width: float, anchor: string, flip: bool, layer: string, enter: string, duration: float, delay: float, motion: string}>
+     * @return array<int, array{image: string, x: float, y: float, width: float, anchor: string, flip: bool, flip_y: bool, layer: string, enter: string, duration: float, delay: float, motion: string}>
      */
     public function clean(mixed $ornaments): array
     {
@@ -91,6 +94,7 @@ class Ornaments
                 'width' => $this->number($ornament['width'] ?? null, $defaults['width'], 2, 150),
                 'anchor' => $this->choice($ornament['anchor'] ?? null, $options['anchors'], $defaults['anchor']),
                 'flip' => (bool) ($ornament['flip'] ?? false),
+                'flip_y' => (bool) ($ornament['flip_y'] ?? false),
                 'layer' => $this->choice($ornament['layer'] ?? null, $options['layers'], $defaults['layer']),
                 'enter' => $this->choice($ornament['enter'] ?? null, $options['enters'], $defaults['enter']),
                 'duration' => $this->number($ornament['duration'] ?? null, $defaults['duration'], 0.2, 8),
@@ -143,6 +147,21 @@ class Ornaments
             })
             ->values()
             ->all();
+    }
+
+    /**
+     * Starting transform of an entrance, inside a box mirrored on $flipX / $flipY: the offset is mirrored
+     * back, so "fade-up" still rises on screen.
+     */
+    private function enterFrom(string $enter, bool $flipX, bool $flipY): string
+    {
+        [$x, $y, $scale] = self::ENTER_FROM[$enter] ?? [0, 0, 1];
+        $x = $flipX ? -$x : $x;
+        $y = $flipY ? -$y : $y;
+
+        $transform = trim(($x !== 0 ? "translateX({$x}px) " : '').($y !== 0 ? "translateY({$y}px) " : '').($scale !== 1 ? "scale({$scale})" : ''));
+
+        return $transform === '' ? 'none' : $transform;
     }
 
     /**

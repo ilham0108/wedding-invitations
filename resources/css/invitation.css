@@ -21,6 +21,21 @@
     [x-cloak] {
         display: none !important;
     }
+
+    /*
+    | Pointer cursor on every enabled control (antislop R-39); Tailwind's preflight only covers buttons.
+    | Same rule in app.css and invitation.css, the two stylesheets each page loads one of.
+    */
+    :is(a[href], button, summary, select, label[for], [role='button'], [role='tab'], [role='switch'],
+        input:is([type='checkbox'], [type='radio'], [type='file'], [type='color'], [type='range'], [type='submit'], [type='button'])):not(:disabled),
+    label:has(> input:is([type='checkbox'], [type='radio']):not(:disabled)) {
+        cursor: pointer;
+    }
+
+    :is(button, select, input, textarea):disabled,
+    [aria-disabled='true'] {
+        cursor: not-allowed;
+    }
 }
 
 @layer components {
@@ -320,9 +335,10 @@
 /*
 | Font weights (theme heading_weight / body_weight, Theme tab). Without the body attribute each design keeps
 | its own weights. Headings: section titles and the names set as titles, in every design; buttons, pills and
-| labels keep theirs. Body: the running text of the page.
+| labels keep theirs. Body: the running text of the page. A section with its own weights (builder Section panel,
+| invitation.partials.section-fonts) carries the same attributes and redefines the variables for its content.
 */
-body[data-inv-heading-weight] :is(
+:is(body[data-inv-heading-weight], body [data-inv-heading-weight]) :is(
     .inv-heading,
     .bc-title, .bc-classic .inv-heading, .bc-person__name, .bc-closing__title,
     .mg-display, .mg-names, .mg-title, .mg-person h3, .mg-modal__title
@@ -331,8 +347,66 @@ body[data-inv-heading-weight] :is(
 }
 
 body.inv-body[data-inv-body-weight],
-body[data-inv-body-weight] .mg {
+body[data-inv-body-weight] .mg,
+body [data-inv-body-weight] {
     font-weight: var(--inv-body-weight);
+}
+
+/*
+| Couple layout "Photo beside" (App\Support\PhotoSide): portrait and text share one row on every screen width, the
+| text aligned toward the portrait. Each design styles the portrait, the name and the social links itself.
+*/
+.inv-person-beside {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    align-items: center;
+    gap: 1rem;
+    text-align: left;
+    overflow-wrap: break-word;
+}
+
+.inv-person-beside--right {
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    text-align: right;
+}
+
+.inv-person-beside--right > :first-child { order: 1; }
+
+/*
+| Section fonts: the section redefines --inv-font-heading / --inv-font-body, which headings pick up on their own.
+| Running text inherits the page's font, so a section with its own body font sets it again.
+*/
+body [data-inv-body-font] {
+    font-family: var(--inv-font-body);
+}
+
+/*
+| Cover title (cover fields title_position / title_offset, App\Support\CoverTitle). The cover root carries
+| data-inv-cover; without data-inv-title-position each design keeps its own place. --inv-title-offset nudges
+| the title block with "translate", which never fights the entrance animations (they use "transform").
+| Classic: the flex row of the cover. Botanical Cream: the text block (below the 58px top bar when at the top).
+| Mocha Glass: the names, date, button and guest block (the eyebrow tag stays at the top).
+*/
+.inv-cover[data-inv-title-position='top'] { align-items: flex-start; }
+.inv-cover[data-inv-title-position='center'] { align-items: center; }
+.inv-cover[data-inv-title-position='bottom'] { align-items: flex-end; }
+
+/* At the top the nudge goes into the margin instead, never higher than just below the 58px top bar. */
+.bc-cover[data-inv-title-position='top'] .bc-cover__text {
+    margin-top: max(82px, calc(82px + var(--inv-title-offset, 0px)));
+    margin-bottom: auto;
+    translate: none;
+}
+.bc-cover[data-inv-title-position='center'] .bc-cover__text { margin-block: auto; }
+.bc-cover[data-inv-title-position='bottom'] .bc-cover__text { margin-top: auto; margin-bottom: 0; }
+
+.mg-cover[data-inv-title-position='top'] > :is(.mg-names, .mg-framebox) { margin-top: 1.5rem; }
+.mg-cover[data-inv-title-position='top'] > .mg-guest { margin-bottom: auto; }
+.mg-cover[data-inv-title-position='center']::after { content: ''; margin-top: auto; }
+
+[data-inv-cover] :is(.inv-cover__content, .bc-cover__text),
+.mg-cover > :is(.mg-names, .mg-date, .mg-btn-open, .mg-framebox, .mg-guest) {
+    translate: 0 var(--inv-title-offset, 0);
 }
 
 .inv-heading-size--smaller { --inv-section-heading-scale: 0.88; }
@@ -367,6 +441,8 @@ body[data-inv-body-weight] .mg {
 }
 
 .inv-ornament--flip { scale: -1 1; }
+.inv-ornament--flip-y { scale: 1 -1; }
+.inv-ornament--flip.inv-ornament--flip-y { scale: -1 -1; }
 
 .inv-ornament__img {
     display: block;
@@ -645,8 +721,32 @@ body[data-inv-body-weight] .mg {
 }
 
 [data-inv-divider='none'] .inv-divider,
-[data-inv-divider='none'] .inv-section > .inv-section-body h2.inv-heading::after {
+[data-inv-divider='none'] .inv-section > .inv-section-body h2.inv-heading::after,
+[data-inv-divider='none'] .mg-rule {
     display: none;
+}
+
+/*
+| Divider "image": a library ornament (--inv-divider-image, layouts.invitation) in its own colors, in every
+| design: the classic .inv-divider and heading line, Botanical Cream's marks (partials.divider renders
+| .inv-divider-image) and Mocha Glass's .mg-rule. Height from data-inv-divider-size; width follows the image.
+| A heading ornament, when chosen, still wins under classic headings (its rules are more specific).
+*/
+[data-inv-divider-size='small'] { --inv-divider-h: 14px; }
+[data-inv-divider-size='medium'] { --inv-divider-h: 22px; }
+[data-inv-divider-size='large'] { --inv-divider-h: 34px; }
+
+[data-inv-divider='image'] :is(.inv-divider, .inv-divider-image, .mg-rule),
+[data-inv-divider='image'] .inv-section > .inv-section-body h2.inv-heading::after {
+    display: block;
+    width: calc(var(--inv-divider-h, 22px) * 7);
+    max-width: 100%;
+    height: var(--inv-divider-h, 22px);
+    margin-inline: auto;
+    border: 0;
+    background: var(--inv-divider-image) center / contain no-repeat;
+    -webkit-mask: none;
+    mask: none;
 }
 
 /*

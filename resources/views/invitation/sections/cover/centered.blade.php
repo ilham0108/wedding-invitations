@@ -1,7 +1,7 @@
 @php($hasImage = filled($config['background_image']))
 
-<div class="relative flex min-h-svh items-center justify-center overflow-hidden px-6 py-16"
-    @if (! $hasImage) style="background: radial-gradient(ellipse at top, var(--inv-surface), var(--inv-bg) 70%);" @endif>
+<div class="inv-cover relative flex min-h-svh items-center justify-center overflow-hidden px-6 py-16" {!! \App\Support\CoverTitle::attributes($config['title_position'] ?? null) !!}
+    style="{{ $hasImage ? '' : 'background: radial-gradient(ellipse at top, var(--inv-surface), var(--inv-bg) 70%);' }} {{ \App\Support\CoverTitle::style($config['title_offset'] ?? 0) }}">
     @if ($hasImage)
         <img src="{{ $config['background_image'] }}" alt="" fetchpriority="high" decoding="async"
             class="absolute inset-0 h-full w-full object-cover inv-bg-motion--{{ $config['background_motion'] }}"
@@ -12,7 +12,7 @@
     @endif
 
     <div @class([
-        'relative z-10 w-full max-w-xl',
+        'inv-cover__content relative z-10 w-full max-w-xl',
         'text-center' => ($config['alignment'] ?? 'center') !== 'left',
         'text-left' => ($config['alignment'] ?? 'center') === 'left',
         'text-white' => $hasImage && $config['overlay'],
