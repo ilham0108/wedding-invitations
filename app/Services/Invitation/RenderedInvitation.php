@@ -37,4 +37,15 @@ final readonly class RenderedInvitation
         public array $interaction = [],
         public ?array $music = null,
     ) {}
+
+    /**
+     * The hosts' names as the cover shows them ("Alya & Pradana"), else the invitation title.
+     * Sections that repeat the names (e.g. the greeting) fall back to this.
+     */
+    public function names(): string
+    {
+        $cover = collect($this->sections)->firstWhere('type', 'cover');
+
+        return ($cover['config']['title'] ?? '') ?: $this->title;
+    }
 }

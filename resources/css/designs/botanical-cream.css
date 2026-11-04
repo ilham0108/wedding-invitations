@@ -183,6 +183,44 @@
     color: var(--inv-secondary);
 }
 
+/*
+| Greeting section: names in the heading font (not the cover's script), so the section's own font settings
+| reach them; the "&" gets its own line, as on a printed invitation.
+*/
+.bc-greeting { text-align: center; }
+
+.bc-greeting__emblem {
+    display: block;
+    width: auto;
+    max-width: 60%;
+    height: 72px;
+    margin: 0 auto 1.2rem;
+    object-fit: contain;
+}
+
+.bc-greeting__opening {
+    margin-bottom: 1rem;
+    font-family: var(--inv-font-heading);
+    font-size: 1.25rem;
+    font-style: italic;
+    font-weight: 600;
+}
+
+.bc-greeting__names {
+    margin-top: 0.6rem;
+    color: var(--inv-primary);
+    font-family: var(--inv-font-heading);
+    font-size: clamp(2.4rem, 12vw, 3.2rem);
+    font-weight: 600;
+    line-height: 1.1;
+}
+
+.bc-greeting__names .bc-names__amp {
+    display: block;
+    margin: 0.1em 0;
+    font-size: 0.8em;
+}
+
 .bc-lead {
     max-width: 34ch;
     margin: 0 auto 1.2rem;

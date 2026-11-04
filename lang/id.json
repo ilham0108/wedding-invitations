@@ -1500,5 +1500,10 @@
     "Right of the name": "Di kanan nama",
     "Alternate (left, then right)": "Selang-seling (kiri, lalu kanan)",
     "Flip horizontally": "Balik horizontal",
-    "Flip vertically": "Balik vertikal"
+    "Flip vertically": "Balik vertikal",
+    "Greeting": "Sambutan",
+    "Ornament above the text (transparent image)": "Ornamen di atas teks (gambar transparan)",
+    "Opening line (e.g. Bismillahirrahmanirrahim)": "Kalimat pembuka (mis. Bismillahirrahmanirrahim)",
+    "Names, separated by \"&\" (empty uses the cover title)": "Nama, dipisah \"&\" (kosong memakai judul sampul)",
+    "With gratitude, we invite you to celebrate this day with us.": "Dengan penuh rasa syukur, kami mengundang Bapak/Ibu/Saudara/i untuk turut merayakan hari bahagia ini bersama kami."
 }

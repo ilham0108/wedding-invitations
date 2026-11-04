@@ -48,6 +48,13 @@ return [
             ['key' => 'desktop_text', 'label' => 'Desktop panel: text', 'type' => 'textarea', 'admin_only' => true, 'feature' => 'desktop_panel'],
             ['key' => 'desktop_text_position', 'label' => 'Desktop panel: text position', 'type' => 'select', 'admin_only' => true, 'feature' => 'desktop_panel', 'options' => ['top' => 'Top', 'center' => 'Center', 'bottom' => 'Bottom']],
         ],
+        // Opening greeting: an ornament, an opening line, the invitation message and the names.
+        'greeting' => [
+            ['key' => 'emblem', 'label' => 'Ornament above the text (transparent image)', 'type' => 'image', 'admin_only' => true, 'illustrations' => 'ornament'],
+            ['key' => 'opening', 'label' => 'Opening line (e.g. Bismillahirrahmanirrahim)', 'type' => 'text'],
+            ['key' => 'message', 'label' => 'Greeting', 'type' => 'textarea'],
+            ['key' => 'names', 'label' => 'Names, separated by "&" (empty uses the cover title)', 'type' => 'text'],
+        ],
         'couple' => [
             $heading,
             ['key' => 'opening', 'label' => 'Opening line (e.g. Bismillah in Arabic)', 'type' => 'text'],
@@ -223,6 +230,12 @@ return [
             'icon' => 'fa-regular fa-image',
             'variants' => ['centered', 'framed'],
             'defaults' => ['title' => '', 'subtitle' => '', 'date_text' => '', 'background_image' => null, 'background_motion' => 'none', 'overlay' => true, 'frame_style' => 'blur', 'alignment' => 'center', 'title_position' => 'design', 'title_offset' => 0, 'button_label' => 'Open Invitation', 'desktop_image' => null, 'desktop_subtitle' => '', 'desktop_title' => '', 'desktop_text' => '', 'desktop_text_position' => 'center'],
+        ],
+        'greeting' => [
+            'label' => 'Greeting',
+            'icon' => 'fa-solid fa-hand-holding-heart',
+            'variants' => ['default'],
+            'defaults' => ['emblem' => null, 'opening' => '', 'message' => 'With gratitude, we invite you to celebrate this day with us.', 'names' => ''],
         ],
         'couple' => [
             'label' => 'Couple / Host',

@@ -340,7 +340,7 @@
 */
 :is(body[data-inv-heading-weight], body [data-inv-heading-weight]) :is(
     .inv-heading,
-    .bc-title, .bc-classic .inv-heading, .bc-person__name, .bc-closing__title,
+    .bc-title, .bc-classic .inv-heading, .bc-person__name, .bc-closing__title, .bc-greeting__names,
     .mg-display, .mg-names, .mg-title, .mg-person h3, .mg-modal__title
 ) {
     font-weight: var(--inv-heading-weight);

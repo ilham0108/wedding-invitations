@@ -476,6 +476,31 @@
 
 .mg-home .mg-guest { margin-top: auto; padding-top: 3rem; }
 
+/* Greeting section: ornament, italic opening line, message and the names on three lines. */
+.mg-greeting { text-align: center; }
+
+.mg-greeting__emblem {
+    display: block;
+    width: auto;
+    max-width: 60%;
+    height: 72px;
+    margin: 0 auto 1.2rem;
+    object-fit: contain;
+}
+
+.mg-greeting__opening {
+    margin-bottom: 1rem;
+    font-family: var(--mg-serif);
+    font-size: 1.3rem;
+    font-style: italic;
+    font-weight: 600;
+}
+
+.mg-greeting__names {
+    margin-top: 1.4rem;
+    font-size: clamp(2.2rem, 11vw, 2.8rem);
+}
+
 /* The 40px "Template preview" bar above the page pushes the first screen down. */
 body:has(.inv-preview-bar) .mg-home { min-height: calc(100svh - 40px - 84px - 40px); }
 

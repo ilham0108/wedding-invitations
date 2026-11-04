@@ -263,6 +263,7 @@ class InvitationRenderer
                 'background_motion' => in_array($config['background_motion'] ?? null, ['none', 'zoom-out', 'drift'], true) ? $config['background_motion'] : 'none',
                 'frame_style' => in_array($config['frame_style'] ?? null, ['blur', 'transparent', 'solid'], true) ? $config['frame_style'] : 'blur',
             ],
+            'greeting' => [...$config, 'emblem' => $this->safeUrl($config['emblem'] ?? null)],
             'couple' => [
                 ...$config,
                 'photo_shape' => in_array($config['photo_shape'] ?? null, ['default', 'rounded', 'circle', 'oval', 'arch'], true) ? $config['photo_shape'] : 'default',

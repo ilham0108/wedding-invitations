@@ -16,7 +16,7 @@ class SectionRegistryTest extends TestCase
         $registry = new SectionRegistry;
 
         $this->assertSame([
-            'cover', 'couple', 'quote', 'countdown', 'event', 'story', 'timeline', 'gallery',
+            'cover', 'greeting', 'couple', 'quote', 'countdown', 'event', 'story', 'timeline', 'gallery',
             'video', 'rsvp', 'wishes', 'gift', 'maps', 'dress_code', 'contact', 'closing', 'health_protocol',
         ], $registry->types());
 
