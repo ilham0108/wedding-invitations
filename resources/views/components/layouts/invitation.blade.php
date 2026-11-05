@@ -1,4 +1,5 @@
-@props(['invitation'])
+{{-- $static: a still page without JavaScript or motion (template cards, TemplateCardController). --}}
+@props(['invitation', 'static' => false])
 
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -27,15 +28,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
 
     {{-- Entrance animations only hide content once JavaScript is known to run. --}}
-    <script>document.documentElement.classList.add('inv-js')</script>
+    @unless ($static)
+        <script>document.documentElement.classList.add('inv-js')</script>
+    @endunless
 
     {{-- Values are whitelisted/validated by ThemeResolver before reaching this block. --}}
     <style>:root { {!! $invitation->cssVariables !!} }</style>
 
-    @vite(['resources/css/invitation.css', 'resources/js/invitation.js', ...$invitation->assets])
+    @if ($static)
+        @vite(['resources/css/invitation.css', ...array_filter($invitation->assets, fn (string $asset): bool => str_ends_with($asset, '.css'))])
+    @else
+        @vite(['resources/css/invitation.css', 'resources/js/invitation.js', ...$invitation->assets])
+    @endif
 </head>
 
-<body class="inv-body inv-btn-{{ $invitation->theme['button_style'] }} inv-design-{{ $invitation->design }}"
+<body class="inv-body inv-btn-{{ $invitation->theme['button_style'] }} inv-design-{{ $invitation->design }} {{ $static ? 'inv-static' : '' }}"
     data-inv-animation="{{ $invitation->decoration['animation'] }}" data-inv-speed="{{ $invitation->decoration['animation_speed'] }}"
     data-inv-divider="{{ $invitation->decoration['divider'] }}" data-inv-texture="{{ $invitation->decoration['texture'] }}"
     data-inv-desktop="{{ $invitation->pageView ? 'design' : $invitation->decoration['desktop_layout'] }}"

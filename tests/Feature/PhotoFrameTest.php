@@ -70,13 +70,14 @@ class PhotoFrameTest extends TestCase
                 $html = $this->get(route('templates.preview', $template))->assertOk()->getContent();
 
                 $this->assertSame(2, substr_count($html, 'class="inv-photo__frame"'), "[{$design}/{$variant}]");
-                $this->assertStringContainsString('inv-photo--arch', $html, "[{$design}/{$variant}]");
+                // The frame replaces the chosen shape.
+                $this->assertStringNotContainsString('inv-photo--arch', $html, "[{$design}/{$variant}]");
                 $this->assertStringContainsString('--inv-photo-inset: 15%', $html, "[{$design}/{$variant}]");
             }
         }
     }
 
-    public function test_a_frame_without_a_shape_masks_the_photo_as_an_oval(): void
+    public function test_a_frame_replaces_the_photo_shape(): void
     {
         $template = InvitationTemplate::factory()->create([
             'schema' => ['sections' => ['couple']],
@@ -84,7 +85,8 @@ class PhotoFrameTest extends TestCase
         ]);
 
         $this->get(route('templates.preview', $template))->assertOk()
-            ->assertSee('inv-photo--oval', false)
+            ->assertDontSee('inv-photo--oval', false)
+            ->assertSee('inv-photo--framed', false)
             ->assertSee('--inv-photo-inset: 12%', false);
     }
 
@@ -102,7 +104,9 @@ class PhotoFrameTest extends TestCase
             ->assertSee('Gold Oval')
             ->assertDontSee('Corner Flowers')
             ->call('pickIllustration', $frame->ulid)
-            ->assertSet('config.photo_frame', '/illustrations/frame-oval-gold.svg');
+            ->assertSet('config.photo_frame', '/illustrations/frame-oval-gold.svg')
+            // With a frame the shape is not used, so its field is hidden.
+            ->assertDontSee('Photo shape');
     }
 
     public function test_clients_neither_see_nor_change_the_template_only_fields(): void

@@ -353,6 +353,17 @@ body [data-inv-body-weight] {
 }
 
 /*
+| Still page for template cards (TemplateCardController): the cover as it stands, without looping motion.
+*/
+.inv-static,
+.inv-static *,
+.inv-static *::before,
+.inv-static *::after {
+    animation: none !important;
+    transition: none !important;
+}
+
+/*
 | Couple layout "Photo beside" (App\Support\PhotoSide): portrait and text share one row on every screen width, the
 | text aligned toward the portrait. Each design styles the portrait, the name and the social links itself.
 */

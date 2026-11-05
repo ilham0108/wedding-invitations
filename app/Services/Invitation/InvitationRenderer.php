@@ -150,15 +150,22 @@ class InvitationRenderer
     /**
      * Render a template with its sample content, without touching any invitation.
      * Without samples it shows exactly what a new invitation starts with.
+     * With $coverOnly it renders just the cover (else the first section), without music, for template cards.
      */
-    public function forTemplatePreview(InvitationTemplate $template, bool $withSamples = true): RenderedInvitation
+    public function forTemplatePreview(InvitationTemplate $template, bool $withSamples = true, bool $coverOnly = false): RenderedInvitation
     {
         $templateDefaults = $template->default_configuration ?? [];
         $design = $this->designs->resolve($template->design);
         $samples = $withSamples ? ($template->sample_content ?? []) : [];
 
-        $sections = collect($template->sectionBlueprint())
-            ->filter(fn (array $blueprint): bool => $this->registry->has($blueprint['type']))
+        $blueprints = collect($template->sectionBlueprint())
+            ->filter(fn (array $blueprint): bool => $this->registry->has($blueprint['type']));
+
+        if ($coverOnly) {
+            $blueprints = collect([$blueprints->firstWhere('type', 'cover') ?? $blueprints->first()])->filter();
+        }
+
+        $sections = $blueprints
             ->map(fn (array $blueprint, int $index): array => $this->buildSection(
                 key: 'preview-'.$index,
                 type: $blueprint['type'],
@@ -205,7 +212,7 @@ class InvitationRenderer
             ],
             countdownTarget: $this->countdownTarget($sections, self::PREVIEW_TIMEZONE),
             isPreview: true,
-            music: $this->music->forTemplate($template),
+            music: $coverOnly ? null : $this->music->forTemplate($template),
             interaction: [
                 'token' => null,
                 'rsvp' => ['open' => true, 'action' => null, 'max_guests' => 5, 'meal_options' => [], 'existing' => null],

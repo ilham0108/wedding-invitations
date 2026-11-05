@@ -62,7 +62,7 @@ return [
             // Layout "Photo beside": which side each portrait sits on; "alternate" starts left and swaps every person.
             ['key' => 'photo_side', 'label' => 'Photo position', 'type' => 'select', 'variants' => ['photo-beside'], 'options' => ['left' => 'Left of the name', 'right' => 'Right of the name', 'alternate' => 'Alternate (left, then right)']],
             // Portrait mask and an optional frame image laid over every person's photo (invitation.partials.framed-photo).
-            ['key' => 'photo_shape', 'label' => 'Photo shape', 'type' => 'select', 'admin_only' => true, 'options' => ['default' => 'Design default', 'rounded' => 'Rounded rectangle', 'circle' => 'Circle', 'oval' => 'Oval', 'arch' => 'Arch']],
+            ['key' => 'photo_shape', 'label' => 'Photo shape', 'type' => 'select', 'admin_only' => true, 'hidden_when' => 'photo_frame', 'options' => ['default' => 'Design default', 'rounded' => 'Rounded rectangle', 'circle' => 'Circle', 'oval' => 'Oval', 'arch' => 'Arch']],
             ['key' => 'photo_frame', 'label' => 'Photo frame (transparent image with an opening in the middle)', 'type' => 'image', 'admin_only' => true, 'illustrations' => 'frame'],
             ['key' => 'photo_frame_inset', 'label' => 'Photo frame: photo margin inside the frame (%)', 'type' => 'number', 'admin_only' => true, 'min' => 0, 'max' => 40],
             ['key' => 'people', 'label' => 'People', 'type' => 'repeater', 'max' => 6, 'fields' => [

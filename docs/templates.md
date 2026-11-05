@@ -120,6 +120,9 @@ misalnya bentuk dan bingkai foto mempelai (`photo_shape`, `photo_frame`, `photo_
 warna foto latar (`background_overlay`). Penanda ini berlaku untuk field tingkat atas, bukan field di dalam
 repeater.
 
+Field dengan `'hidden_when' => 'field_lain'` disembunyikan selama field itu terisi, dan nilainya tetap tersimpan.
+Contohnya `photo_shape`: bingkai foto menggantikan bentuk foto, jadi bentuk tidak dipakai selama `photo_frame` terisi.
+
 ## Paket desain
 
 Paket desain menentukan **tampilan** halaman undangan; datanya (bagian, konten, RSVP, ucapan) tetap sama untuk

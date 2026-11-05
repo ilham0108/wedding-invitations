@@ -33,6 +33,7 @@ use App\Http\Controllers\PaymentWebhookController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicInvitationController;
 use App\Http\Controllers\SiteManifestController;
+use App\Http\Controllers\TemplateCardController;
 use App\Http\Controllers\TemplatePreviewController;
 use App\Http\Controllers\WhatsAppWebhookController;
 use Illuminate\Support\Facades\Route;
@@ -45,6 +46,7 @@ Route::get('/page/{page:slug}', [PageController::class, 'show'])->name('pages.sh
 Route::get('/fonts/stylesheet', FontStylesheetController::class)->name('fonts.stylesheet');
 
 Route::get('/templates/{template}/preview', TemplatePreviewController::class)->name('templates.preview');
+Route::get('/templates/{template}/card', TemplateCardController::class)->name('templates.card');
 Route::get('/invitation/{slug}', [PublicInvitationController::class, 'show'])->name('invitations.public');
 Route::post('/invitation/{slug}/rsvp', InvitationRsvpController::class)->middleware('throttle:10,1')->name('invitations.rsvp');
 Route::post('/invitation/{slug}/wishes', InvitationWishController::class)->middleware('throttle:5,1')->name('invitations.wishes');

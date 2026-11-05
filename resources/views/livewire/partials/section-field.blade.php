@@ -3,6 +3,11 @@
     // Fields can depend on the layout ("variants") and on a design feature ("feature", e.g. desktop_panel).
     $shownForLayout = (! isset($field['variants']) || in_array($variant ?? null, $field['variants'], true))
         && (! isset($field['feature']) || in_array($field['feature'], $designFeatures ?? [], true));
+    // "hidden_when": a sibling field whose value makes this one irrelevant (the stored value stays).
+    if (isset($field['hidden_when'])) {
+        $shownForLayout = $shownForLayout && blank(data_get($config, preg_replace('/[^.]+$/', $field['hidden_when'], $path)));
+    }
+
     $value = data_get($config, $path);
     $inputId = 'field-'.str_replace('.', '-', $path);
     $inputClass = 'block w-full rounded-lg border-line text-sm focus:border-sage focus:ring-sage';
