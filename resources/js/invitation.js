@@ -1,5 +1,6 @@
 // Public invitation bundle: Alpine only, no Livewire, kept small for fast mobile loads.
 import Alpine from 'alpinejs';
+import { setupPhotoFrames } from './photo-frame';
 
 const pad = (value) => String(Math.max(0, value)).padStart(2, '0');
 
@@ -78,6 +79,7 @@ function setupAnimations() {
 }
 
 setupAnimations();
+setupPhotoFrames();
 
 // Background photos that change while scrolling (invitation.partials.scroll-backdrop): show the
 // photo of the last section that reached the middle of the screen; sections without one keep it.

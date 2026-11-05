@@ -1,5 +1,5 @@
 {{--
-    A portrait with the section's photo shape or frame (couple "photo_shape", "photo_frame", "photo_frame_inset"); a frame replaces the shape.
+    A portrait with the section's photo shape or frame (couple "photo_shape", "photo_frame", "photo_frame_inset"); a frame replaces the shape: photo-frame.js masks the photo to the frame's opening.
     Without either, the design's own <img> is kept: $imageClass / $imageStyle. With a frame, the frame image sets the
     size and the photo fills its opening, inset by photo_frame_inset percent; $wrapperClass sizes the block.
     $focus is the person's "photo_focus": the part of the photo that stays visible when it is cropped.

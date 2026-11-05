@@ -124,8 +124,9 @@
 
 /*
 | Portrait shape and frame (couple "photo_shape" / "photo_frame", invitation.partials.framed-photo).
-| Unframed, the block has a fixed ratio and the photo fills it. Framed, the frame image sets the
-| size and the photo fills its opening, inset by --inv-photo-inset on every side.
+| Unframed, the block has a fixed ratio and the photo fills it. Framed, the frame image sets the size and
+| photo-frame.js fits the photo to the frame's opening; until then it stays hidden, so no corners flash.
+| When the opening cannot be read, the photo keeps --inv-photo-inset on every side.
 */
 .inv-photo {
     position: relative;
@@ -148,6 +149,8 @@
     width: calc(100% - 2 * var(--inv-photo-inset, 12%));
     height: calc(100% - 2 * var(--inv-photo-inset, 12%));
 }
+
+.inv-js .inv-photo--framed .inv-photo__image:not(.is-fitted) { visibility: hidden; }
 
 .inv-photo__frame {
     position: relative;

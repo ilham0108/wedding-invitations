@@ -122,6 +122,8 @@ repeater.
 
 Field dengan `'hidden_when' => 'field_lain'` disembunyikan selama field itu terisi, dan nilainya tetap tersimpan.
 Contohnya `photo_shape`: bingkai foto menggantikan bentuk foto, jadi bentuk tidak dipakai selama `photo_frame` terisi.
+Foto dipotong mengikuti lubang bingkai oleh `resources/js/photo-frame.js`, yaitu area transparan yang menyambung dari
+tengah gambar. `photo_frame_inset` hanya dipakai kalau lubang itu tidak bisa dibaca.
 
 ## Paket desain
 
