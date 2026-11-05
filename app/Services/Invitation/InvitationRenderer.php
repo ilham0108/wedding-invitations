@@ -37,6 +37,7 @@ class InvitationRenderer
         private GuestbookService $guestbook,
         private MusicService $music,
         private SectionFonts $sectionFonts,
+        private SectionColors $sectionColors,
     ) {}
 
     public function forInvitation(Invitation $invitation, bool $isPreview = false, ?Guest $guest = null): RenderedInvitation
@@ -60,6 +61,7 @@ class InvitationRenderer
                 headingSize: $section->theme['heading_size'] ?? null,
                 textSize: $section->theme['text_size'] ?? null,
                 fonts: $section->theme['fonts'] ?? [],
+                colors: $section->theme['colors'] ?? [],
                 config: array_replace(
                     $this->registry->defaults($section->type),
                     $section->configuration ?? [],
@@ -166,6 +168,7 @@ class InvitationRenderer
                 headingSize: $blueprint['heading_size'],
                 textSize: $blueprint['text_size'],
                 fonts: $blueprint['fonts'],
+                colors: $blueprint['colors'],
                 config: array_replace(
                     $this->registry->defaults($blueprint['type']),
                     $templateDefaults[$blueprint['type']] ?? [],
@@ -213,13 +216,14 @@ class InvitationRenderer
 
     /**
      * @param  array<string, mixed>  $config
-     * @return array{key: string, type: string, variant: string, view: string, native: bool, background: string, height: string, heading_size: string, text_size: string, fonts: array<string, string>, font_style: string, config: array<string, mixed>, ornaments: array<int, array<string, mixed>>, desktop_ornaments: array<int, array<string, mixed>>}
+     * @return array{key: string, type: string, variant: string, view: string, native: bool, background: string, height: string, heading_size: string, text_size: string, fonts: array<string, string>, colors: array<string, string>, section_style: string, config: array<string, mixed>, ornaments: array<int, array<string, mixed>>, desktop_ornaments: array<int, array<string, mixed>>}
      */
-    private function buildSection(string $key, string $type, ?string $variant, ?string $background, array $config, string $timezone, string $design, mixed $ornaments = [], mixed $desktopOrnaments = [], ?string $height = null, ?string $headingSize = null, ?string $textSize = null, mixed $fonts = []): array
+    private function buildSection(string $key, string $type, ?string $variant, ?string $background, array $config, string $timezone, string $design, mixed $ornaments = [], mixed $desktopOrnaments = [], ?string $height = null, ?string $headingSize = null, ?string $textSize = null, mixed $fonts = [], mixed $colors = []): array
     {
         $variant = $this->registry->resolveVariant($type, $variant);
         $view = $this->designs->sectionView($design, $type, $variant);
         $fonts = $this->sectionFonts->clean($fonts);
+        $colors = $this->sectionColors->clean($colors);
 
         return [
             'key' => $key,
@@ -231,9 +235,10 @@ class InvitationRenderer
             'height' => in_array($height, TemplateSchema::HEIGHTS, true) ? $height : 'auto',
             'heading_size' => in_array($headingSize, TemplateSchema::FONT_SIZES, true) ? $headingSize : 'default',
             'text_size' => in_array($textSize, TemplateSchema::FONT_SIZES, true) ? $textSize : 'default',
-            // The section's own fonts (follow the theme when empty), applied by invitation.partials.section-fonts.
+            // The section's own fonts and colors (follow the theme when empty), applied by invitation.partials.section-style.
             'fonts' => $fonts,
-            'font_style' => $this->sectionFonts->style($fonts),
+            'colors' => $colors,
+            'section_style' => trim($this->sectionFonts->style($fonts).' '.$this->sectionColors->style($colors)),
             'config' => $this->normalizeConfig($type, $config, $timezone),
             'ornaments' => $this->ornaments->clean($ornaments),
             // Only the cover uses these, on the desktop side panel of designs that have one.

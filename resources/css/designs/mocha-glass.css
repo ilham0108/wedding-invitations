@@ -30,6 +30,11 @@
     overflow: hidden;
 }
 
+/* A section with its own text color (invitation.css "Section colors"): its lines follow it; the glass keeps the theme's. */
+.inv-design-mocha-glass [data-inv-text-color] {
+    --mg-line: color-mix(in srgb, var(--inv-section-text) 85%, transparent);
+}
+
 .mg {
     font-family: var(--inv-font-body);
     color: var(--inv-text);

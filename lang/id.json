@@ -1505,5 +1505,11 @@
     "Ornament above the text (transparent image)": "Ornamen di atas teks (gambar transparan)",
     "Opening line (e.g. Bismillahirrahmanirrahim)": "Kalimat pembuka (mis. Bismillahirrahmanirrahim)",
     "Names, separated by \"&\" (empty uses the cover title)": "Nama, dipisah \"&\" (kosong memakai judul sampul)",
-    "With gratitude, we invite you to celebrate this day with us.": "Dengan penuh rasa syukur, kami mengundang Bapak/Ibu/Saudara/i untuk turut merayakan hari bahagia ini bersama kami."
+    "With gratitude, we invite you to celebrate this day with us.": "Dengan penuh rasa syukur, kami mengundang Bapak/Ibu/Saudara/i untuk turut merayakan hari bahagia ini bersama kami.",
+    "Heading color": "Warna judul",
+    "Text color": "Warna teks",
+    "Use the theme color": "Pakai warna tema",
+    "Contrast :ratio:1, below :minimum:1: hard to read for some guests.": "Kontras :ratio:1, di bawah :minimum:1: sulit dibaca sebagian tamu.",
+    "Contrast :ratio:1 against the section background.": "Kontras :ratio:1 terhadap latar section.",
+    "With a background photo, check the colors in the preview: the contrast is measured against the section color only.": "Jika section memakai foto latar, cek warnanya di pratinjau: kontras hanya diukur terhadap warna latar section."
 }

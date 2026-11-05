@@ -6,6 +6,7 @@ use App\Services\FontRegistry;
 use App\Services\Invitation\DecorationResolver;
 use App\Services\Invitation\DesignRegistry;
 use App\Services\Invitation\Ornaments;
+use App\Services\Invitation\SectionColors;
 use App\Services\Invitation\SectionFonts;
 use App\Services\Invitation\SectionRegistry;
 use App\Services\Invitation\ThemeResolver;
@@ -44,6 +45,7 @@ class TemplateSchema
         private DesignRegistry $designs,
         private Ornaments $ornaments,
         private SectionFonts $sectionFonts,
+        private SectionColors $sectionColors,
     ) {}
 
     /**
@@ -80,6 +82,7 @@ class TemplateSchema
                 'heading_size' => in_array($section['heading_size'] ?? null, [null, 'default'], true) ? null : $section['heading_size'],
                 'text_size' => in_array($section['text_size'] ?? null, [null, 'default'], true) ? null : $section['text_size'],
                 'fonts' => $this->sectionFonts->clean($section['fonts'] ?? []) ?: null,
+                'colors' => $this->sectionColors->clean($section['colors'] ?? []) ?: null,
                 // Only sections that have ornaments carry the key.
                 'ornaments' => $this->ornaments->clean($section['ornaments'] ?? []) ?: null,
                 'desktop_ornaments' => $this->ornaments->clean($section['desktop_ornaments'] ?? []) ?: null,
@@ -116,6 +119,7 @@ class TemplateSchema
                 'heading_size' => $section['heading_size'] ?? null,
                 'text_size' => $section['text_size'] ?? null,
                 'fonts' => $section['fonts'] ?? null,
+                'colors' => $section['colors'] ?? null,
                 'ornaments' => $section['ornaments'] ?? $legacy,
                 'desktop_ornaments' => $section['desktop_ornaments'] ?? [],
             ],
@@ -147,7 +151,7 @@ class TemplateSchema
             $rules["{$path}.height"] = ['nullable', Rule::in(self::HEIGHTS)];
             $rules["{$path}.heading_size"] = ['nullable', Rule::in(self::FONT_SIZES)];
             $rules["{$path}.text_size"] = ['nullable', Rule::in(self::FONT_SIZES)];
-            $rules = array_merge($rules, $this->sectionFonts->rules("{$path}.fonts"), $this->ornamentRules("{$path}.ornaments"), $this->ornamentRules("{$path}.desktop_ornaments"));
+            $rules = array_merge($rules, $this->sectionFonts->rules("{$path}.fonts"), $this->sectionColors->rules("{$path}.colors"), $this->ornamentRules("{$path}.ornaments"), $this->ornamentRules("{$path}.desktop_ornaments"));
 
             if (is_string($section['type']) && $this->registry->has($section['type'])) {
                 $rules["{$path}.variant"] = ['nullable', Rule::in($this->registry->variants($section['type']))];

@@ -11,6 +11,7 @@ use App\Services\FontRegistry;
 use App\Services\Invitation\DecorationResolver;
 use App\Services\Invitation\DesignRegistry;
 use App\Services\Invitation\Ornaments;
+use App\Services\Invitation\SectionColors;
 use App\Services\Invitation\SectionFonts;
 use App\Services\Invitation\SectionRegistry;
 use App\Services\Invitation\ThemeResolver;
@@ -45,7 +46,7 @@ class TemplateBuilder extends Component
     /**
      * Ordered sections. "key" only identifies an item inside the builder; it is never stored.
      *
-     * @var array<int, array{key: string, type: string, variant: string, background: string, fonts: array<string, string>, ornaments: array<int, array<string, mixed>>, desktop_ornaments: array<int, array<string, mixed>>}>
+     * @var array<int, array{key: string, type: string, variant: string, background: string, fonts: array<string, string>, colors: array<string, string>, ornaments: array<int, array<string, mixed>>, desktop_ornaments: array<int, array<string, mixed>>}>
      */
     #[Locked]
     public array $sections = [];
@@ -111,7 +112,7 @@ class TemplateBuilder extends Component
         }
 
         $key = $this->newKey();
-        $this->sections[] = ['key' => $key, 'type' => $type, 'variant' => $registry->resolveVariant($type, null), 'background' => 'default', 'height' => 'auto', 'heading_size' => 'default', 'text_size' => 'default', 'fonts' => [], 'ornaments' => [], 'desktop_ornaments' => []];
+        $this->sections[] = ['key' => $key, 'type' => $type, 'variant' => $registry->resolveVariant($type, null), 'background' => 'default', 'height' => 'auto', 'heading_size' => 'default', 'text_size' => 'default', 'fonts' => [], 'colors' => [], 'ornaments' => [], 'desktop_ornaments' => []];
         $this->selected = $key;
         $this->panel = 'section';
         $this->persistSections();
@@ -228,6 +229,26 @@ class TemplateBuilder extends Component
         }
 
         $this->sections[$index]['fonts'] = $fonts;
+        $this->persistSections();
+    }
+
+    /**
+     * A section's own heading or text color ($which: heading | text), "#rrggbb"; "default" goes back to the theme's.
+     */
+    public function setSectionColor(string $key, string $which, string $value, SectionColors $sectionColors): void
+    {
+        $index = $this->sectionIndex($key);
+        $colors = $this->sections[$index]['colors'] ?? [];
+
+        if ($value === 'default' && in_array($which, SectionColors::KEYS, true)) {
+            unset($colors[$which]);
+        } elseif ($sectionColors->isValid($which, $value)) {
+            $colors[$which] = strtolower($value);
+        } else {
+            return;
+        }
+
+        $this->sections[$index]['colors'] = $colors;
         $this->persistSections();
     }
 
@@ -517,6 +538,11 @@ class TemplateBuilder extends Component
             'presets' => array_keys($themes->presets()),
             'fontsByCategory' => app(FontRegistry::class)->forPicker([$this->theme['font_heading'] ?? '', $this->theme['font_body'] ?? '', ...array_values(array_intersect_key($selected['fonts'] ?? [], array_flip(SectionFonts::FONTS)))]),
             'sectionFontWeights' => $selected ? $this->sectionWeights($selected['fonts'] ?? []) : [],
+            // Contrast of the section's own colors against its background color (photos are not measured).
+            'sectionColorContrast' => $selected ? app(SectionColors::class)->contrast(
+                $selected['colors'] ?? [],
+                app(SectionColors::class)->background($this->theme, $selected['background'] ?? 'default'),
+            ) : [],
             'fontWeights' => app(FontRegistry::class)->themeWeights($this->theme),
             'themeOptions' => config('invitation.theme_options'),
             'designs' => app(DesignRegistry::class)->all(),
@@ -599,6 +625,7 @@ class TemplateBuilder extends Component
                 'heading_size' => $section['heading_size'] ?? 'default',
                 'text_size' => $section['text_size'] ?? 'default',
                 'fonts' => app(SectionFonts::class)->clean($section['fonts']),
+                'colors' => app(SectionColors::class)->clean($section['colors']),
                 'ornaments' => app(Ornaments::class)->clean($section['ornaments']),
                 'desktop_ornaments' => app(Ornaments::class)->clean($section['desktop_ornaments']),
             ])
@@ -627,6 +654,7 @@ class TemplateBuilder extends Component
             'heading_size' => $section['heading_size'] ?? 'default',
             'text_size' => $section['text_size'] ?? 'default',
             'fonts' => $section['fonts'] ?? [],
+            'colors' => $section['colors'] ?? [],
             'ornaments' => $section['ornaments'] ?? [],
             'desktop_ornaments' => $section['desktop_ornaments'] ?? [],
         ], $this->sections);

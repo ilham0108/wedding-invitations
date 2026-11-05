@@ -133,6 +133,12 @@
     --bc-line: color-mix(in srgb, var(--inv-on-primary) 30%, transparent);
 }
 
+/* A section with its own text color (invitation.css "Section colors"): faded text and lines follow it. */
+.inv-design-botanical-cream [data-inv-text-color] {
+    --bc-muted: color-mix(in srgb, var(--inv-section-text) 68%, transparent);
+    --bc-line: color-mix(in srgb, var(--inv-section-text) 16%, transparent);
+}
+
 .bc-bg-primary .bc-title,
 .bc-bg-primary .bc-sprig { color: inherit; }
 

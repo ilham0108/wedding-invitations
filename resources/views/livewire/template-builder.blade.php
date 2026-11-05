@@ -419,6 +419,47 @@
                             </div>
                         @endforeach
 
+                        {{-- The section's own colors; the contrast is measured against the section's background color. --}}
+                        <div class="space-y-3">
+                            @foreach (['heading' => __('Heading color'), 'text' => __('Text color')] as $colorKey => $colorLabel)
+                                @php($color = $selectedSection['colors'][$colorKey] ?? null)
+                                <div>
+                                    <label for="section-color-{{ $colorKey }}" class="mb-2 block text-sm font-medium text-ink">{{ $colorLabel }}</label>
+                                    <div class="flex items-center gap-3">
+                                        <input type="color" wire:key="section-swatch-{{ $colorKey }}-{{ $color ?? 'theme' }}" id="section-color-{{ $colorKey }}" value="{{ $color ?? $theme['text_color'] }}"
+                                            x-on:change="$wire.setSectionColor('{{ $selectedSection['key'] }}', '{{ $colorKey }}', $event.target.value)"
+                                            class="h-10 w-12 shrink-0 cursor-pointer rounded border border-line bg-white p-0.5">
+                                        {{-- Keyed by value so a picker change re-renders it. Empty goes back to the theme; an invalid code is undone. --}}
+                                        <input type="text" wire:key="section-hex-{{ $colorKey }}-{{ $color ?? 'theme' }}" value="{{ $color }}" placeholder="{{ __('Follow the theme') }}" maxlength="7" spellcheck="false" aria-label="{{ $colorLabel }}: {{ __('Hex code') }}"
+                                            x-on:keydown.enter.prevent="$el.blur()"
+                                            x-on:change="
+                                                let hex = '#' + $el.value.trim().replace(/^#/, '').toLowerCase();
+                                                if (hex === '#') { $wire.setSectionColor('{{ $selectedSection['key'] }}', '{{ $colorKey }}', 'default'); return }
+                                                if (/^#[0-9a-f]{3}$/.test(hex)) hex = '#' + [...hex.slice(1)].map(c => c + c).join('');
+                                                if (/^#[0-9a-f]{6}$/.test(hex)) { $el.value = hex; $wire.setSectionColor('{{ $selectedSection['key'] }}', '{{ $colorKey }}', hex) } else { $el.value = @js($color ?? '') }
+                                            "
+                                            class="h-10 min-w-0 flex-1 rounded-lg border-line px-2 font-mono text-xs text-ink-soft placeholder:font-sans placeholder:text-muted focus:border-sage focus:ring-sage">
+                                        @if ($color)
+                                            <button type="button" wire:click="setSectionColor('{{ $selectedSection['key'] }}', '{{ $colorKey }}', 'default')"
+                                                class="shrink-0 rounded-lg px-2 py-1.5 text-xs text-ink-soft underline hover:bg-paper">{{ __('Use the theme color') }}</button>
+                                        @endif
+                                    </div>
+                                    @isset($sectionColorContrast[$colorKey])
+                                        @php($contrast = $sectionColorContrast[$colorKey])
+                                        @if ($contrast['ratio'] < $contrast['minimum'])
+                                            <p class="mt-1.5 text-xs text-red-700">
+                                                <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                                                {{ __('Contrast :ratio:1, below :minimum:1: hard to read for some guests.', ['ratio' => \Illuminate\Support\Number::format($contrast['ratio'], 1), 'minimum' => \Illuminate\Support\Number::format($contrast['minimum'], 1)]) }}
+                                            </p>
+                                        @else
+                                            <p class="mt-1.5 text-xs text-muted">{{ __('Contrast :ratio:1 against the section background.', ['ratio' => \Illuminate\Support\Number::format($contrast['ratio'], 1)]) }}</p>
+                                        @endif
+                                    @endisset
+                                </div>
+                            @endforeach
+                            <p class="text-xs text-muted">{{ __('With a background photo, check the colors in the preview: the contrast is measured against the section color only.') }}</p>
+                        </div>
+
                         @include('livewire.partials.ornament-panel')
 
                         <div class="border-t border-line pt-5">
