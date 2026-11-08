@@ -3,6 +3,7 @@
 namespace App\Services\Invitation;
 
 use App\Services\FontRegistry;
+use App\Support\Contrast;
 use Illuminate\Validation\Rule;
 
 /**
@@ -113,6 +114,7 @@ class ThemeResolver
             '--inv-primary' => $theme['primary_color'],
             '--inv-on-primary' => $this->readableTextOn($theme['primary_color']),
             '--inv-secondary' => $theme['secondary_color'],
+            '--inv-accent-text' => $this->readableAccent($theme['secondary_color'], $theme['text_color'], $theme['background_color']),
             '--inv-bg' => $theme['background_color'],
             '--inv-surface' => $theme['surface_color'],
             '--inv-text' => $theme['text_color'],
@@ -148,6 +150,37 @@ class ThemeResolver
     private function fonts(): FontRegistry
     {
         return app(FontRegistry::class);
+    }
+
+    /**
+     * The accent color for small text: the secondary color, moved toward the text color just far enough
+     * to stay readable on the page background. A pale gold on cream stays gold, only darker.
+     */
+    private function readableAccent(string $accent, string $text, string $background): string
+    {
+        foreach (range(0, 100, 10) as $share) {
+            $color = $this->mix($accent, $text, $share);
+
+            if (Contrast::ratio($color, $background) >= Contrast::TEXT) {
+                return $color;
+            }
+        }
+
+        return $text;
+    }
+
+    /**
+     * $share percent of $to mixed into $from.
+     */
+    private function mix(string $from, string $to, int $share): string
+    {
+        $channels = array_map(
+            fn (int $start, int $end): int => (int) round($start + ($end - $start) * $share / 100),
+            sscanf($from, '#%02x%02x%02x'),
+            sscanf($to, '#%02x%02x%02x'),
+        );
+
+        return vsprintf('#%02x%02x%02x', $channels);
     }
 
     private function readableTextOn(string $hexColor): string

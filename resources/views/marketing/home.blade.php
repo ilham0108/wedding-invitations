@@ -120,10 +120,12 @@
                 <div class="mx-auto w-full max-w-[18.5rem] lg:order-2 lg:w-[18.5rem]">
                     {{-- Phone frame; the iframe is the bare template preview (?embed=1). --}}
                     <div class="rounded-[2.6rem] border-[10px] border-[#20241d] bg-[#20241d] shadow-[0_40px_80px_-40px_rgb(0_0_0/0.7)]">
-                        <div class="relative overflow-hidden rounded-[2rem] bg-cream">
+                        {{-- The page renders at a real phone's width and is scaled down, so the demo looks as it does on a phone. --}}
+                        <div class="relative h-[34rem] overflow-hidden rounded-[2rem] bg-cream sm:h-[35rem]"
+                            x-init="new ResizeObserver(([entry]) => { const scale = entry.contentRect.width / 390; $refs.frame.style.transform = `scale(${scale})`; $refs.frame.style.height = `${entry.contentRect.height / scale}px`; }).observe($el)">
                             <iframe x-ref="frame" src="{{ route('templates.preview', ['template' => $demoTemplate, 'embed' => 1]) }}"
                                 x-on:load="ready()" title="{{ __('Live invitation demo') }}" loading="lazy"
-                                width="270" height="560" class="block h-[34rem] w-full sm:h-[35rem]"></iframe>
+                                width="390" height="770" class="block max-w-none origin-top-left"></iframe>
                             <p x-show="! loaded" class="absolute inset-0 flex items-center justify-center text-sm text-ink-soft">{{ __('Loading the invitation...') }}</p>
                         </div>
                     </div>

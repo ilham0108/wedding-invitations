@@ -66,7 +66,12 @@
         opacity: 0.72;
     }
 
+    /* Small accent text: --inv-accent-text is the secondary color made readable on the page background. */
     .inv-accent {
+        color: var(--inv-accent-text);
+    }
+
+    .inv-section--primary .inv-accent {
         color: var(--inv-secondary);
     }
 
@@ -385,6 +390,10 @@ body [data-inv-body-weight] {
 }
 
 .inv-person-beside--right > :first-child { order: 1; }
+
+/* The name follows the row's width, so a long word fits its column on narrow screens. */
+.inv-person-beside { container-type: inline-size; }
+.inv-person-beside h3.inv-heading { font-size: min(1.875rem, 8.5cqw); }
 
 /*
 | Section fonts: the section redefines --inv-font-heading / --inv-font-body, which headings pick up on their own.

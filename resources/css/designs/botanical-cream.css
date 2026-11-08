@@ -186,7 +186,7 @@
 
 .bc-names__amp {
     margin-right: 0.22em;
-    color: var(--inv-secondary);
+    color: var(--inv-accent-text);
 }
 
 /*
@@ -704,7 +704,7 @@ body:has(.inv-preview-bar) .bc-topbar { top: 40px; }
 .bc-people--beside .inv-person-beside--right .bc-socials { justify-content: flex-end; }
 
 .bc-person__role {
-    color: var(--inv-secondary);
+    color: var(--inv-accent-text);
     font-size: 0.75rem;
     letter-spacing: 0.25em;
     text-transform: uppercase;

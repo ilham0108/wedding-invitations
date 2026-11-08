@@ -596,7 +596,7 @@ body:has(.inv-preview-bar) .mg-home { min-height: calc(100svh - 40px - 84px - 40
     font-size: 0.95rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: var(--inv-secondary);
+    color: var(--inv-accent-text);
 }
 
 .mg-person__parents {

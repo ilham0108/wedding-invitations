@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Services\Invitation\ThemeResolver;
+use App\Support\Contrast;
 use Tests\TestCase;
 
 class ThemeResolverTest extends TestCase
@@ -63,6 +64,13 @@ class ThemeResolverTest extends TestCase
         $resolver = new ThemeResolver;
 
         $this->assertStringContainsString('--inv-on-primary: #ffffff;', $resolver->cssVariables($resolver->resolve(['primary_color' => '#111111'])));
+        // Small accent text stays the secondary color when readable, and darkens toward the text color when not.
+        $this->assertStringContainsString('--inv-accent-text: #000000;', $resolver->cssVariables($resolver->resolve(['secondary_color' => '#000000', 'background_color' => '#ffffff'])));
+        $accent = $resolver->cssVariables($resolver->resolve(['secondary_color' => '#e8cf8a', 'background_color' => '#f3e7d8', 'text_color' => '#4a2c1a']));
+        preg_match('/--inv-accent-text: (#[0-9a-f]{6});/', $accent, $match);
+        $this->assertGreaterThanOrEqual(4.5, Contrast::ratio($match[1], '#f3e7d8'));
+        $this->assertNotSame('#e8cf8a', $match[1]);
+
         $this->assertStringContainsString('--inv-on-primary: #1a1a1a;', $resolver->cssVariables($resolver->resolve(['primary_color' => '#f5f5f5'])));
     }
 }
