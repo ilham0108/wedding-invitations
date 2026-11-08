@@ -1,5 +1,9 @@
 {{-- One event ($event) of the event section. --}}
 <article class="mg-event">
+    {{-- Only an icon the admin picked; the original design has none. --}}
+    @if ($event['icon_chosen'])
+        <i class="{{ $event['icon_class'] }} mg-event__icon" aria-hidden="true"></i>
+    @endif
     <h3>{{ $event['title'] ?? '' }}</h3>
     @if ($event['date_label'])
         <p class="mg-event__when">

@@ -1,4 +1,8 @@
 <article class="inv-card p-6 sm:p-8">
+    {{-- Only an icon the admin picked; the list layout always shows one. --}}
+    @if ($event['icon_chosen'])
+        <i class="{{ $event['icon_class'] }} mb-3 block text-2xl inv-accent" aria-hidden="true"></i>
+    @endif
     <h3 class="inv-heading text-2xl">{{ $event['title'] ?? '' }}</h3>
     <div class="inv-divider !my-4"></div>
     @if ($event['date_label'])

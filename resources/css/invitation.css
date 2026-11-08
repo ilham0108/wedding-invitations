@@ -372,6 +372,24 @@ body [data-inv-body-weight] {
 }
 
 /*
+| Event layout "List" (classic): an icon column beside each event, rows separated by a line in the accent color.
+*/
+.inv-event-row {
+    display: grid;
+    grid-template-columns: 2.75rem minmax(0, 1fr);
+    gap: 1rem;
+    padding-block: 1.25rem;
+}
+
+.inv-event-row--ruled { border-top: 1px solid color-mix(in srgb, var(--inv-secondary) 55%, transparent); }
+
+.inv-event-row__icon {
+    padding-top: 0.35rem;
+    font-size: 2rem;
+    text-align: center;
+}
+
+/*
 | Couple layout "Photo beside" (App\Support\PhotoSide): portrait and text share one row on every screen width, the
 | text aligned toward the portrait. Each design styles the portrait, the name and the social links itself.
 */

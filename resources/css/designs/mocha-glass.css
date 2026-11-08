@@ -1294,6 +1294,13 @@ body:has(.inv-preview-bar) .mg-home { min-height: calc(100svh - 40px - 84px - 40
 .mg-card--event + .mg-card--event { margin-top: 16px; }
 .mg-card--event .mg-event { padding: 0.4rem 0; }
 
+.mg-event__icon {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--inv-secondary);
+    font-size: 1.4rem;
+}
+
 /* Couple "Side by side". */
 .mg-people-grid {
     display: grid;

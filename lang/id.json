@@ -1511,5 +1511,11 @@
     "Use the theme color": "Pakai warna tema",
     "Contrast :ratio:1, below :minimum:1: hard to read for some guests.": "Kontras :ratio:1, di bawah :minimum:1: sulit dibaca sebagian tamu.",
     "Contrast :ratio:1 against the section background.": "Kontras :ratio:1 terhadap latar section.",
-    "With a background photo, check the colors in the preview: the contrast is measured against the section color only.": "Jika section memakai foto latar, cek warnanya di pratinjau: kontras hanya diukur terhadap warna latar section."
+    "With a background photo, check the colors in the preview: the contrast is measured against the section color only.": "Jika section memakai foto latar, cek warnanya di pratinjau: kontras hanya diukur terhadap warna latar section.",
+    "Automatic (from the title)": "Otomatis (dari judul)",
+    "Toast": "Bersulang",
+    "Mosque": "Masjid",
+    "Church": "Gereja",
+    "Meal": "Jamuan makan",
+    "At :time": "Pukul :time"
 }

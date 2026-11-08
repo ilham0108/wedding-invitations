@@ -91,6 +91,11 @@ return [
             $heading,
             ['key' => 'events', 'label' => 'Events', 'type' => 'repeater', 'max' => 10, 'fields' => [
                 ['key' => 'title', 'label' => 'Event title', 'type' => 'text'],
+                // Config "event_icons"; "auto" picks one from the title (InvitationRenderer::eventIcon).
+                ['key' => 'icon', 'label' => 'Icon', 'type' => 'select', 'options' => [
+                    'auto' => 'Automatic (from the title)', 'ring' => 'Ring', 'glasses' => 'Toast', 'calendar' => 'Calendar',
+                    'mosque' => 'Mosque', 'church' => 'Church', 'meal' => 'Meal', 'music' => 'Music', 'heart' => 'Heart',
+                ]],
                 ['key' => 'date', 'label' => 'Date', 'type' => 'date'],
                 ['key' => 'start_time', 'label' => 'Start time', 'type' => 'time'],
                 ['key' => 'end_time', 'label' => 'End time', 'type' => 'time'],
@@ -344,6 +349,17 @@ return [
     | Icons for health protocol items (Font Awesome classes, never user input).
     */
     // Story entry markers (story field "icon").
+    'event_icons' => [
+        'ring' => 'fa-solid fa-ring',
+        'glasses' => 'fa-solid fa-champagne-glasses',
+        'calendar' => 'fa-regular fa-calendar-check',
+        'mosque' => 'fa-solid fa-mosque',
+        'church' => 'fa-solid fa-church',
+        'meal' => 'fa-solid fa-utensils',
+        'music' => 'fa-solid fa-music',
+        'heart' => 'fa-regular fa-heart',
+    ],
+
     'story_icons' => [
         'heart' => 'fa-regular fa-heart',
         'chat' => 'fa-regular fa-comments',

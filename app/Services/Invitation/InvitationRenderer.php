@@ -308,12 +308,7 @@ class InvitationRenderer
                 ...$item,
                 'icon_class' => config('invitation.health_protocol_icons')[$item['icon'] ?? ''] ?? 'fa-solid fa-circle-check',
             ])],
-            'event' => [...$config, 'events' => $this->mapList($config['events'] ?? [], fn (array $event): array => [
-                ...$event,
-                'maps_url' => $this->safeUrl($event['maps_url'] ?? null),
-                'date_label' => $this->dateLabel($event['date'] ?? null),
-                'calendar_url' => ! empty($event['add_to_calendar']) ? $this->calendarUrl($event, $timezone) : null,
-            ])],
+            'event' => $this->events($config, $timezone),
             'rsvp' => [...$config, 'deadline_label' => $this->dateLabel($config['deadline'] ?? null)],
             default => $config,
         };
@@ -415,6 +410,73 @@ class InvitationRenderer
         }
 
         return sprintf('https://www.google.com/maps?q=%F,%F&z=15&output=embed', (float) $config['latitude'], (float) $config['longitude']);
+    }
+
+    /**
+     * Events with their icon, a readable time ("08.00 – 14.00 WIB") and safe links. "shared_place" holds the
+     * venue when every event (two or more) takes place at the same one, so a list can show it once.
+     *
+     * @param  array<string, mixed>  $config
+     * @return array<string, mixed>
+     */
+    private function events(array $config, string $timezone): array
+    {
+        $events = $this->mapList($config['events'] ?? [], fn (array $event): array => [
+            ...$event,
+            'icon_class' => $this->eventIcon($event),
+            'icon_chosen' => isset(config('invitation.event_icons')[$event['icon'] ?? '']),
+            'time_label' => $this->timeLabel($event['start_time'] ?? null, $event['end_time'] ?? null, $timezone),
+            'maps_url' => $this->safeUrl($event['maps_url'] ?? null),
+            'date_label' => $this->dateLabel($event['date'] ?? null),
+            'calendar_url' => ! empty($event['add_to_calendar']) ? $this->calendarUrl($event, $timezone) : null,
+        ]);
+
+        $places = collect($events)->map(fn (array $event): array => [
+            'venue' => trim((string) ($event['venue'] ?? '')),
+            'address' => trim((string) ($event['address'] ?? '')),
+            'maps_url' => $event['maps_url'],
+        ])->unique(fn (array $place): string => (string) json_encode($place));
+
+        $shared = count($events) > 1 && $places->count() === 1 && ($places->first()['venue'] !== '' || $places->first()['address'] !== '');
+
+        return [...$config, 'events' => $events, 'shared_place' => $shared ? $places->first() : null];
+    }
+
+    /**
+     * The chosen icon, or one picked from the title: a ring for the ceremony, glasses for the reception.
+     *
+     * @param  array<string, mixed>  $event
+     */
+    private function eventIcon(array $event): string
+    {
+        $icons = config('invitation.event_icons');
+
+        if (isset($icons[$event['icon'] ?? ''])) {
+            return $icons[$event['icon']];
+        }
+
+        $title = mb_strtolower((string) ($event['title'] ?? ''));
+
+        return match (true) {
+            Str::contains($title, ['akad', 'nikah', 'pemberkatan', 'matrimon', 'ceremony', 'holy']) => $icons['ring'],
+            Str::contains($title, ['resepsi', 'reception', 'pesta', 'party', 'ngunduh']) => $icons['glasses'],
+            default => $icons['calendar'],
+        };
+    }
+
+    /**
+     * "08.00 – 14.00 WIB": times as written in the invitation's language, with the Indonesian zone name.
+     */
+    private function timeLabel(mixed $start, mixed $end, string $timezone): ?string
+    {
+        if (! is_string($start) || $start === '') {
+            return null;
+        }
+
+        $format = fn (string $time): string => app()->getLocale() === 'id' ? str_replace(':', '.', $time) : $time;
+        $zone = ['Asia/Jakarta' => 'WIB', 'Asia/Pontianak' => 'WIB', 'Asia/Makassar' => 'WITA', 'Asia/Jayapura' => 'WIT'][$timezone] ?? $timezone;
+
+        return $format($start).(is_string($end) && $end !== '' ? ' – '.$format($end) : '').' '.$zone;
     }
 
     private function dateLabel(mixed $date): ?string
