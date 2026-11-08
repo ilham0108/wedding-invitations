@@ -532,7 +532,7 @@ class TemplateBuilder extends Component
             'selectedSection' => $selected,
             'sharedCount' => $selected ? collect($this->sections)->where('type', $selected['type'])->count() : 0,
             'addableTypes' => collect($registry->types())->mapWithKeys(fn (string $type): array => [$type => $registry->label($type)]),
-            'backgrounds' => TemplateSchema::BACKGROUNDS,
+            'backgrounds' => ['default' => 'Continue previous', 'plain' => 'Plain', 'muted' => 'Muted', 'primary' => 'Primary'],
             'heights' => ['auto' => 'Fit content', 'screen-top' => 'Screen height, content at the top', 'screen-center' => 'Screen height, content in the middle', 'screen-bottom' => 'Screen height, content at the bottom'],
             'previewUrl' => route('admin.templates.builder.preview', $template),
             'presets' => array_keys($themes->presets()),

@@ -120,6 +120,8 @@
     scroll-margin-top: 58px;
 }
 
+.bc-bg-plain { background: var(--inv-bg); }
+
 .bc-bg-muted {
     --bc-section-bg: color-mix(in srgb, var(--inv-surface) 75%, var(--inv-bg));
     background: color-mix(in srgb, var(--inv-surface) 75%, transparent);
@@ -143,6 +145,7 @@
 .bc-bg-primary .bc-sprig { color: inherit; }
 
 /* Colored sections with their own background photo: the photo shows through, tinted (--inv-tint, invitation.css). */
+.bc-bg-plain[data-inv-tint] { background: color-mix(in srgb, var(--inv-bg) var(--inv-tint), transparent); }
 .bc-bg-muted[data-inv-tint] { background: color-mix(in srgb, var(--inv-surface) var(--inv-tint), transparent); }
 .bc-bg-primary[data-inv-tint] { background: color-mix(in srgb, var(--inv-primary) var(--inv-tint), transparent); }
 

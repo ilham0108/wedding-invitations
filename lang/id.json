@@ -1517,5 +1517,8 @@
     "Mosque": "Masjid",
     "Church": "Gereja",
     "Meal": "Jamuan makan",
-    "At :time": "Pukul :time"
+    "At :time": "Pukul :time",
+    "Continue previous": "Lanjutkan",
+    "Plain": "Polos",
+    "Continue previous keeps the last background photo in view. Plain uses the theme background color.": "Lanjutkan: foto latar terakhir tetap terlihat. Polos: memakai warna latar tema."
 }

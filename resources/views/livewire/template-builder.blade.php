@@ -356,11 +356,12 @@
                             <div>
                                 <p class="mb-2 text-sm font-medium text-ink">{{ __('Background') }}</p>
                                 <div class="flex rounded-lg border border-line p-0.5">
-                                    @foreach ($backgrounds as $option)
+                                    @foreach ($backgrounds as $option => $backgroundLabel)
                                         <button type="button" wire:click="setBackground('{{ $selectedSection['key'] }}', '{{ $option }}')"
-                                            @class(['flex-1 rounded-md px-2 py-1.5 text-xs', 'bg-ink text-white' => $selectedSection['background'] === $option, 'text-ink-soft hover:bg-paper' => $selectedSection['background'] !== $option])>{{ __(ucfirst($option)) }}</button>
+                                            @class(['flex-1 rounded-md px-2 py-1.5 text-xs', 'bg-ink text-white' => $selectedSection['background'] === $option, 'text-ink-soft hover:bg-paper' => $selectedSection['background'] !== $option])>{{ __($backgroundLabel) }}</button>
                                     @endforeach
                                 </div>
+                                <p class="mt-1 text-xs text-muted">{{ __('Continue previous keeps the last background photo in view. Plain uses the theme background color.') }}</p>
                             </div>
 
                             {{-- The cover is always screen height; its title is placed with the cover's own position fields. --}}

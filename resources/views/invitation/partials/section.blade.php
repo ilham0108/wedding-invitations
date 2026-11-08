@@ -10,6 +10,7 @@
         'inv-text-size--'.($section['text_size'] ?? 'default') => ($section['text_size'] ?? 'default') !== 'default',
         'inv-section' => $section['type'] !== 'cover' && ($classic ?? true),
         'inv-animate' => $section['type'] !== 'cover' && ($classic ?? true),
+        'inv-section--plain' => $section['background'] === 'plain' && ($classic ?? true),
         'inv-section--muted' => $section['background'] === 'muted' && ($classic ?? true),
         'inv-section--primary' => $section['background'] === 'primary' && ($classic ?? true),
     ])>

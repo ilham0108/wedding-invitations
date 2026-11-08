@@ -23,8 +23,6 @@ use Throwable;
  */
 class InvitationRenderer
 {
-    private const BACKGROUNDS = ['default', 'muted', 'primary'];
-
     private const PREVIEW_TIMEZONE = 'Asia/Jakarta';
 
     public function __construct(
@@ -238,7 +236,7 @@ class InvitationRenderer
             'variant' => $variant,
             'view' => $view['view'],
             'native' => $view['native'],
-            'background' => in_array($background, self::BACKGROUNDS, true) ? $background : 'default',
+            'background' => in_array($background, TemplateSchema::BACKGROUNDS, true) ? $background : 'default',
             'height' => in_array($height, TemplateSchema::HEIGHTS, true) ? $height : 'auto',
             'heading_size' => in_array($headingSize, TemplateSchema::FONT_SIZES, true) ? $headingSize : 'default',
             'text_size' => in_array($textSize, TemplateSchema::FONT_SIZES, true) ? $textSize : 'default',

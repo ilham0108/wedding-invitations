@@ -1249,6 +1249,8 @@ body:has(.inv-preview-bar) .mg-home { min-height: calc(100svh - 40px - 84px - 40
 
 /* ---------------------------------------------------------------- section backgrounds (builder "Background") */
 
+.mg-bg-plain { background: var(--inv-bg); }
+
 .mg-bg-muted {
     --mg-line: color-mix(in srgb, var(--mg-ink) 55%, transparent);
     background: var(--inv-surface);
@@ -1284,6 +1286,7 @@ body:has(.inv-preview-bar) .mg-home { min-height: calc(100svh - 40px - 84px - 40
 }
 
 /* Colored sections with their own background photo: the photo shows through, tinted (--inv-tint, invitation.css). */
+.mg-bg-plain[data-inv-tint] { background: color-mix(in srgb, var(--inv-bg) var(--inv-tint), transparent); }
 .mg-section--quote[data-inv-tint],
 .mg-bg-muted[data-inv-tint] { background: color-mix(in srgb, var(--inv-surface) var(--inv-tint), transparent); }
 .mg-bg-primary[data-inv-tint] { background: color-mix(in srgb, var(--inv-primary) var(--inv-tint), transparent); }

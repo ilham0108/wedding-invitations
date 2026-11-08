@@ -28,7 +28,8 @@ class TemplateSchema
      */
     public const VERSION = 1;
 
-    public const BACKGROUNDS = ['default', 'muted', 'primary'];
+    /** "default" lets the page show through (the previous section's background photo stays); "plain" is the theme's background color. */
+    public const BACKGROUNDS = ['default', 'plain', 'muted', 'primary'];
 
     /** Section height: as tall as its content, or at least one screen with the content at the top, middle or bottom. */
     public const HEIGHTS = ['auto', 'screen-top', 'screen-center', 'screen-bottom'];
