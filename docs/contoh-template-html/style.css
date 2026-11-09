@@ -1,0 +1,40 @@
+body {
+    background: var(--inv-bg);
+    color: var(--inv-text);
+    font-family: var(--inv-font-body);
+}
+
+h1, h2, h3 {
+    color: var(--inv-primary);
+    font-family: var(--inv-font-heading);
+    font-weight: 500;
+    line-height: 1.15;
+}
+
+h1 { font-size: 3rem; }
+h2 { font-size: 2.2rem; }
+h3 { font-size: 1.5rem; }
+
+.center { max-width: 34rem; margin-inline: auto; padding-inline: 1.5rem; text-align: center; }
+.eyebrow { font-size: 0.8rem; letter-spacing: 0.25em; text-transform: uppercase; }
+.opening { font-family: var(--inv-font-heading); font-size: 1.3rem; font-style: italic; }
+
+.cover { position: relative; display: grid; min-height: 100svh; place-items: center; text-align: center; }
+.cover__photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.cover__text { position: relative; margin: 1.5rem; padding: 2rem; border-radius: var(--inv-radius); background: var(--inv-surface); }
+.guest { margin-top: 1rem; font-size: 0.9rem; }
+
+.person { margin-top: 2rem; }
+.person img { width: 10rem; height: 10rem; margin-inline: auto; border-radius: 50%; object-fit: cover; }
+
+.card { margin-top: 1.25rem; padding: 1.5rem; border-radius: var(--inv-radius); background: var(--inv-surface); }
+
+.button {
+    display: inline-block;
+    min-height: 44px;
+    margin-top: 1rem;
+    padding: 0.7rem 1.4rem;
+    border-radius: var(--inv-radius);
+    background: var(--inv-primary);
+    color: var(--inv-on-primary);
+}

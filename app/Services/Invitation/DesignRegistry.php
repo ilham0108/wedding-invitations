@@ -2,10 +2,13 @@
 
 namespace App\Services\Invitation;
 
+use App\Models\UploadedDesign;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\View;
 
 /**
- * Read-only access to the design packs in config('invitation.designs').
+ * Read-only access to the design packs in config('invitation.designs') and the designs imported from HTML.
  *
  * A design may provide resources/views/designs/{design}/page.blade.php (the page frame)
  * and sections/{type}.blade.php or sections/{type}/{variant}.blade.php (section overrides).
@@ -15,6 +18,11 @@ class DesignRegistry
 {
     public const DEFAULT = 'classic';
 
+    private const UPLOADED_CACHE_KEY = 'designs.uploaded.v1';
+
+    /** @var array<string, array<string, mixed>>|null */
+    private ?array $uploaded = null;
+
     public function __construct(private SectionRegistry $sections) {}
 
     /**
@@ -22,7 +30,68 @@ class DesignRegistry
      */
     public function all(): array
     {
-        return config('invitation.designs');
+        return [...config('invitation.designs'), ...array_map(fn (array $design): array => [
+            'label' => $design['label'],
+            'description' => '',
+            'fonts' => [],
+            'assets' => [],
+            'features' => [],
+        ], $this->uploadedDesigns())];
+    }
+
+    /**
+     * An imported design with its checked markup, or null for the design packs in code.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function uploaded(?string $design): ?array
+    {
+        return $this->uploadedDesigns()[$design] ?? null;
+    }
+
+    /**
+     * The stylesheet of an imported design; design packs load theirs through Vite ("assets").
+     */
+    public function stylesheet(?string $design): ?string
+    {
+        $uploaded = $this->uploaded($design);
+
+        return $uploaded === null ? null : '/storage/'.$uploaded['directory'].'/style.css';
+    }
+
+    public static function flushUploaded(): void
+    {
+        Cache::forget(self::UPLOADED_CACHE_KEY);
+
+        if (app()->resolved(self::class)) {
+            app(self::class)->uploaded = null;
+        }
+    }
+
+    /**
+     * Cached as plain arrays (the cache store refuses PHP objects) and kept for the request.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function uploadedDesigns(): array
+    {
+        if ($this->uploaded !== null) {
+            return $this->uploaded;
+        }
+
+        try {
+            return $this->uploaded = Cache::rememberForever(self::UPLOADED_CACHE_KEY, fn (): array => UploadedDesign::query()
+                ->get()
+                ->mapWithKeys(fn (UploadedDesign $design): array => [$design->key => [
+                    'label' => $design->name,
+                    'directory' => $design->directory,
+                    'sections' => $design->sections,
+                ]])
+                ->all());
+        } catch (QueryException) {
+            // Before the migrations ran there are only the design packs in code.
+            return [];
+        }
     }
 
     public function has(?string $design): bool
@@ -51,6 +120,14 @@ class DesignRegistry
     public function sectionView(string $design, string $type, string $variant): array
     {
         $design = $this->resolve($design);
+        $uploaded = $this->uploaded($design);
+
+        if ($uploaded !== null) {
+            return isset($uploaded['sections'][$type])
+                ? ['view' => 'invitation.uploaded-section', 'native' => true]
+                : ['view' => $this->sections->view($type, $variant), 'native' => false];
+        }
+
         $directory = str_replace('_', '-', $type);
 
         foreach (["designs.{$design}.sections.{$directory}.{$variant}", "designs.{$design}.sections.{$directory}"] as $view) {

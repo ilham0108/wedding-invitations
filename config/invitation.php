@@ -505,6 +505,8 @@ return [
         // Entrance animation of sections and design blocks (.inv-animate), see resources/css/invitation.css.
         'animation' => ['none', 'fade', 'fade-up', 'zoom', 'slide'],
         'animation_speed' => ['slow', 'normal', 'fast'],
+        // How guests move between sections: scrolling down, or swiping sideways page by page (resources/js/page-swipe.js).
+        'scroll_direction' => ['vertical', 'horizontal'],
         // Wide screens, for designs without their own page frame: a phone-width column on a blurred
         // cover photo, the column beside a cover panel (unlocks the "desktop_panel" feature), or full width.
         'desktop_layout' => ['column', 'split', 'full'],
@@ -530,6 +532,7 @@ return [
         'texture' => 'none',
         'animation' => 'none',
         'animation_speed' => 'normal',
+        'scroll_direction' => 'vertical',
         'desktop_layout' => 'column',
     ],
 

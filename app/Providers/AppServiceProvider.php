@@ -6,6 +6,7 @@ use App\Models\Page;
 use App\Models\Plan;
 use App\Models\User;
 use App\Services\FontRegistry;
+use App\Services\Invitation\DesignRegistry;
 use App\Services\LogoService;
 use App\Services\SiteContentService;
 use App\Services\Subscription\SubscriptionLimitService;
@@ -31,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->singleton(DesignRegistry::class);
         // Memoizes plan lookups for one request or queued job.
         $this->app->scoped(SubscriptionLimitService::class);
         // Memoizes the font list (built-in + installed) for one request.

@@ -132,7 +132,7 @@
             @break
 
         @case('images')
-            <ul wire:sort="sortItem('{{ $path }}', $item, $position)" class="grid grid-cols-3 gap-2">
+            <ul wire:sort="sortItem" wire:sort:group-id="{{ $path }}" class="grid grid-cols-3 gap-2">
                 @foreach ((array) $value as $index => $image)
                     <li wire:key="image-{{ $path }}-{{ $index }}-{{ md5($image) }}" wire:sort:item="{{ $index }}" class="group relative">
                         <img src="{{ $image }}" alt="" class="aspect-square w-full cursor-grab rounded-lg border border-line object-cover">
@@ -162,7 +162,7 @@
             @break
 
         @case('colors')
-            <ul wire:sort="sortItem('{{ $path }}', $item, $position)" class="flex flex-wrap gap-2">
+            <ul wire:sort="sortItem" wire:sort:group-id="{{ $path }}" class="flex flex-wrap gap-2">
                 @foreach ((array) $value as $index => $color)
                     <li wire:key="color-{{ $path }}-{{ $index }}" wire:sort:item="{{ $index }}" class="flex items-center gap-1 rounded-lg border border-line p-1">
                         <input type="color" wire:model.live.debounce.500ms="config.{{ $path }}.{{ $index }}" class="h-7 w-8 cursor-pointer rounded border-0 p-0" aria-label="{{ __('Color :n', ['n' => $index + 1]) }}">
@@ -185,7 +185,7 @@
                 @endif
             </div>
 
-            <ul wire:sort="sortItem('{{ $path }}', $item, $position)" class="space-y-3">
+            <ul wire:sort="sortItem" wire:sort:group-id="{{ $path }}" class="space-y-3">
                 @forelse ((array) $value as $index => $item)
                     <li wire:key="item-{{ $path }}-{{ $index }}" wire:sort:item="{{ $index }}" class="rounded-lg border border-line bg-paper/60 p-3">
                         <div class="mb-2 flex items-center justify-between text-xs text-muted">

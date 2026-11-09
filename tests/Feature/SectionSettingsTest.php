@@ -68,7 +68,7 @@ class SectionSettingsTest extends TestCase
             ->set('config.people.0.name', 'John')
             ->call('addItem', 'people')
             ->set('config.people.1.name', 'Jane')
-            ->call('sortItem', 'people', 1, 0);
+            ->call('sortItem', 1, 0, 'people');
 
         $this->assertSame(['Jane', 'John'], array_column($this->configOf($invitation, 'couple')['people'], 'name'));
 

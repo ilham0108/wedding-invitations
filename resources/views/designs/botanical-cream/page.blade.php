@@ -64,7 +64,7 @@
             @include('invitation.partials.scroll-backdrop')
         </div>
 
-        <main class="bc-main">
+        <main class="bc-main" data-inv-pages>
             @forelse ($sections as $section)
                 @if ($section['native'])
                     @include('invitation.partials.section', ['sectionClass' => 'bc-section bc-section--'.$section['type'].' bc-bg-'.$section['background'], 'classic' => false])
@@ -86,7 +86,7 @@
 
             {{-- Plan branding only (free plans); invitations without branding end with their last section. --}}
             @if ($showBranding)
-                <p class="bc-branding">{{ __('Made with') }} <i class="fa-solid fa-heart" aria-hidden="true"></i> <a href="{{ route('home') }}">{{ config('app.name') }}</a></p>
+                <p class="bc-branding" data-inv-branding>{{ __('Made with') }} <i class="fa-solid fa-heart" aria-hidden="true"></i> <a href="{{ route('home') }}">{{ config('app.name') }}</a></p>
             @endif
         </main>
 

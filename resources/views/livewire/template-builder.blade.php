@@ -333,6 +333,21 @@
                             </div>
                         @endif
                     </div>
+                    <div class="mb-6">
+                        <p class="mb-2 text-sm font-medium text-ink">{{ __('How guests move between sections') }}</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            @foreach ($scrollDirections as $key => [$directionLabel, $directionIcon])
+                                <button type="button" wire:click="setDecoration('scroll_direction', '{{ $key }}')"
+                                    @class(['flex min-h-11 items-center justify-center gap-2 rounded-lg border px-2 py-2.5 text-xs', 'border-ink bg-paper font-medium text-ink' => $decoration['scroll_direction'] === $key, 'border-line text-ink-soft hover:border-ink/30' => $decoration['scroll_direction'] !== $key])>
+                                    <i class="{{ $directionIcon }}" aria-hidden="true"></i>{{ __($directionLabel) }}
+                                </button>
+                            @endforeach
+                        </div>
+                        @if ($decoration['scroll_direction'] === 'horizontal')
+                            <p class="mt-2 text-xs text-muted">{{ __('Each section becomes a page. A section longer than the screen scrolls down inside its page.') }}</p>
+                        @endif
+                    </div>
+
                     @include('livewire.partials.theme-panel')
                 @elseif ($panel === 'music')
                     @include('livewire.partials.template-music-panel')
@@ -397,7 +412,7 @@
                             <div class="space-y-2">
                                 <label for="section-{{ $fontKey }}" class="block text-sm font-medium text-ink">{{ $fontLabel }}</label>
                                 <select id="section-{{ $fontKey }}" x-on:change="$wire.setSectionFont('{{ $selectedSection['key'] }}', '{{ $fontKey }}', $event.target.value)"
-                                    class="block w-full rounded-lg border-line text-sm focus:border-sage focus:ring-sage">
+                                    class="block min-h-11 w-full rounded-lg border-line text-sm focus:border-sage focus:ring-sage">
                                     <option value="default">{{ __('Follow the theme (:font)', ['font' => $theme[$fontKey] ?? '']) }}</option>
                                     @foreach ($fontsByCategory as $category => $fonts)
                                         <optgroup label="{{ __(ucfirst($category)) }}">
@@ -410,7 +425,7 @@
                                 <div class="flex items-center gap-3">
                                     <label for="section-{{ $weightKey }}" class="shrink-0 text-xs text-ink-soft">{{ $weightLabel }}</label>
                                     <select id="section-{{ $weightKey }}" x-on:change="$wire.setSectionFont('{{ $selectedSection['key'] }}', '{{ $weightKey }}', $event.target.value)"
-                                        class="block w-full rounded-lg border-line py-1.5 text-xs focus:border-sage focus:ring-sage">
+                                        class="block min-h-11 w-full rounded-lg border-line py-1.5 text-xs focus:border-sage focus:ring-sage">
                                         <option value="default">{{ __('Follow the theme') }}</option>
                                         @foreach ($sectionFontWeights[$weightKey] as $weight)
                                             <option value="{{ $weight }}" @selected(($selectedSection['fonts'][$weightKey] ?? null) === $weight)>{{ $weight }} · {{ $weightNames[$weight] ?? $weight }}</option>

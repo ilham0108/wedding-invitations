@@ -376,6 +376,85 @@ body [data-inv-body-weight] {
     transition: none !important;
 }
 
+/* Social links keep their small circle; the invisible box gives a thumb the full 44px. */
+.inv-social-link { position: relative; }
+
+.inv-social-link::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+}
+
+/*
+| Swipe between sections (decoration "scroll_direction" = horizontal, resources/js/page-swipe.js). Each section is
+| one page of a strip that snaps page by page; a section longer than the screen scrolls down inside its page.
+*/
+body[data-inv-scroll='horizontal'] {
+    height: 100svh;
+    overflow: hidden;
+}
+
+body[data-inv-scroll='horizontal'] [data-inv-pages] {
+    display: flex;
+    height: 100svh;
+    padding-bottom: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+}
+
+body[data-inv-scroll='horizontal'] [data-inv-pages]::-webkit-scrollbar { display: none; }
+body[data-inv-scroll='horizontal']:has(.inv-preview-bar) [data-inv-pages] { height: calc(100svh - 40px); }
+
+body[data-inv-scroll='horizontal'] [data-inv-pages] > section {
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+}
+
+body[data-inv-scroll='horizontal'] [data-inv-pages] > section:not(.inv-section--screen) {
+    display: flex;
+    flex-direction: column;
+    justify-content: safe center;
+}
+
+body[data-inv-scroll='horizontal'] [data-inv-pages] > section > .inv-section-body { width: 100%; }
+
+/* Above the fixed bottom menus of the design packs, and readable over any cover photo. */
+.inv-page-hint {
+    position: fixed;
+    bottom: 80px;
+    z-index: 45;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.inv-page-hint[hidden] { display: none; }
+.inv-page-hint.is-hidden { opacity: 0; }
+
+.inv-page-hint span {
+    padding: 0.3rem 0.85rem;
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--inv-surface) 60%, transparent);
+    color: color-mix(in srgb, var(--inv-text) 80%, transparent);
+    font-size: 0.75rem;
+}
+
+body.mg-locked .inv-page-hint { display: none; }
+
 /*
 | Event layout "List" (classic): an icon column beside each event, rows separated by a line in the accent color.
 */

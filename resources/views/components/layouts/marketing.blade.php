@@ -31,9 +31,10 @@
 
     <header class="sticky top-0 z-40 border-b border-olive-line/70 bg-cream/95" x-data="{ open: false }" x-on:keydown.escape.window="open = false">
         <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:h-[4.5rem] sm:px-6">
-            <a href="{{ route('home') }}" aria-label="{{ config('app.name') }}" class="shrink-0">
+            {{-- The logo gives way on narrow phones, so an uploaded wide logo never widens the page. --}}
+            <a href="{{ route('home') }}" aria-label="{{ config('app.name') }}" class="min-w-0">
                 @if ($hasUploadedLogo)
-                    <x-logo height="h-10" />
+                    <x-logo height="h-10" class="max-w-full object-contain object-left" />
                 @else
                     <x-marketing.brand />
                 @endif
@@ -45,17 +46,17 @@
                 @endforeach
             </nav>
 
-            <div class="flex items-center gap-1 sm:gap-3">
+            <div class="flex shrink-0 items-center gap-1 sm:gap-3">
                 @auth
-                    <a href="{{ auth()->user()->isSuperAdmin() ? route('admin.dashboard') : route('dashboard') }}" class="inline-flex h-11 items-center rounded-full bg-olive px-5 text-[0.85rem] font-medium text-white transition hover:bg-olive-dark">{{ __('Dashboard') }}</a>
+                    <a href="{{ auth()->user()->isSuperAdmin() ? route('admin.dashboard') : route('dashboard') }}" class="inline-flex h-11 items-center whitespace-nowrap rounded-full bg-olive px-4 text-[0.85rem] font-medium text-white transition hover:bg-olive-dark sm:px-5">{{ __('Dashboard') }}</a>
                 @else
                     <a href="{{ route('login') }}" class="hidden py-2 text-[0.85rem] text-ink-soft hover:text-ink sm:inline">{{ __('Log in') }}</a>
                     <a href="{{ route('register') }}" class="inline-flex h-11 items-center whitespace-nowrap rounded-full bg-olive px-4 text-[0.85rem] font-medium text-white transition hover:bg-olive-dark sm:px-5">{{ __('Create Invitation') }}</a>
                 @endauth
-                {{-- Labelled, so the menu is discoverable on phones. --}}
+                {{-- Labelled from 430px; narrower phones keep the bars icon and the screen-reader label. --}}
                 <button type="button" class="flex h-11 items-center gap-2 rounded-full px-2.5 text-[0.85rem] text-ink transition hover:bg-olive-soft lg:hidden" x-on:click="open = ! open" x-bind:aria-expanded="open" aria-controls="mk-mobile-menu">
                     <i class="fa-solid" x-bind:class="open ? 'fa-xmark' : 'fa-bars'" aria-hidden="true"></i>
-                    <span class="max-[379px]:sr-only">{{ __('Menu') }}</span>
+                    <span class="max-[429px]:sr-only">{{ __('Menu') }}</span>
                 </button>
             </div>
         </div>

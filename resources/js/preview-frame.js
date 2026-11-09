@@ -15,7 +15,13 @@ export function scrollPreviewTo(frame, key, behavior = 'smooth') {
         if (target) {
             // Lets designs react first, e.g. Mocha Glass shows its cover for the cover section.
             win.dispatchEvent(new win.CustomEvent('inv-preview-section', { detail: { key } }));
-            win.scrollTo({ top: target.getBoundingClientRect().top + win.scrollY - OFFSET, behavior });
+
+            // Invitations that swipe sideways move their own page strip instead of the window.
+            if (win.invPages) {
+                win.invPages.go(target, behavior);
+            } else {
+                win.scrollTo({ top: target.getBoundingClientRect().top + win.scrollY - OFFSET, behavior });
+            }
         }
     } catch {
         // The frame is still loading or not same-origin: the next reload carries the anchor instead.

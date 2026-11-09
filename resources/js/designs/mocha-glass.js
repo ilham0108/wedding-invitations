@@ -31,6 +31,7 @@ function closeInvitation() {
     document.body.classList.add('mg-locked');
     document.body.classList.remove('mg-is-open');
     window.scrollTo(0, 0);
+    window.invPages?.pages.scrollTo({ left: 0, behavior: 'auto' });
 }
 
 /**
@@ -79,6 +80,11 @@ function setupMenu() {
     }
 
     const update = () => {
+        // Swiping sideways: "inv-page-change" below keeps the menu current.
+        if (window.invPages) {
+            return;
+        }
+
         const line = window.scrollY + window.innerHeight * 0.4;
         let current = 0;
 
@@ -93,6 +99,12 @@ function setupMenu() {
 
     window.addEventListener('scroll', update, { passive: true });
     update();
+
+    window.addEventListener('inv-page-change', ({ detail }) => {
+        const current = targets.reduce((found, target, index) => ([...target.parentElement.children].indexOf(target) <= detail.index ? index : found), 0);
+
+        links.forEach((link, index) => link.classList.toggle('is-active', index === current));
+    });
 }
 
 function setupParticles() {

@@ -28,6 +28,7 @@ window.mkDemo = (options, initialSlug) => ({
                 key: element.id.replace(/^section-/, ''),
             }));
             frame.contentWindow.addEventListener('scroll', () => this.track(), { passive: true });
+            frame.contentWindow.addEventListener('inv-page-change', () => this.track());
         } catch {
             this.sections = [];
         }
@@ -66,7 +67,9 @@ window.mkDemo = (options, initialSlug) => ({
         for (const section of this.sections) {
             const element = win.document.getElementById(`section-${section.key}`);
 
-            if (element && element.getBoundingClientRect().top <= line) {
+            const box = element?.getBoundingClientRect();
+
+            if (box && (win.invPages ? box.left < win.innerWidth / 2 : box.top <= line)) {
                 current = section;
             }
         }

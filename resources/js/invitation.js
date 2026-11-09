@@ -1,5 +1,6 @@
 // Public invitation bundle: Alpine only, no Livewire, kept small for fast mobile loads.
 import Alpine from 'alpinejs';
+import { setupPageSwipe } from './page-swipe';
 import { setupPhotoFrames } from './photo-frame';
 
 const pad = (value) => String(Math.max(0, value)).padStart(2, '0');
@@ -78,6 +79,25 @@ function setupAnimations() {
     elements.forEach((element) => observer.observe(element));
 }
 
+setupPageSwipe();
+
+// Imported designs: data-inv-effect="next" moves to the following section.
+document.addEventListener('click', (event) => {
+    const next = event.target.closest?.('[data-inv-next]')?.closest('section')?.nextElementSibling;
+
+    if (! next) {
+        return;
+    }
+
+    event.preventDefault();
+
+    if (window.invPages) {
+        window.invPages.go(next);
+    } else {
+        window.scrollTo({ top: next.getBoundingClientRect().top + window.scrollY, behavior: 'smooth' });
+    }
+});
+
 setupAnimations();
 setupPhotoFrames();
 
@@ -101,13 +121,18 @@ function setupScrollBackdrop() {
         }
     };
 
+    const pages = window.invPages?.pages;
+
     const update = () => {
         const line = window.innerHeight * 0.5;
+        const middle = pages ? pages.getBoundingClientRect().left + pages.clientWidth * 0.5 : 0;
         let photo = null;
         let overlay = null;
 
         for (const section of sections) {
-            if (section.getBoundingClientRect().top > line) {
+            const box = section.getBoundingClientRect();
+
+            if (pages ? box.left >= middle : box.top > line) {
                 break;
             }
 
@@ -141,7 +166,7 @@ function setupScrollBackdrop() {
     };
 
     let queued = false;
-    window.addEventListener('scroll', () => {
+    (pages ?? window).addEventListener('scroll', () => {
         if (! queued) {
             queued = true;
             window.requestAnimationFrame(() => {

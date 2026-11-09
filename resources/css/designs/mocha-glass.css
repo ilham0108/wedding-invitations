@@ -469,6 +469,9 @@
 
 .mg-section--cover { padding-top: 40px; padding-bottom: 40px; }
 
+/* Swiping sideways: every page keeps clear of the fixed bottom menu. */
+body[data-inv-scroll='horizontal'] .mg-section:not(.mg-section--cover) { padding-bottom: 110px; }
+
 /* The first screen ends above the fixed bottom menu (.mg-nav: 14px offset + 54px tall + a gap),
    and the guest line sits at its bottom, so the menu never covers "To: ...". */
 .mg-home {
@@ -1325,7 +1328,7 @@ body:has(.inv-preview-bar) .mg-home { min-height: calc(100svh - 40px - 84px - 40
 
 .mg-person--compact h3 { font-size: 1.15rem; }
 .mg-person--compact .mg-person__parents { font-size: 0.85rem; }
-.mg-person--compact .mg-socials { justify-content: center; }
+.mg-person--compact .mg-socials { justify-content: center; gap: 12px; }
 
 .mg-person--compact .mg-socials__link {
     width: 32px;

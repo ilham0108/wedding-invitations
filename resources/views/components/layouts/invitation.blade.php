@@ -35,10 +35,14 @@
     {{-- Values are whitelisted/validated by ThemeResolver before reaching this block. --}}
     <style>:root { {!! $invitation->cssVariables !!} }</style>
 
+    @php($uploadedStylesheet = app(\App\Services\Invitation\DesignRegistry::class)->stylesheet($invitation->design))
     @if ($static)
         @vite(['resources/css/invitation.css', ...array_filter($invitation->assets, fn (string $asset): bool => str_ends_with($asset, '.css'))])
     @else
         @vite(['resources/css/invitation.css', 'resources/js/invitation.js', ...$invitation->assets])
+    @endif
+    @if ($uploadedStylesheet)
+        <link rel="stylesheet" href="{{ $uploadedStylesheet }}">
     @endif
 </head>
 
@@ -53,6 +57,7 @@
     {{-- Theme font weights, only when chosen (values come from --inv-heading-weight / --inv-body-weight). --}}
     @if (($invitation->theme['heading_weight'] ?? 'default') !== 'default') data-inv-heading-weight="{{ $invitation->theme['heading_weight'] }}" @endif
     @if (($invitation->theme['body_weight'] ?? 'default') !== 'default') data-inv-body-weight="{{ $invitation->theme['body_weight'] }}" @endif
+    data-inv-scroll="{{ $static ? 'vertical' : ($invitation->decoration['scroll_direction'] ?? 'vertical') }}"
     data-inv-divider-size="{{ $invitation->decoration['divider_size'] ?? 'medium' }}"
     @php($ornamentImages = array_filter([
         '--inv-heading-ornament' => $invitation->decoration['heading_ornament_url'] ?? null,
@@ -60,6 +65,11 @@
     ], 'filled'))
     @if ($ornamentImages !== []) style="{{ collect($ornamentImages)->map(fn (string $url, string $name): string => $name.': '.\App\Support\CssUrl::wrap($url))->implode('; ') }}" @endif>
     {{ $slot }}
+
+    @if (! $static && ($invitation->decoration['scroll_direction'] ?? 'vertical') === 'horizontal')
+        {{-- Tells guests how to move on; resources/js/page-swipe.js places it and hides it after the first page. --}}
+        <p class="inv-page-hint" data-inv-page-hint hidden><span>{{ __('Swipe or scroll to continue') }}</span></p>
+    @endif
 </body>
 
 </html>

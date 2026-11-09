@@ -20,6 +20,11 @@
                 {{ __('Import') }}
                 <input type="file" name="package" accept=".zip,application/zip" wire:model="package" class="sr-only">
             </label>
+            @if (auth()->user()->isSuperAdmin())
+                <a href="{{ route('admin.templates.import-html') }}" class="inline-flex items-center gap-2 rounded-lg border border-line bg-white px-4 py-2 text-sm font-medium text-ink hover:bg-paper">
+                    <i class="fa-solid fa-code" aria-hidden="true"></i>{{ __('Import HTML') }}
+                </a>
+            @endif
             <x-ui.button type="button" icon="fa-solid fa-plus" wire:click="create">{{ __('New template') }}</x-ui.button>
         </div>
     </div>

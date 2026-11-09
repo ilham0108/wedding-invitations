@@ -554,6 +554,7 @@ class TemplateBuilder extends Component
                 'slide' => ['Slide in', 'fa-solid fa-right-left'],
             ],
             'animationSpeeds' => ['slow' => 'Slow', 'normal' => 'Normal', 'fast' => 'Fast'],
+            'scrollDirections' => ['vertical' => ['Up and down', 'fa-solid fa-arrows-up-down'], 'horizontal' => ['Sideways', 'fa-solid fa-arrows-left-right']],
             'ornamentIllustrations' => $this->ornamentPicker
                 ? Illustration::query()->active()->where('category', IllustrationCategory::Ornament)->ordered()->get()
                 : collect(),

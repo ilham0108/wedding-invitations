@@ -26,6 +26,9 @@ function setupTopbar() {
 
     window.addEventListener('scroll', update, { passive: true });
     update();
+
+    // Swiping sideways: a solid bar on every page after the first.
+    window.addEventListener('inv-page-change', ({ detail }) => topbar.classList.toggle('is-scrolled', detail.index > 0));
 }
 
 function setupBottomMenu() {
@@ -37,6 +40,11 @@ function setupBottomMenu() {
     }
 
     const update = () => {
+        // Swiping sideways: "inv-page-change" below keeps the menu current.
+        if (window.invPages) {
+            return;
+        }
+
         const line = window.scrollY + window.innerHeight * 0.4;
         let current = 0;
 
@@ -51,6 +59,12 @@ function setupBottomMenu() {
 
     window.addEventListener('scroll', update, { passive: true });
     update();
+
+    window.addEventListener('inv-page-change', ({ detail }) => {
+        const current = targets.reduce((found, target, index) => ([...target.parentElement.children].indexOf(target) <= detail.index ? index : found), 0);
+
+        links.forEach((link, index) => link.classList.toggle('is-active', index === current));
+    });
 }
 
 function setupFullMenu() {
@@ -89,8 +103,10 @@ function setupScrollDown() {
 
         const next = event.currentTarget.closest('[data-section]')?.nextElementSibling;
 
-        // window.scrollTo, not scrollIntoView(): inside the editor preview iframe the latter also scrolls the editor page.
-        if (next) {
+        if (next && window.invPages) {
+            window.invPages.go(next);
+        } else if (next) {
+            // window.scrollTo, not scrollIntoView(): inside the editor preview iframe the latter also scrolls the editor page.
             window.scrollTo({
                 top: next.getBoundingClientRect().top + window.scrollY - 58,
                 behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',

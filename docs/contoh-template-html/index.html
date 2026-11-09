@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Contoh desain</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<section id="cover" class="cover">
+    <img class="cover__photo" data-inv-field="background_image" src="assets/sampul.png" alt="">
+    <div class="cover__text">
+        <p class="eyebrow" data-inv-field="subtitle">The Wedding Of</p>
+        <h1 data-inv-field="title">Alya &amp; Pradana</h1>
+        <p data-inv-field="date_text">Sabtu, 12 Desember 2026</p>
+        <p class="guest">Kepada: <inv-guest-name></inv-guest-name></p>
+        <a class="button" href="#" data-inv-field="button_label" data-inv-effect="next">Buka Undangan</a>
+    </div>
+</section>
+
+<section id="greeting" class="center">
+    <p class="opening" data-inv-field="opening">Bismillahirrahmanirrahim</p>
+    <p data-inv-field="message">Dengan penuh rasa syukur, kami mengundang Bapak/Ibu/Saudara/i untuk hadir pada pernikahan kami.</p>
+    <h2 data-inv-field="names">Alya Salsabila &amp; Pradana Wicaksana</h2>
+</section>
+
+<section id="couple" class="center">
+    <h2 data-inv-field="heading">Mempelai</h2>
+    <article class="person" data-inv-repeat="people" data-inv-effect="animate">
+        <img data-inv-field="photo" src="assets/sampul.png" alt="">
+        <h3 data-inv-field="name">Alya Salsabila</h3>
+        <p data-inv-field="parents">Putri dari Bapak Rudi dan Ibu Siti</p>
+    </article>
+    <article class="person" data-inv-repeat="people" data-inv-effect="animate">
+        <img data-inv-field="photo" src="assets/sampul.png" alt="">
+        <h3 data-inv-field="name">Pradana Wicaksana</h3>
+        <p data-inv-field="parents">Putra dari Bapak Arif dan Ibu Nurhayati</p>
+    </article>
+</section>
+
+<section id="event" class="center">
+    <h2 data-inv-field="heading">Waktu &amp; Tempat</h2>
+    <article class="card" data-inv-repeat="events">
+        <h3 data-inv-field="title">Akad Nikah</h3>
+        <p data-inv-field="date" data-inv-value="2026-12-12">Sabtu, 12 Desember 2026</p>
+        <p>Pukul <span data-inv-field="start_time">08:00</span></p>
+        <p data-inv-field="venue">The Heritage Ballroom</p>
+        <a class="button" data-inv-field="maps_url" href="https://maps.google.com/?q=Yogyakarta">Lihat Lokasi</a>
+    </article>
+    <article class="card" data-inv-repeat="events">
+        <h3 data-inv-field="title">Resepsi</h3>
+        <p data-inv-field="date" data-inv-value="2026-12-12">Sabtu, 12 Desember 2026</p>
+        <p>Pukul <span data-inv-field="start_time">11:00</span></p>
+        <p data-inv-field="venue">The Heritage Ballroom</p>
+        <a class="button" data-inv-field="maps_url" href="https://maps.google.com/?q=Yogyakarta">Lihat Lokasi</a>
+    </article>
+</section>
+
+<section id="closing" class="center">
+    <h2 data-inv-field="heading">Terima Kasih</h2>
+    <p data-inv-field="message">Merupakan suatu kehormatan apabila Bapak/Ibu/Saudara/i berkenan hadir.</p>
+    <p class="opening" data-inv-field="signature">Alya &amp; Pradana</p>
+</section>
+
+</body>
+</html>

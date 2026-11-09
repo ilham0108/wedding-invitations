@@ -5,7 +5,7 @@
 @if (! empty($links))
     <div class="{{ $wrapperClass ?? 'mt-4 flex justify-center gap-2' }}">
         @foreach ($links as $network => $url)
-            <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $labels[$network] }}" class="{{ $class ?? 'flex h-9 w-9 items-center justify-center rounded-full inv-card text-sm' }}">
+            <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $labels[$network] }}" class="inv-social-link {{ $class ?? 'flex h-9 w-9 items-center justify-center rounded-full inv-card text-sm' }}">
                 <i class="{{ $icons[$network] }}" aria-hidden="true"></i>
             </a>
         @endforeach

@@ -25,7 +25,7 @@
             <div class="inv-page__column">
                 @include('invitation.partials.scroll-backdrop', ['class' => 'inv-backdrop--page'])
 
-                <main>
+                <main data-inv-pages>
                     @forelse ($invitation->sections as $section)
                         @include('invitation.partials.section')
                     @empty
@@ -36,7 +36,7 @@
                 </main>
 
                 @if ($showBranding ?? true)
-                    <footer class="py-8 text-center text-xs inv-muted">
+                    <footer class="py-8 text-center text-xs inv-muted" data-inv-branding>
                         {{ __('Made with') }} <a href="{{ route('home') }}" class="underline underline-offset-2">{{ config('app.name') }}</a>
                     </footer>
                 @endif

@@ -57,4 +57,14 @@ class LivewireReservedNamesTest extends TestCase
 
         return $names[1];
     }
+
+    public function test_sort_handlers_do_not_pass_item_or_position_by_name(): void
+    {
+        // Livewire rewrites them to $wire.$item, so the server would receive null. See EditsSectionFields::sortItem().
+        $views = File::allFiles(resource_path('views'));
+
+        foreach ($views as $view) {
+            $this->assertDoesNotMatchRegularExpression('/wire:sort="[^"]*\$(item|position)/', $view->getContents(), $view->getRelativePathname());
+        }
+    }
 }

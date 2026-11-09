@@ -83,9 +83,11 @@ trait EditsSectionFields
     }
 
     /**
-     * wire:sort handler shared by repeaters, galleries, and palettes ("$path" is bound per list).
+     * wire:sort handler shared by repeaters, galleries, and palettes. Livewire passes the dragged item and its new
+     * position, then the list's wire:sort:group-id ("$path"). Do not write wire:sort="sortItem('path', $item, $position)":
+     * Livewire rewrites $item to $wire.$item there, and the server receives null.
      */
-    public function sortItem(string $path, int|string $index, int $position): void
+    public function sortItem(int|string $index, int $position, string $path): void
     {
         $items = array_values(Arr::get($this->config, $path, []));
         $index = (int) $index;

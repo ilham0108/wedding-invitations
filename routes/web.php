@@ -122,6 +122,7 @@ Route::middleware(['auth', 'active', 'verified'])->group(function () {
         Route::get('/illustrations', [IllustrationController::class, 'index'])->name('illustrations.index');
         Route::get('/music', [MusicController::class, 'index'])->name('music.index');
         Route::get('/fonts', [FontController::class, 'index'])->name('fonts.index');
+        Route::view('/templates/import-html', 'admin.templates.import-html')->name('templates.import-html');
         Route::get('/plans', [PlanController::class, 'index'])->name('plans.index');
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/payments', [OrderController::class, 'payments'])->name('payments.index');

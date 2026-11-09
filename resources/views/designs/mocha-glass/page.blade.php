@@ -81,7 +81,7 @@
             @include('invitation.partials.scroll-backdrop')
         </div>
 
-        <div class="mg-content">
+        <div class="mg-content" data-inv-pages>
             @forelse ($sections as $section)
                 @if ($section['native'])
                     @include('invitation.partials.section', ['sectionClass' => 'mg-section mg-section--'.$section['type'].' mg-bg-'.$section['background'], 'classic' => false, 'solidTypes' => ['quote']])
@@ -102,7 +102,7 @@
             @endforelse
 
             @if ($showBranding)
-                <p class="mg-branding">{{ __('Made with') }} <a href="{{ route('home') }}">{{ config('app.name') }}</a></p>
+                <p class="mg-branding" data-inv-branding>{{ __('Made with') }} <a href="{{ route('home') }}">{{ config('app.name') }}</a></p>
             @endif
         </div>
     </main>
