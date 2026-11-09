@@ -483,7 +483,7 @@ body:has(.inv-preview-bar) .bc-topbar { top: 40px; }
 .bc-section--cover { padding: 0; }
 
 /* Swiping sideways: every page keeps clear of the fixed top bar and bottom menu. */
-body[data-inv-scroll='horizontal'] .bc-section:not(.bc-section--cover) { padding-block: 72px calc(var(--bc-nav-h) + 32px); }
+body[data-inv-scroll='horizontal'] .bc-section:not(.bc-section--cover) { --inv-page-margin: 72px 24px calc(var(--bc-nav-h) + 32px); }
 
 /* The page hint (invitation.css) replaces the "scroll down" cue. */
 body[data-inv-scroll='horizontal'] .bc-scroll { display: none; }

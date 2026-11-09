@@ -470,7 +470,8 @@
 .mg-section--cover { padding-top: 40px; padding-bottom: 40px; }
 
 /* Swiping sideways: every page keeps clear of the fixed bottom menu. */
-body[data-inv-scroll='horizontal'] .mg-section:not(.mg-section--cover) { padding-bottom: 110px; }
+body[data-inv-scroll='horizontal'] .mg-section:not(.mg-section--cover) { --inv-page-margin: 56px 24px 110px; }
+body[data-inv-scroll='horizontal'] .mg-section--cover { --inv-page-margin: 40px 24px; }
 
 /* The first screen ends above the fixed bottom menu (.mg-nav: 14px offset + 54px tall + a gap),
    and the guest line sits at its bottom, so the menu never covers "To: ...". */

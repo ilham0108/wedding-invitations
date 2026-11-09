@@ -423,13 +423,36 @@ body[data-inv-scroll='horizontal'] [data-inv-pages] > section {
     scroll-snap-stop: always;
 }
 
-body[data-inv-scroll='horizontal'] [data-inv-pages] > section:not(.inv-section--screen) {
-    display: flex;
-    flex-direction: column;
-    justify-content: safe center;
+/*
+| The body and the ornament layers share one grid cell at least a page tall, so on a long section the ornaments
+| span the whole content instead of one screen. Spacing is a margin on the body (--inv-page-margin), set per design.
+*/
+body[data-inv-scroll='horizontal'] [data-inv-pages] > section {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    padding: 0;
 }
 
-body[data-inv-scroll='horizontal'] [data-inv-pages] > section > .inv-section-body { width: 100%; }
+body[data-inv-scroll='horizontal'] [data-inv-pages] > section > * { grid-area: 1 / 1; }
+
+body[data-inv-scroll='horizontal'] [data-inv-pages] > section > .inv-section-body {
+    position: relative;
+    z-index: 1;
+    width: auto;
+    margin: var(--inv-page-margin, 0);
+    align-self: safe center;
+}
+
+body[data-inv-scroll='horizontal'] [data-inv-pages] > .inv-section--screen-top > .inv-section-body { align-self: start; }
+body[data-inv-scroll='horizontal'] [data-inv-pages] > .inv-section--screen-bottom > .inv-section-body { align-self: end; }
+
+body[data-inv-scroll='horizontal'] [data-inv-pages] > section > .inv-ornaments {
+    position: relative;
+    inset: auto;
+}
+
+body[data-inv-scroll='horizontal'] [data-inv-pages] > section.inv-section { --inv-page-margin: var(--inv-spacing) 0; }
 
 /* Above the fixed bottom menus of the design packs, and readable over any cover photo. */
 .inv-page-hint {

@@ -19,7 +19,8 @@ export function setupPageSwipe() {
     const sections = [...pages.querySelectorAll(':scope > section')];
 
     // The "Made with" line sits after the sections; on its own it would become a page.
-    document.querySelectorAll('[data-inv-branding]').forEach((line) => sections.at(-1)?.append(line));
+    const lastPage = sections.at(-1);
+    document.querySelectorAll('[data-inv-branding]').forEach((line) => (lastPage?.querySelector(':scope > .inv-section-body') ?? lastPage)?.append(line));
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const hint = document.querySelector('[data-inv-page-hint]');
