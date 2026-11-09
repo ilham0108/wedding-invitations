@@ -686,6 +686,38 @@ body [data-inv-heading-color] :is(
     translate: 0 var(--inv-title-offset, 0);
 }
 
+/*
+| Section title alignment (section "heading_align", builder Section panel). The line or ornament under the title
+| follows it; !important because the divider and ornament rules center it with long selectors.
+*/
+:is(.inv-heading-align--left, .inv-heading-align--center, .inv-heading-align--right) .inv-section-body h2 { align-self: stretch; }
+
+.inv-heading-align--left .inv-section-body :is(h2, .bc-heading) { text-align: left; }
+.inv-heading-align--center .inv-section-body :is(h2, .bc-heading) { text-align: center; }
+.inv-heading-align--right .inv-section-body :is(h2, .bc-heading) { text-align: right; }
+
+.inv-heading-align--left .inv-section-body h2::after,
+.inv-heading-align--left .inv-section-body .bc-heading .bc-sprig { margin-inline: 0 auto !important; }
+
+.inv-heading-align--center .inv-section-body h2::after,
+.inv-heading-align--center .inv-section-body .bc-heading .bc-sprig { margin-inline: auto !important; }
+
+.inv-heading-align--right .inv-section-body h2::after,
+.inv-heading-align--right .inv-section-body .bc-heading .bc-sprig { margin-inline: auto 0 !important; }
+
+/* Ornaments are centered inside their own box; move the picture to the same side as the box. */
+.inv-heading-align--left .inv-section-body h2::after {
+    background-position: left center !important;
+    -webkit-mask-position: left center !important;
+    mask-position: left center !important;
+}
+
+.inv-heading-align--right .inv-section-body h2::after {
+    background-position: right center !important;
+    -webkit-mask-position: right center !important;
+    mask-position: right center !important;
+}
+
 .inv-heading-size--smaller { --inv-section-heading-scale: 0.88; }
 .inv-heading-size--larger { --inv-section-heading-scale: 1.15; }
 .inv-heading-size--largest { --inv-section-heading-scale: 1.3; }

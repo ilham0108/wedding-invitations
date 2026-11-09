@@ -73,7 +73,7 @@
                     <section id="section-{{ $section['key'] }}" data-section="{{ $section['type'] }}"
                         @include('invitation.partials.backdrop-attributes')
                         @include('invitation.partials.section-style')
-                        @class(['bc-section bc-bg-'.$section['background'], 'inv-has-ornaments' => ! empty($section['ornaments']), 'inv-section--screen inv-section--'.$section['height'] => $section['height'] !== 'auto', 'inv-heading-size--'.$section['heading_size'] => $section['heading_size'] !== 'default', 'inv-text-size--'.$section['text_size'] => $section['text_size'] !== 'default'])>
+                        @class(['bc-section bc-bg-'.$section['background'], 'inv-has-ornaments' => ! empty($section['ornaments']), 'inv-section--screen inv-section--'.$section['height'] => $section['height'] !== 'auto', 'inv-heading-size--'.$section['heading_size'] => $section['heading_size'] !== 'default', 'inv-heading-align--'.$section['heading_align'] => $section['heading_align'] !== 'default', 'inv-text-size--'.$section['text_size'] => $section['text_size'] !== 'default'])>
                         <div class="inv-section-body bc-card bc-classic inv-animate">
                             @include($section['view'], ['config' => $section['config'], 'variant' => $section['variant']])
                         </div>

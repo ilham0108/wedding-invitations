@@ -112,7 +112,7 @@ class TemplateBuilder extends Component
         }
 
         $key = $this->newKey();
-        $this->sections[] = ['key' => $key, 'type' => $type, 'variant' => $registry->resolveVariant($type, null), 'background' => 'default', 'height' => 'auto', 'heading_size' => 'default', 'text_size' => 'default', 'fonts' => [], 'colors' => [], 'ornaments' => [], 'desktop_ornaments' => []];
+        $this->sections[] = ['key' => $key, 'type' => $type, 'variant' => $registry->resolveVariant($type, null), 'background' => 'default', 'height' => 'auto', 'heading_size' => 'default', 'heading_align' => 'default', 'text_size' => 'default', 'fonts' => [], 'colors' => [], 'ornaments' => [], 'desktop_ornaments' => []];
         $this->selected = $key;
         $this->panel = 'section';
         $this->persistSections();
@@ -202,6 +202,24 @@ class TemplateBuilder extends Component
                 'owner' => 'preview-'.$index,
                 'prefix' => $which === 'heading_size' ? 'inv-heading-size--' : 'inv-text-size--',
                 'value' => $size === 'default' ? null : $size,
+            ]);
+        }
+    }
+
+    /**
+     * Alignment of one section's title; "default" keeps the design's own.
+     */
+    public function setHeadingAlign(string $key, string $align): void
+    {
+        $index = $this->sectionIndex($key);
+
+        if (in_array($align, TemplateSchema::HEADING_ALIGNS, true)) {
+            $this->sections[$index]['heading_align'] = $align;
+            $this->persistSections(fn (): array => [
+                'kind' => 'section-class',
+                'owner' => 'preview-'.$index,
+                'prefix' => 'inv-heading-align--',
+                'value' => $align === 'default' ? null : $align,
             ]);
         }
     }
@@ -624,6 +642,7 @@ class TemplateBuilder extends Component
                 'background' => $section['background'] ?? 'default',
                 'height' => $section['height'] ?? 'auto',
                 'heading_size' => $section['heading_size'] ?? 'default',
+                'heading_align' => $section['heading_align'] ?? 'default',
                 'text_size' => $section['text_size'] ?? 'default',
                 'fonts' => app(SectionFonts::class)->clean($section['fonts']),
                 'colors' => app(SectionColors::class)->clean($section['colors']),
@@ -653,6 +672,7 @@ class TemplateBuilder extends Component
             'background' => $section['background'],
             'height' => $section['height'] ?? 'auto',
             'heading_size' => $section['heading_size'] ?? 'default',
+            'heading_align' => $section['heading_align'] ?? 'default',
             'text_size' => $section['text_size'] ?? 'default',
             'fonts' => $section['fonts'] ?? [],
             'colors' => $section['colors'] ?? [],

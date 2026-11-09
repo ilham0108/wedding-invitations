@@ -58,6 +58,7 @@ class InvitationRenderer
                 background: $section->theme['background'] ?? null,
                 height: $section->theme['height'] ?? null,
                 headingSize: $section->theme['heading_size'] ?? null,
+                headingAlign: $section->theme['heading_align'] ?? null,
                 textSize: $section->theme['text_size'] ?? null,
                 fonts: $section->theme['fonts'] ?? [],
                 colors: $section->theme['colors'] ?? [],
@@ -172,6 +173,7 @@ class InvitationRenderer
                 background: $blueprint['background'],
                 height: $blueprint['height'],
                 headingSize: $blueprint['heading_size'],
+                headingAlign: $blueprint['heading_align'],
                 textSize: $blueprint['text_size'],
                 fonts: $blueprint['fonts'],
                 colors: $blueprint['colors'],
@@ -222,9 +224,9 @@ class InvitationRenderer
 
     /**
      * @param  array<string, mixed>  $config
-     * @return array{key: string, type: string, variant: string, view: string, native: bool, background: string, height: string, heading_size: string, text_size: string, fonts: array<string, string>, colors: array<string, string>, section_style: string, config: array<string, mixed>, ornaments: array<int, array<string, mixed>>, desktop_ornaments: array<int, array<string, mixed>>}
+     * @return array{key: string, type: string, variant: string, view: string, native: bool, background: string, height: string, heading_size: string, heading_align: string, text_size: string, fonts: array<string, string>, colors: array<string, string>, section_style: string, config: array<string, mixed>, ornaments: array<int, array<string, mixed>>, desktop_ornaments: array<int, array<string, mixed>>}
      */
-    private function buildSection(string $key, string $type, ?string $variant, ?string $background, array $config, string $timezone, string $design, mixed $ornaments = [], mixed $desktopOrnaments = [], ?string $height = null, ?string $headingSize = null, ?string $textSize = null, mixed $fonts = [], mixed $colors = []): array
+    private function buildSection(string $key, string $type, ?string $variant, ?string $background, array $config, string $timezone, string $design, mixed $ornaments = [], mixed $desktopOrnaments = [], ?string $height = null, ?string $headingSize = null, ?string $textSize = null, mixed $fonts = [], mixed $colors = [], ?string $headingAlign = null): array
     {
         $variant = $this->registry->resolveVariant($type, $variant);
         $view = $this->designs->sectionView($design, $type, $variant);
@@ -240,6 +242,7 @@ class InvitationRenderer
             'background' => in_array($background, TemplateSchema::BACKGROUNDS, true) ? $background : 'default',
             'height' => in_array($height, TemplateSchema::HEIGHTS, true) ? $height : 'auto',
             'heading_size' => in_array($headingSize, TemplateSchema::FONT_SIZES, true) ? $headingSize : 'default',
+            'heading_align' => in_array($headingAlign, TemplateSchema::HEADING_ALIGNS, true) ? $headingAlign : 'default',
             'text_size' => in_array($textSize, TemplateSchema::FONT_SIZES, true) ? $textSize : 'default',
             // The section's own fonts and colors (follow the theme when empty), applied by invitation.partials.section-style.
             'fonts' => $fonts,

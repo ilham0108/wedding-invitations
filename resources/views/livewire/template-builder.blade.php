@@ -406,6 +406,19 @@
                             @endforeach
                         </div>
 
+                        {{-- The cover has its own alignment field; a quote has no title. --}}
+                        @unless (in_array($selectedSection['type'], ['cover', 'quote'], true))
+                            <div>
+                                <label for="section-heading-align" class="mb-2 block text-sm font-medium text-ink">{{ __('Heading alignment') }}</label>
+                                <select id="section-heading-align" x-on:change="$wire.setHeadingAlign('{{ $selectedSection['key'] }}', $event.target.value)"
+                                    class="block w-full rounded-lg border-line text-sm focus:border-sage focus:ring-sage">
+                                    @foreach (['default' => __('Design default'), 'left' => __('Left'), 'center' => __('Center'), 'right' => __('Right')] as $option => $optionLabel)
+                                        <option value="{{ $option }}" @selected(($selectedSection['heading_align'] ?? 'default') === $option)>{{ $optionLabel }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endunless
+
                         {{-- The section's own fonts. Weights: only those the font loads, so the browser never fakes a bold. --}}
                         @php($weightNames = app(\App\Services\FontRegistry::class)->weightNames())
                         @foreach (['font_heading' => [__('Heading font'), 'heading_weight', __('Heading weight')], 'font_body' => [__('Body font'), 'body_weight', __('Text weight')]] as $fontKey => [$fontLabel, $weightKey, $weightLabel])

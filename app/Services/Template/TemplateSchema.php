@@ -37,6 +37,8 @@ class TemplateSchema
     /** Section heading/text size relative to the theme's (decoration heading_scale / text_scale). */
     public const FONT_SIZES = ['default', 'smaller', 'larger', 'largest'];
 
+    public const HEADING_ALIGNS = ['default', 'left', 'center', 'right'];
+
     private const MAX_SECTIONS = 30;
 
     public function __construct(
@@ -81,6 +83,7 @@ class TemplateSchema
                 'background' => $section['background'] ?? 'default',
                 'height' => in_array($section['height'] ?? null, [null, 'auto'], true) ? null : $section['height'],
                 'heading_size' => in_array($section['heading_size'] ?? null, [null, 'default'], true) ? null : $section['heading_size'],
+                'heading_align' => in_array($section['heading_align'] ?? null, [null, 'default'], true) ? null : $section['heading_align'],
                 'text_size' => in_array($section['text_size'] ?? null, [null, 'default'], true) ? null : $section['text_size'],
                 'fonts' => $this->sectionFonts->clean($section['fonts'] ?? []) ?: null,
                 'colors' => $this->sectionColors->clean($section['colors'] ?? []) ?: null,
@@ -118,6 +121,7 @@ class TemplateSchema
                 'background' => $section['background'] ?? null,
                 'height' => $section['height'] ?? null,
                 'heading_size' => $section['heading_size'] ?? null,
+                'heading_align' => $section['heading_align'] ?? null,
                 'text_size' => $section['text_size'] ?? null,
                 'fonts' => $section['fonts'] ?? null,
                 'colors' => $section['colors'] ?? null,
@@ -151,6 +155,7 @@ class TemplateSchema
             $rules["{$path}.background"] = ['nullable', Rule::in(self::BACKGROUNDS)];
             $rules["{$path}.height"] = ['nullable', Rule::in(self::HEIGHTS)];
             $rules["{$path}.heading_size"] = ['nullable', Rule::in(self::FONT_SIZES)];
+            $rules["{$path}.heading_align"] = ['nullable', Rule::in(self::HEADING_ALIGNS)];
             $rules["{$path}.text_size"] = ['nullable', Rule::in(self::FONT_SIZES)];
             $rules = array_merge($rules, $this->sectionFonts->rules("{$path}.fonts"), $this->sectionColors->rules("{$path}.colors"), $this->ornamentRules("{$path}.ornaments"), $this->ornamentRules("{$path}.desktop_ornaments"));
 

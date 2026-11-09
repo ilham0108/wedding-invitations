@@ -78,6 +78,7 @@ class InvitationService
                         'background' => in_array($blueprint['background'], [null, 'default'], true) ? null : $blueprint['background'],
                         'height' => in_array($blueprint['height'], [null, 'auto'], true) ? null : $blueprint['height'],
                         'heading_size' => in_array($blueprint['heading_size'], [null, 'default'], true) ? null : $blueprint['heading_size'],
+                        'heading_align' => in_array($blueprint['heading_align'], [null, 'default'], true) ? null : $blueprint['heading_align'],
                         'text_size' => in_array($blueprint['text_size'], [null, 'default'], true) ? null : $blueprint['text_size'],
                         'fonts' => $this->sectionFonts->clean($blueprint['fonts']) ?: null,
                         'colors' => $this->sectionColors->clean($blueprint['colors']) ?: null,

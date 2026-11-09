@@ -7,6 +7,7 @@
         'inv-has-ornaments' => ! empty($section['ornaments']),
         'inv-section--screen inv-section--'.($section['height'] ?? 'auto') => ($section['height'] ?? 'auto') !== 'auto',
         'inv-heading-size--'.($section['heading_size'] ?? 'default') => ($section['heading_size'] ?? 'default') !== 'default',
+        'inv-heading-align--'.($section['heading_align'] ?? 'default') => ($section['heading_align'] ?? 'default') !== 'default',
         'inv-text-size--'.($section['text_size'] ?? 'default') => ($section['text_size'] ?? 'default') !== 'default',
         'inv-section' => $section['type'] !== 'cover' && ($classic ?? true),
         'inv-animate' => $section['type'] !== 'cover' && ($classic ?? true),
