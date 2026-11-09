@@ -20,7 +20,7 @@
         </div>
     @endif
 
-    <div @class(['bc-cover__text inv-animate', 'bc-frame bc-frame--'.$config['frame_style'] => $framed])>
+    <div @class(['bc-cover__text inv-animate', 'bc-frame bc-frame--'.$config['frame_style'] => $framed, 'bc-frame--arch' => $framed && $config['frame_shape'] === 'arch'])>
         @if (filled($config['subtitle']))
             <p class="bc-eyebrow">{{ $config['subtitle'] }}</p>
         @endif
@@ -33,8 +33,13 @@
         @endif
     </div>
 
-    <a href="#" class="bc-scroll inv-animate" data-bc-scroll>
-        <span class="bc-scroll__mouse" aria-hidden="true"><span></span></span>
-        <span class="bc-scroll__label">{{ $config['button_label'] ?: __('Scroll down') }}</span>
+    @php($iconOnly = $config['button_display'] !== 'label')
+    <a href="#" @class(['bc-scroll inv-animate', 'inv-cue' => $iconOnly]) data-bc-scroll @if ($iconOnly) aria-label="{{ $config['button_label'] ?: __('Scroll down') }}" @endif>
+        @if ($iconOnly)
+            @include('invitation.partials.cover-cue', ['cue' => $config['button_display']])
+        @else
+            <span class="bc-scroll__mouse" aria-hidden="true"><span></span></span>
+            <span class="bc-scroll__label">{{ $config['button_label'] ?: __('Scroll down') }}</span>
+        @endif
     </a>
 </div>

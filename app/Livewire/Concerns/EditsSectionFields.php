@@ -66,7 +66,7 @@ trait EditsSectionFields
         }
 
         $items[] = collect($field['fields'])->mapWithKeys(fn (array $subField): array => [
-            $subField['key'] => $subField['type'] === 'toggle' ? false : '',
+            $subField['key'] => $subField['default'] ?? ($subField['type'] === 'toggle' ? false : ''),
         ])->all();
 
         Arr::set($this->config, $path, $items);

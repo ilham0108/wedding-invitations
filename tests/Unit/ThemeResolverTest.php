@@ -55,7 +55,7 @@ class ThemeResolverTest extends TestCase
         $resolver = new ThemeResolver;
         $theme = $resolver->resolve(['preset' => 'romantic']);
 
-        $this->assertStringContainsString("--inv-font-heading: 'Great Vibes', cursive;", $resolver->cssVariables($theme));
+        $this->assertStringContainsString("--inv-font-heading: 'Great Vibes', 'Amiri', cursive;", $resolver->cssVariables($theme));
         $this->assertSame('https://fonts.bunny.net/css?family=great-vibes:400|lora:400,500,600,700&display=swap', $resolver->fontStylesheetUrl($theme));
     }
 

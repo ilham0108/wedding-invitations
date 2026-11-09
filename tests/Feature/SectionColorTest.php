@@ -44,7 +44,7 @@ class SectionColorTest extends TestCase
             $html = $this->get(route('templates.preview', $template))->assertOk()->getContent();
 
             // Fonts and colors share the one style attribute.
-            $this->assertStringContainsString('--inv-font-heading: &#039;Lora&#039;, Georgia, serif; --inv-heading-color: #7a4b2a; --inv-section-text: #3d2b1f;', $html, "[{$design}]");
+            $this->assertStringContainsString('--inv-font-heading: &#039;Lora&#039;, &#039;Amiri&#039;, Georgia, serif; --inv-heading-color: #7a4b2a; --inv-section-text: #3d2b1f;', $html, "[{$design}]");
             $this->assertStringContainsString('data-inv-heading-color', $html, "[{$design}]");
             $this->assertStringContainsString('data-inv-text-color', $html, "[{$design}]");
             $this->assertSame(1, substr_count($html, 'data-inv-text-color'), "[{$design}]");
@@ -81,9 +81,66 @@ class SectionColorTest extends TestCase
         $this->assertArrayNotHasKey('colors', $template->fresh()->schema['sections'][1]);
     }
 
+    public function test_every_design_renders_the_social_icon_colors(): void
+    {
+        foreach (self::DESIGNS as $design) {
+            $template = InvitationTemplate::factory()->create([
+                'design' => $design,
+                'schema' => ['sections' => [['type' => 'couple', 'colors' => ['social_icon' => '#AA0000', 'social_bg' => '#00aa00']], 'closing']],
+                'sample_content' => ['couple' => ['people' => [['name' => 'Arina', 'instagram' => 'https://instagram.com/arina']]]],
+            ]);
+
+            $this->get(route('templates.preview', $template))->assertOk()
+                ->assertSee('--inv-social-icon: #aa0000; --inv-social-bg: #00aa00;', false)
+                ->assertSee('data-inv-social-icon', false)
+                ->assertSee('data-inv-social-bg', false)
+                ->assertSee('inv-social-link', false);
+        }
+    }
+
+    public function test_social_icons_keep_the_design_look_until_a_color_is_chosen(): void
+    {
+        $template = InvitationTemplate::factory()->create([
+            'design' => 'mocha-glass',
+            'schema' => ['sections' => ['couple', 'closing']],
+            'sample_content' => ['couple' => ['people' => [['name' => 'Arina', 'instagram' => 'https://instagram.com/arina']]]],
+        ]);
+
+        $this->get(route('templates.preview', $template))->assertOk()
+            ->assertDontSee('--inv-social-icon', false)
+            ->assertDontSee('data-inv-social-icon', false);
+    }
+
+    public function test_the_builder_offers_social_colors_on_the_couple_section_only(): void
+    {
+        $template = InvitationTemplate::factory()->create(['schema' => ['sections' => ['couple', 'event', 'closing']]]);
+        $builder = Livewire::actingAs(User::factory()->superAdmin()->create())->test(TemplateBuilder::class, ['template' => $template]);
+        [$couple, $event] = [$builder->get('sections')[0]['key'], $builder->get('sections')[1]['key']];
+
+        $builder->call('select', $event)->assertDontSee('Social icon color');
+
+        $builder->call('select', $couple)
+            ->assertSee('Social icon color')
+            ->assertSee('Social icon background')
+            ->call('setSectionColor', $couple, 'social_icon', '#FFFFFF')
+            ->assertViewHas('sectionColorContrast', fn (array $contrast): bool => ! isset($contrast['social_icon']))
+            ->call('setSectionColor', $couple, 'social_bg', '#fefefe')
+            ->assertSet('sections.0.colors', ['social_icon' => '#ffffff', 'social_bg' => '#fefefe'])
+            ->assertViewHas('sectionColorContrast', fn (array $contrast): bool => $contrast['social_icon']['ratio'] < Contrast::LARGE_TEXT)
+            ->call('setSectionColor', $couple, 'social_bg', '#000000')
+            ->assertSee('Contrast 21.0:1 against the icon background.')
+            ->call('save');
+
+        $this->assertEquals(['social_icon' => '#ffffff', 'social_bg' => '#000000'], $template->fresh()->schema['sections'][0]['colors']);
+
+        $builder->call('setSectionColor', $couple, 'social_icon', 'default')
+            ->call('setSectionColor', $couple, 'social_bg', 'default')
+            ->assertSet('sections.0.colors', []);
+    }
+
     public function test_the_schema_rejects_invalid_colors(): void
     {
-        foreach ([['heading' => 'red'], ['text' => '#12345'], ['text' => '#123456;}']] as $colors) {
+        foreach ([['heading' => 'red'], ['text' => '#12345'], ['text' => '#123456;}'], ['social_icon' => 'red'], ['social_bg' => 'url(x)']] as $colors) {
             try {
                 app(TemplateSchema::class)->validate(['schema' => ['sections' => [['type' => 'cover', 'colors' => $colors]]]]);
                 $this->fail('Expected a validation error for '.json_encode($colors));

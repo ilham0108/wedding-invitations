@@ -10,6 +10,7 @@ use App\Services\MusicService;
 use App\Services\Rsvp\GuestbookService;
 use App\Services\Rsvp\RsvpService;
 use App\Services\Template\TemplateSchema;
+use App\Support\PhotoSide;
 use App\Support\SafeUrl;
 use App\Support\VideoEmbed;
 use Carbon\CarbonImmutable;
@@ -264,6 +265,10 @@ class InvitationRenderer
             $config['background_overlay'] = in_array($config['background_overlay'] ?? null, ['strong', 'medium', 'light', 'none'], true) ? $config['background_overlay'] : 'strong';
         }
 
+        if ($type === 'couple') {
+            $config = PhotoSide::perPerson($config);
+        }
+
         return match ($type) {
             'cover' => [
                 ...$config,
@@ -272,11 +277,14 @@ class InvitationRenderer
                 'desktop_text_position' => in_array($config['desktop_text_position'] ?? null, ['top', 'center', 'bottom'], true) ? $config['desktop_text_position'] : 'center',
                 'background_motion' => in_array($config['background_motion'] ?? null, ['none', 'zoom-out', 'drift'], true) ? $config['background_motion'] : 'none',
                 'frame_style' => in_array($config['frame_style'] ?? null, ['blur', 'transparent', 'solid'], true) ? $config['frame_style'] : 'blur',
+                'frame_shape' => in_array($config['frame_shape'] ?? null, ['rectangle', 'arch'], true) ? $config['frame_shape'] : 'rectangle',
+                'button_display' => in_array($config['button_display'] ?? null, ['label', 'scroll', 'arrow'], true) ? $config['button_display'] : 'label',
             ],
             'greeting' => [...$config, 'emblem' => $this->safeUrl($config['emblem'] ?? null)],
             'couple' => [
                 ...$config,
-                'photo_shape' => in_array($config['photo_shape'] ?? null, ['default', 'rounded', 'circle', 'oval', 'arch'], true) ? $config['photo_shape'] : 'default',
+                ...$this->photoCorners($config),
+                'photo_shape' => in_array($config['photo_shape'] ?? null, ['default', 'rounded', 'circle', 'oval', 'arch', 'custom'], true) ? $config['photo_shape'] : 'default',
                 'photo_frame' => $this->safeUrl($config['photo_frame'] ?? null),
                 'photo_frame_inset' => is_numeric($config['photo_frame_inset'] ?? null) ? max(0.0, min(40.0, (float) $config['photo_frame_inset'])) : 12.0,
                 'people' => $this->mapList($config['people'] ?? [], fn (array $person): array => [
@@ -288,7 +296,7 @@ class InvitationRenderer
             'story' => [...$config, 'entries' => $this->mapList($config['entries'] ?? [], fn (array $entry): array => [
                 ...$entry,
                 'image' => $this->safeUrl($entry['image'] ?? null),
-                'icon_class' => config('invitation.story_icons')[$entry['icon'] ?? ''] ?? config('invitation.story_icons.heart'),
+                'icon_class' => ($entry['icon'] ?? '') === 'none' ? null : config('invitation.story_icons')[$entry['icon'] ?? ''] ?? config('invitation.story_icons.heart'),
             ])],
             'gallery' => [...$config, 'images' => array_values(array_filter(array_map(fn (mixed $url): ?string => $this->safeUrl($url), Arr::wrap($config['images'] ?? []))))],
             // The invitation video section only embeds YouTube and Vimeo players.
@@ -381,6 +389,24 @@ class InvitationRenderer
     /**
      * Only http(s) URLs and root-relative paths may reach src/href attributes.
      */
+    /**
+     * Corner radii of the "custom" photo shape, in percent of the photo's width.
+     *
+     * @param  array<string, mixed>  $config
+     * @return array<string, float>
+     */
+    private function photoCorners(array $config): array
+    {
+        $corners = [];
+
+        foreach (['top_left', 'top_right', 'bottom_right', 'bottom_left'] as $corner) {
+            $value = $config["photo_radius_{$corner}"] ?? null;
+            $corners["photo_radius_{$corner}"] = is_numeric($value) ? max(0.0, min(50.0, (float) $value)) : 0.0;
+        }
+
+        return $corners;
+    }
+
     private function safeUrl(mixed $url): ?string
     {
         return SafeUrl::filter($url);

@@ -437,8 +437,9 @@
 
                         {{-- The section's own colors; the contrast is measured against the section's background color. --}}
                         <div class="space-y-3">
-                            @foreach (['heading' => __('Heading color'), 'text' => __('Text color')] as $colorKey => $colorLabel)
+                            @foreach (['heading' => __('Heading color'), 'text' => __('Text color'), ...($selectedSection['type'] === 'couple' ? ['social_icon' => __('Social icon color'), 'social_bg' => __('Social icon background')] : [])] as $colorKey => $colorLabel)
                                 @php($color = $selectedSection['colors'][$colorKey] ?? null)
+                                @php($followsDesign = in_array($colorKey, ['social_icon', 'social_bg'], true))
                                 <div>
                                     <label for="section-color-{{ $colorKey }}" class="mb-2 block text-sm font-medium text-ink">{{ $colorLabel }}</label>
                                     <div class="flex items-center gap-3">
@@ -446,7 +447,7 @@
                                             x-on:change="$wire.setSectionColor('{{ $selectedSection['key'] }}', '{{ $colorKey }}', $event.target.value)"
                                             class="h-10 w-12 shrink-0 cursor-pointer rounded border border-line bg-white p-0.5">
                                         {{-- Keyed by value so a picker change re-renders it. Empty goes back to the theme; an invalid code is undone. --}}
-                                        <input type="text" wire:key="section-hex-{{ $colorKey }}-{{ $color ?? 'theme' }}" value="{{ $color }}" placeholder="{{ __('Follow the theme') }}" maxlength="7" spellcheck="false" aria-label="{{ $colorLabel }}: {{ __('Hex code') }}"
+                                        <input type="text" wire:key="section-hex-{{ $colorKey }}-{{ $color ?? 'theme' }}" value="{{ $color }}" placeholder="{{ $followsDesign ? __('Design default') : __('Follow the theme') }}" maxlength="7" spellcheck="false" aria-label="{{ $colorLabel }}: {{ __('Hex code') }}"
                                             x-on:keydown.enter.prevent="$el.blur()"
                                             x-on:change="
                                                 let hex = '#' + $el.value.trim().replace(/^#/, '').toLowerCase();
@@ -457,7 +458,7 @@
                                             class="h-10 min-w-0 flex-1 rounded-lg border-line px-2 font-mono text-xs text-ink-soft placeholder:font-sans placeholder:text-muted focus:border-sage focus:ring-sage">
                                         @if ($color)
                                             <button type="button" wire:click="setSectionColor('{{ $selectedSection['key'] }}', '{{ $colorKey }}', 'default')"
-                                                class="shrink-0 rounded-lg px-2 py-1.5 text-xs text-ink-soft underline hover:bg-paper">{{ __('Use the theme color') }}</button>
+                                                class="shrink-0 rounded-lg px-2 py-1.5 text-xs text-ink-soft underline hover:bg-paper">{{ $followsDesign ? __('Use the design default') : __('Use the theme color') }}</button>
                                         @endif
                                     </div>
                                     @isset($sectionColorContrast[$colorKey])
@@ -468,7 +469,7 @@
                                                 {{ __('Contrast :ratio:1, below :minimum:1: hard to read for some guests.', ['ratio' => \Illuminate\Support\Number::format($contrast['ratio'], 1), 'minimum' => \Illuminate\Support\Number::format($contrast['minimum'], 1)]) }}
                                             </p>
                                         @else
-                                            <p class="mt-1.5 text-xs text-muted">{{ __('Contrast :ratio:1 against the section background.', ['ratio' => \Illuminate\Support\Number::format($contrast['ratio'], 1)]) }}</p>
+                                            <p class="mt-1.5 text-xs text-muted">{{ __($followsDesign ? 'Contrast :ratio:1 against the icon background.' : 'Contrast :ratio:1 against the section background.', ['ratio' => \Illuminate\Support\Number::format($contrast['ratio'], 1)]) }}</p>
                                         @endif
                                     @endisset
                                 </div>

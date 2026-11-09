@@ -7,6 +7,10 @@
     if (isset($field['hidden_when'])) {
         $shownForLayout = $shownForLayout && blank(data_get($config, preg_replace('/[^.]+$/', $field['hidden_when'], $path)));
     }
+    // "shown_when": [sibling field, value]; the field only applies while that sibling has that value.
+    if (isset($field['shown_when'])) {
+        $shownForLayout = $shownForLayout && data_get($config, preg_replace('/[^.]+$/', $field['shown_when'][0], $path)) === $field['shown_when'][1];
+    }
 
     $value = data_get($config, $path);
     $inputId = 'field-'.str_replace('.', '-', $path);
@@ -61,7 +65,7 @@
                 <div class="flex items-center gap-3" x-data="{ value: @js((float) ($value ?? 0)) }">
                     <input id="{{ $inputId }}" type="range" min="{{ $field['min'] }}" max="{{ $field['max'] }}" step="{{ $field['step'] ?? 1 }}"
                         x-model="value" wire:model.live.debounce.200ms="config.{{ $path }}" class="w-full accent-sage">
-                    <output for="{{ $inputId }}" class="w-12 shrink-0 text-right text-xs tabular-nums text-ink-soft" x-text="(value > 0 ? '+' : '') + value + '%'"></output>
+                    <output for="{{ $inputId }}" class="w-12 shrink-0 text-right text-xs tabular-nums text-ink-soft" x-text="{{ $field['min'] < 0 ? "(value > 0 ? '+' : '') + " : '' }}value + '%'"></output>
                 </div>
             @else
                 <input id="{{ $inputId }}" type="number" step="any" wire:model.live.debounce.700ms="config.{{ $path }}" class="{{ $inputClass }}">

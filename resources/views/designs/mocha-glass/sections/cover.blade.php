@@ -7,7 +7,7 @@
         <span class="mg-tag">{{ $config['subtitle'] }}</span>
     @endif
     @if ($framed)
-        <div class="mg-framebox mg-framebox--{{ $config['frame_style'] }}">
+        <div @class(['mg-framebox mg-framebox--'.$config['frame_style'], 'mg-framebox--arch' => $config['frame_shape'] === 'arch'])>
     @endif
     <h2 class="mg-names">@include('designs.mocha-glass.partials.names', ['names' => $config['title'] ?: $invitation->title])</h2>
     @if (filled($config['date_text']))

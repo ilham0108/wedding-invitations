@@ -13,7 +13,7 @@
 
 .inv-design-mocha-glass {
     --mg-panel: 430px;
-    --mg-serif: 'Cormorant Garamond', Georgia, serif;
+    --mg-serif: 'Cormorant Garamond', 'Amiri', Georgia, serif;
     --mg-arabic: 'Amiri', serif;
     --mg-glass: color-mix(in srgb, var(--inv-text) 12%, transparent);
     --mg-glass-border: color-mix(in srgb, var(--inv-text) 22%, transparent);
@@ -287,6 +287,12 @@
 
 .mg-framebox--solid .mg-names { text-shadow: none; }
 
+/* The top padding keeps the first line of text inside the curve. */
+.mg-framebox--arch {
+    padding-top: 96px;
+    border-radius: 170px 170px 24px 24px;
+}
+
 .mg-btn-open {
     display: inline-flex;
     align-items: center;
@@ -303,6 +309,18 @@
 }
 
 .mg-btn-open:hover { transform: translateY(-2px); }
+
+.mg-btn-open.inv-cue {
+    padding: 0;
+    background: transparent;
+    color: #fff;
+    box-shadow: none;
+}
+
+.mg-framebox--solid .mg-btn-open.inv-cue {
+    color: var(--mg-ink);
+    filter: none;
+}
 
 .mg-guest {
     display: flex;
@@ -698,9 +716,10 @@ body:has(.inv-preview-bar) .mg-home { min-height: calc(100svh - 40px - 84px - 40
 
 /* ---------------------------------------------------------------- story */
 
+/* Icons sit on the page margin, 14px from the cards, centered on the dotted line. */
 .mg-timeline {
     position: relative;
-    padding-left: 40px;
+    padding-left: 42px;
 }
 
 .mg-timeline::before {
@@ -708,7 +727,7 @@ body:has(.inv-preview-bar) .mg-home { min-height: calc(100svh - 40px - 84px - 40
     position: absolute;
     top: 10px;
     bottom: 10px;
-    left: 14px;
+    left: 12.5px;
     border-left: 3px dotted #fff;
 }
 
@@ -720,8 +739,16 @@ body:has(.inv-preview-bar) .mg-home { min-height: calc(100svh - 40px - 84px - 40
 .mg-story__heart {
     position: absolute;
     top: 16px;
-    left: -36px;
+    left: -42px;
+    width: 28px;
     font-size: 1.4rem;
+    text-align: center;
+}
+
+.mg-story__dot {
+    position: absolute;
+    top: 21px;
+    left: -34px;
 }
 
 .mg-story__card {
@@ -757,7 +784,6 @@ body:has(.inv-preview-bar) .mg-home { min-height: calc(100svh - 40px - 84px - 40
     letter-spacing: 0.2em;
     text-align: center;
     text-transform: uppercase;
-    opacity: 0.8;
 }
 
 .mg-story h3 {
@@ -1247,6 +1273,12 @@ body:has(.inv-preview-bar) .mg-home { min-height: calc(100svh - 40px - 84px - 40
 .mg--align-left .mg-framebox {
     align-items: flex-start;
     text-align: left;
+}
+
+.mg--align-left .mg-framebox--arch {
+    align-self: center;
+    align-items: center;
+    text-align: center;
 }
 
 .mg--align-left .mg-hero__text { padding-left: 8%; }

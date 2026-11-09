@@ -18,6 +18,7 @@
         // A solid frame uses the theme surface, so its text keeps the theme text color.
         'text-white' => $hasImage && $config['overlay'] && $config['frame_style'] !== 'solid',
         'inv-frame inv-frame--'.$config['frame_style'].' px-6 py-14 sm:px-10',
+        'inv-frame--arch' => $config['frame_shape'] === 'arch',
     ])>
         @if ($invitation->guestName)
             <p class="mb-6 text-sm">{{ __('Dear') }} <span class="font-semibold">{{ $invitation->guestName }}</span>,</p>
@@ -34,11 +35,6 @@
             <p class="text-sm tracking-wide">{{ $config['date_text'] }}</p>
         @endif
 
-        @if (filled($config['button_label']))
-            <button type="button" class="inv-btn mt-10" x-data
-                x-on:click="$el.closest('section').nextElementSibling?.scrollIntoView({ behavior: 'smooth' })">
-                <i class="fa-regular fa-envelope-open" aria-hidden="true"></i>{{ $config['button_label'] }}
-            </button>
-        @endif
+        @include('invitation.sections.cover._button', ['onPhoto' => $hasImage && $config['frame_style'] !== 'solid'])
     </div>
 </div>

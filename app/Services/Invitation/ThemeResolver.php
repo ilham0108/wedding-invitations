@@ -108,8 +108,6 @@ class ThemeResolver
      */
     public function cssVariables(array $theme): string
     {
-        $fonts = $this->fonts()->all();
-
         $variables = [
             '--inv-primary' => $theme['primary_color'],
             '--inv-on-primary' => $this->readableTextOn($theme['primary_color']),
@@ -118,8 +116,8 @@ class ThemeResolver
             '--inv-bg' => $theme['background_color'],
             '--inv-surface' => $theme['surface_color'],
             '--inv-text' => $theme['text_color'],
-            '--inv-font-heading' => "'{$theme['font_heading']}', {$fonts[$theme['font_heading']]['fallback']}",
-            '--inv-font-body' => "'{$theme['font_body']}', {$fonts[$theme['font_body']]['fallback']}",
+            '--inv-font-heading' => $this->fonts()->stack($theme['font_heading']),
+            '--inv-font-body' => $this->fonts()->stack($theme['font_body']),
             '--inv-radius' => self::RADIUS[$theme['border_radius']],
             '--inv-spacing' => self::SPACING[$theme['section_spacing']],
             // Only when chosen; invitation.css applies them under body[data-inv-heading-weight] / [data-inv-body-weight].

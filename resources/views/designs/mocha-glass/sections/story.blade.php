@@ -3,7 +3,11 @@
     <div class="mg-timeline">
         @foreach ($config['entries'] as $entry)
             <div class="mg-story inv-animate">
-                <i class="{{ $entry['icon_class'] }} mg-story__heart" aria-hidden="true"></i>
+                @if ($entry['icon_class'])
+                    <i class="{{ $entry['icon_class'] }} mg-story__heart" aria-hidden="true"></i>
+                @else
+                    <span class="inv-story-dot mg-story__dot" aria-hidden="true"></span>
+                @endif
                 <div class="mg-card mg-story__card">
                     @if ($entry['image'])
                         <img src="{{ $entry['image'] }}" alt="" loading="lazy" decoding="async" class="mg-story__img" style="{{ \App\Support\PhotoStyle::image($entry['image_focus'] ?? null, $config['photo_ratio'] ?? null) }}">

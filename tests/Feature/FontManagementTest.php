@@ -134,7 +134,7 @@ class FontManagementTest extends TestCase
             ->assertSeeHtml('<option value="Brand Serif">')
             ->set('theme.font_heading', 'Brand Serif')->assertHasNoErrors()->call('save');
         $this->assertSame('Brand Serif', $template->fresh()->theme['font_heading']);
-        $this->assertStringContainsString("--inv-font-heading: 'Brand Serif', Georgia, serif;", app(ThemeResolver::class)->cssVariables(app(ThemeResolver::class)->resolve($template->fresh()->theme)));
+        $this->assertStringContainsString("--inv-font-heading: 'Brand Serif', 'Amiri', Georgia, serif;", app(ThemeResolver::class)->cssVariables(app(ThemeResolver::class)->resolve($template->fresh()->theme)));
 
         // In use: cannot be deleted, only hidden; the template keeps rendering with it.
         $this->manager()->call('remove', $font->ulid);

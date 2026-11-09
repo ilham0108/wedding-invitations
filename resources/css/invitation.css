@@ -174,6 +174,12 @@
 .inv-photo--oval .inv-photo__image { border-radius: 50%; }
 /* Huge radii are scaled down to half the width: a semicircular top on any ratio. */
 .inv-photo--arch .inv-photo__image { border-radius: 9999px 9999px 0 0; }
+/* Percentages follow each side, so the vertical radii are scaled by the 4:5 ratio to keep the corners circular. */
+.inv-photo--custom .inv-photo__image {
+    border-radius:
+        var(--inv-photo-tl) var(--inv-photo-tr) var(--inv-photo-br) var(--inv-photo-bl) /
+        calc(var(--inv-photo-tl) * 0.8) calc(var(--inv-photo-tr) * 0.8) calc(var(--inv-photo-br) * 0.8) calc(var(--inv-photo-bl) * 0.8);
+}
 
 /*
 | Entrance animations (template decoration "animation" / "animation_speed").
@@ -212,6 +218,27 @@
     transform: translateX(48px);
 }
 
+/* Blocks waiting to slide in from the right must not make the page scroll sideways. */
+body[data-inv-scroll='vertical'][data-inv-animation='slide'] [data-inv-pages] {
+    overflow-x: clip;
+}
+
+/* Marker of a story entry without an icon; every other dot is lighter, so the timeline has a rhythm. */
+.inv-story-dot {
+    display: block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+:nth-child(even) > .inv-story-dot { opacity: 0.4; }
+
+/* Theme accent darkened toward the text: small dates must stay readable on textured backgrounds. */
+.inv-story-date {
+    color: color-mix(in srgb, var(--inv-accent-text) 55%, var(--inv-text));
+}
+
 @media (prefers-reduced-motion: reduce) {
     .inv-animate {
         opacity: 1 !important;
@@ -244,6 +271,87 @@
 .inv-frame--transparent {
     background: transparent;
     border: 1px solid currentColor;
+}
+
+/* The top padding keeps the first line of text inside the curve. */
+.inv-frame--arch {
+    max-width: 24rem;
+    padding-top: 7rem;
+    border-radius: 12rem 12rem var(--inv-radius) var(--inv-radius);
+    text-align: center;
+}
+
+/* Narrower than the rectangle: sized so a 13-letter word still fits on one line. */
+.inv-frame--arch .inv-heading {
+    font-size: clamp(2rem, 10vw, 3rem);
+    overflow-wrap: anywhere;
+}
+
+/*
+| Icon-only cover button (cover field "button_display"). On a photo the white icon gets a dark halo,
+| so it stays visible on any picture. It moves three times, under five seconds, then rests.
+*/
+.inv-cue {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    min-height: 48px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.inv-cue:hover { opacity: 0.75; }
+.inv-cue:active { opacity: 0.55; }
+
+.inv-cue:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    border-radius: 9999px;
+}
+
+.inv-cue--on-photo {
+    color: #fff;
+    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.8)) drop-shadow(0 0 6px rgb(0 0 0 / 0.5));
+}
+
+.inv-cue__mouse {
+    position: relative;
+    display: block;
+    width: 26px;
+    height: 40px;
+    border: 2px solid currentColor;
+    border-radius: 14px;
+}
+
+.inv-cue__mouse span {
+    position: absolute;
+    top: 7px;
+    left: 50%;
+    width: 4px;
+    height: 8px;
+    margin-left: -2px;
+    border-radius: 2px;
+    background: currentColor;
+    animation: inv-cue-wheel 1.6s ease-in-out 3;
+}
+
+.inv-cue__arrow {
+    display: block;
+    animation: inv-cue-bob 1.6s ease-in-out 3;
+}
+
+@keyframes inv-cue-wheel {
+    50% { opacity: 0.2; transform: translateY(11px); }
+}
+
+@keyframes inv-cue-bob {
+    50% { transform: translateY(8px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-cue__mouse span,
+    .inv-cue__arrow { animation: none; }
 }
 
 /*
@@ -468,12 +576,11 @@ body[data-inv-scroll='horizontal'] [data-inv-pages] > section.inv-section { --in
 .inv-page-hint[hidden] { display: none; }
 .inv-page-hint.is-hidden { opacity: 0; }
 
+/* No box behind the text: a halo in the theme background keeps it readable on any photo. */
 .inv-page-hint span {
-    padding: 0.3rem 0.85rem;
-    border-radius: 9999px;
-    background: color-mix(in srgb, var(--inv-surface) 60%, transparent);
-    color: color-mix(in srgb, var(--inv-text) 80%, transparent);
+    color: var(--inv-text);
     font-size: 0.75rem;
+    text-shadow: 0 0 2px var(--inv-bg), 0 0 5px var(--inv-bg), 0 0 9px var(--inv-bg);
 }
 
 body.mg-locked .inv-page-hint { display: none; }
@@ -537,6 +644,10 @@ body [data-inv-body-font] {
 body [data-inv-text-color] {
     color: var(--inv-section-text);
 }
+
+/* !important: Mocha Glass fixes the icon color with !important so links on photos stay legible. */
+body [data-inv-social-icon] .inv-social-link { color: var(--inv-social-icon) !important; }
+body [data-inv-social-bg] .inv-social-link { background-color: var(--inv-social-bg); }
 
 body [data-inv-heading-color] :is(
     .inv-heading,

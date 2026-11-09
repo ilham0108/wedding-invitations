@@ -10,4 +10,6 @@
     @isset($section['fonts']['body_weight']) data-inv-body-weight="{{ $section['fonts']['body_weight'] }}" @endisset
     @isset($section['colors']['heading']) data-inv-heading-color @endisset
     @isset($section['colors']['text']) data-inv-text-color @endisset
+    @isset($section['colors']['social_icon']) data-inv-social-icon @endisset
+    @isset($section['colors']['social_bg']) data-inv-social-bg @endisset
 @endif

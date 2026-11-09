@@ -37,7 +37,7 @@ class SectionFontTest extends TestCase
         foreach (self::DESIGNS as $design) {
             $html = $this->get(route('templates.preview', $this->template($design)))->assertOk()->getContent();
 
-            $this->assertStringContainsString('--inv-font-heading: &#039;Marcellus&#039;, Georgia, serif; --inv-font-body: &#039;Lora&#039;, Georgia, serif; --inv-body-weight: 600;', $html, "[{$design}]");
+            $this->assertStringContainsString('--inv-font-heading: &#039;Marcellus&#039;, &#039;Amiri&#039;, Georgia, serif; --inv-font-body: &#039;Lora&#039;, &#039;Amiri&#039;, Georgia, serif; --inv-body-weight: 600;', $html, "[{$design}]");
             $this->assertStringContainsString('data-inv-body-font', $html, "[{$design}]");
             $this->assertStringContainsString('data-inv-body-weight="600"', $html, "[{$design}]");
             // The page's font stylesheet includes the section's fonts.

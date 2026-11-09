@@ -7,7 +7,7 @@
 .inv-design-botanical-cream {
     --bc-panel: 440px;
     --bc-nav-h: 64px;
-    --bc-script: 'Great Vibes', cursive;
+    --bc-script: 'Great Vibes', 'Amiri', cursive;
     --bc-arabic: 'Amiri', serif;
     --bc-muted: color-mix(in srgb, var(--inv-text) 68%, transparent);
     --bc-line: color-mix(in srgb, var(--inv-text) 16%, transparent);
@@ -547,6 +547,22 @@ body[data-inv-scroll='horizontal'] .bc-scroll { display: none; }
 
 .bc-frame--solid { background: var(--inv-surface); }
 
+/* The top padding keeps the first line of text inside the curve. */
+.bc-frame--arch,
+.bc-cover--left .bc-frame--arch {
+    align-self: center;
+    width: min(100%, 20rem);
+    padding: 84px 12px 28px;
+    border-radius: 160px 160px 22px 22px;
+    text-align: center;
+}
+
+/* Narrower than the rectangle: sized so a 13-letter word still fits on one line. */
+.bc-frame--arch .bc-names {
+    font-size: clamp(2.6rem, 13vw, 3.3rem);
+    overflow-wrap: anywhere;
+}
+
 .bc-pill {
     display: inline-block;
     margin-top: 1.3rem;
@@ -868,6 +884,14 @@ body[data-inv-scroll='horizontal'] .bc-scroll { display: none; }
     font-size: 1.05rem;
 }
 
+.bc-timeline__dot {
+    justify-self: center;
+    margin-top: 6px;
+}
+
+/* The line starts right under the dot instead of under a 44px icon. */
+.bc-timeline__item--dot:not(:last-child)::before { top: 24px; }
+
 .bc-timeline__body h3 {
     font-family: var(--inv-font-heading);
     font-size: 1.25rem;
@@ -875,7 +899,7 @@ body[data-inv-scroll='horizontal'] .bc-scroll { display: none; }
 }
 
 .bc-timeline__date {
-    color: var(--inv-secondary);
+    color: var(--inv-accent-text);
     font-size: 0.85rem;
 }
 

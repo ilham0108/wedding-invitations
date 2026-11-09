@@ -8,13 +8,18 @@
     $shape = $config['photo_shape'] ?? 'default';
     $frame = $config['photo_frame'] ?? null;
     $position = \App\Support\PhotoStyle::image($focus ?? null);
+    $corners = $frame === null && $shape === 'custom'
+        ? collect(['tl' => 'photo_radius_top_left', 'tr' => 'photo_radius_top_right', 'br' => 'photo_radius_bottom_right', 'bl' => 'photo_radius_bottom_left'])
+            ->map(fn (string $key, string $name): string => "--inv-photo-{$name}: ".($config[$key] ?? 0).'%;')
+            ->implode(' ')
+        : '';
 @endphp
 
 @if ($frame === null && $shape === 'default')
     <img src="{{ $src }}" alt="{{ $alt }}" loading="lazy" decoding="async" class="{{ $imageClass }}" @if (filled($imageStyle ?? null) || $position !== '') style="{{ trim(($imageStyle ?? '').' '.$position) }}" @endif>
 @else
     <div @class(['inv-photo', 'inv-photo--'.$shape => $frame === null, 'inv-photo--framed' => $frame !== null, $wrapperClass])
-        style="--inv-photo-inset: {{ $config['photo_frame_inset'] ?? 12 }}%">
+        style="--inv-photo-inset: {{ $config['photo_frame_inset'] ?? 12 }}%; {{ $corners }}">
         <img src="{{ $src }}" alt="{{ $alt }}" loading="lazy" decoding="async" class="inv-photo__image" @if ($position !== '') style="{{ $position }}" @endif>
         @if ($frame !== null)
             <img src="{{ $frame }}" alt="" aria-hidden="true" loading="lazy" decoding="async" class="inv-photo__frame">

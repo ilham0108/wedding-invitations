@@ -58,14 +58,19 @@
                 <span class="mg-tag">{{ $cover['config']['subtitle'] }}</span>
             @endif
             @if ($cover['variant'] === 'framed')
-                <div class="mg-framebox mg-framebox--{{ $cover['config']['frame_style'] }}">
+                <div @class(['mg-framebox mg-framebox--'.$cover['config']['frame_style'], 'mg-framebox--arch' => $cover['config']['frame_shape'] === 'arch'])>
             @endif
             <h1 class="mg-names">@include('designs.mocha-glass.partials.names', ['names' => $names])</h1>
             @if (filled($cover['config']['date_text']))
                 <p class="mg-date">{{ $cover['config']['date_text'] }}</p>
             @endif
-            <button type="button" class="mg-btn-open" data-mg-open>
-                <i class="fa-regular fa-envelope-open" aria-hidden="true"></i>{{ $cover['config']['button_label'] ?: __('Open Invitation') }}
+            @php($iconOnly = $cover['config']['button_display'] !== 'label')
+            <button type="button" @class(['mg-btn-open', 'inv-cue inv-cue--on-photo' => $iconOnly]) data-mg-open @if ($iconOnly) aria-label="{{ $cover['config']['button_label'] ?: __('Open Invitation') }}" @endif>
+                @if ($iconOnly)
+                    @include('invitation.partials.cover-cue', ['cue' => $cover['config']['button_display']])
+                @else
+                    <i class="fa-regular fa-envelope-open" aria-hidden="true"></i>{{ $cover['config']['button_label'] ?: __('Open Invitation') }}
+                @endif
             </button>
             @if ($cover['variant'] === 'framed')
                 </div>

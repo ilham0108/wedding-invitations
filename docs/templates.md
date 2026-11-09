@@ -125,6 +125,9 @@ Contohnya `photo_shape`: bingkai foto menggantikan bentuk foto, jadi bentuk tida
 Foto dipotong mengikuti lubang bingkai oleh `resources/js/photo-frame.js`, yaitu area transparan yang menyambung dari
 tengah gambar. `photo_frame_inset` hanya dipakai kalau lubang itu tidak bisa dibaca.
 
+Field dengan `'shown_when' => ['field_lain', 'nilai']` hanya tampil selama field itu bernilai tersebut. Contohnya
+`photo_radius_top_left` dan tiga sudut lainnya, yang hanya tampil saat `photo_shape` bernilai `custom`.
+
 ## Paket desain
 
 Paket desain menentukan **tampilan** halaman undangan; datanya (bagian, konten, RSVP, ucapan) tetap sama untuk

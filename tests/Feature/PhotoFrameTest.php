@@ -37,6 +37,56 @@ class PhotoFrameTest extends TestCase
         $this->assertSame(40.0, $config['photo_frame_inset']);
     }
 
+    public function test_custom_corners_are_limited_and_default_to_square(): void
+    {
+        $template = InvitationTemplate::factory()->create([
+            'schema' => ['sections' => ['couple']],
+            'sample_content' => ['couple' => ['photo_shape' => 'custom', 'photo_radius_top_left' => 90, 'photo_radius_top_right' => '30', 'photo_radius_bottom_right' => 'x; color: red', 'people' => [self::PERSON]]],
+        ]);
+
+        $config = app(InvitationRenderer::class)->forTemplatePreview($template)->sections[0]['config'];
+
+        $this->assertSame('custom', $config['photo_shape']);
+        $this->assertSame(50.0, $config['photo_radius_top_left']);
+        $this->assertSame(30.0, $config['photo_radius_top_right']);
+        $this->assertSame(0.0, $config['photo_radius_bottom_right']);
+        $this->assertSame(0.0, $config['photo_radius_bottom_left']);
+    }
+
+    public function test_custom_corners_render_in_every_design(): void
+    {
+        foreach (['classic', 'mocha-glass', 'botanical-cream'] as $design) {
+            $template = InvitationTemplate::factory()->create([
+                'design' => $design,
+                'schema' => ['sections' => ['couple']],
+                'sample_content' => ['couple' => ['photo_shape' => 'custom', 'photo_radius_top_right' => 40, 'people' => [self::PERSON]]],
+            ]);
+
+            $this->get(route('templates.preview', $template))->assertOk()
+                ->assertSee('inv-photo--custom', false)
+                ->assertSee('--inv-photo-tl: 0%; --inv-photo-tr: 40%; --inv-photo-br: 0%; --inv-photo-bl: 0%;', false);
+        }
+    }
+
+    public function test_the_corner_sliders_only_show_for_custom_corners_and_save(): void
+    {
+        $template = InvitationTemplate::factory()->create(['schema' => ['sections' => ['couple']]]);
+
+        Livewire::actingAs(User::factory()->superAdmin()->create())->test(TemplateSectionContent::class, [
+            'templateUlid' => $template->ulid, 'type' => 'couple', 'group' => 'default_configuration',
+        ])
+            ->assertDontSee('Top right corner')
+            ->set('config.photo_shape', 'custom')
+            ->assertSee('Top right corner')
+            ->set('config.photo_radius_top_right', 35)
+            ->assertHasNoErrors()
+            ->set('config.photo_radius_top_right', 80)
+            ->assertHasErrors('config.photo_radius_top_right')
+            ->set('config.photo_radius_top_right', 35)
+            ->set('config.photo_frame', '/illustrations/frame-oval-gold.svg')
+            ->assertDontSee('Top right corner');
+    }
+
     public function test_portraits_keep_the_design_look_until_a_shape_or_frame_is_chosen(): void
     {
         foreach (['classic', 'mocha-glass'] as $design) {

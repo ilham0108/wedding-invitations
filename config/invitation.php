@@ -35,11 +35,14 @@ return [
             ['key' => 'background_motion', 'label' => 'Background motion', 'type' => 'select', 'options' => ['none' => 'Still', 'zoom-out' => 'Slow zoom-out on open', 'drift' => 'Slow continuous zoom']],
             ['key' => 'overlay', 'label' => 'Dark overlay on image', 'type' => 'toggle'],
             ['key' => 'frame_style', 'label' => 'Frame style', 'type' => 'select', 'variants' => ['framed'], 'options' => ['blur' => 'Blur (frosted glass)', 'transparent' => 'Transparent (outline only)', 'solid' => 'Solid']],
+            ['key' => 'frame_shape', 'label' => 'Frame shape', 'type' => 'select', 'variants' => ['framed'], 'options' => ['rectangle' => 'Rounded rectangle', 'arch' => 'Arch (text centered)']],
             ['key' => 'alignment', 'label' => 'Alignment', 'type' => 'select', 'options' => ['center' => 'Center', 'left' => 'Left']],
             // Vertical place of the cover title in every design (App\Support\CoverTitle, invitation.css "Cover title").
             ['key' => 'title_position', 'label' => 'Title position (vertical)', 'type' => 'select', 'admin_only' => true, 'options' => ['design' => 'Design default', 'top' => 'Top', 'center' => 'Middle', 'bottom' => 'Bottom']],
             ['key' => 'title_offset', 'label' => 'Move the title up or down (% of the screen height)', 'type' => 'number', 'slider' => true, 'min' => -30, 'max' => 30, 'step' => 1, 'admin_only' => true],
             ['key' => 'button_label', 'label' => 'Button label', 'type' => 'text'],
+            // With an icon only, the label stays as the button's name for screen readers.
+            ['key' => 'button_display', 'label' => 'Button shape', 'type' => 'select', 'options' => ['label' => 'Button with text', 'scroll' => 'Scroll icon only', 'arrow' => 'Down arrow only']],
             // Desktop side panel (designs with the "desktop_panel" feature); empty fields reuse the cover's.
             // Admin only (the owner's choice, 2026-10-25): the template sets the panel, clients only fill the cover.
             ['key' => 'desktop_image', 'label' => 'Desktop panel: background image', 'type' => 'image', 'illustrations' => 'cover', 'admin_only' => true, 'feature' => 'desktop_panel', 'focus' => true],
@@ -59,10 +62,12 @@ return [
             $heading,
             ['key' => 'opening', 'label' => 'Opening line (e.g. Bismillah in Arabic)', 'type' => 'text'],
             ['key' => 'intro', 'label' => 'Introduction', 'type' => 'textarea'],
-            // Layout "Photo beside": which side each portrait sits on; "alternate" starts left and swaps every person.
-            ['key' => 'photo_side', 'label' => 'Photo position', 'type' => 'select', 'variants' => ['photo-beside'], 'options' => ['left' => 'Left of the name', 'right' => 'Right of the name', 'alternate' => 'Alternate (left, then right)']],
             // Portrait mask and an optional frame image laid over every person's photo (invitation.partials.framed-photo).
-            ['key' => 'photo_shape', 'label' => 'Photo shape', 'type' => 'select', 'admin_only' => true, 'hidden_when' => 'photo_frame', 'options' => ['default' => 'Design default', 'rounded' => 'Rounded rectangle', 'circle' => 'Circle', 'oval' => 'Oval', 'arch' => 'Arch']],
+            ['key' => 'photo_shape', 'label' => 'Photo shape', 'type' => 'select', 'admin_only' => true, 'hidden_when' => 'photo_frame', 'options' => ['default' => 'Design default', 'rounded' => 'Rounded rectangle', 'circle' => 'Circle', 'oval' => 'Oval', 'arch' => 'Arch', 'custom' => 'Custom corners']],
+            ['key' => 'photo_radius_top_left', 'label' => 'Top left corner', 'type' => 'number', 'slider' => true, 'min' => 0, 'max' => 50, 'step' => 1, 'admin_only' => true, 'hidden_when' => 'photo_frame', 'shown_when' => ['photo_shape', 'custom']],
+            ['key' => 'photo_radius_top_right', 'label' => 'Top right corner', 'type' => 'number', 'slider' => true, 'min' => 0, 'max' => 50, 'step' => 1, 'admin_only' => true, 'hidden_when' => 'photo_frame', 'shown_when' => ['photo_shape', 'custom']],
+            ['key' => 'photo_radius_bottom_right', 'label' => 'Bottom right corner', 'type' => 'number', 'slider' => true, 'min' => 0, 'max' => 50, 'step' => 1, 'admin_only' => true, 'hidden_when' => 'photo_frame', 'shown_when' => ['photo_shape', 'custom']],
+            ['key' => 'photo_radius_bottom_left', 'label' => 'Bottom left corner', 'type' => 'number', 'slider' => true, 'min' => 0, 'max' => 50, 'step' => 1, 'admin_only' => true, 'hidden_when' => 'photo_frame', 'shown_when' => ['photo_shape', 'custom']],
             ['key' => 'photo_frame', 'label' => 'Photo frame (transparent image with an opening in the middle)', 'type' => 'image', 'admin_only' => true, 'illustrations' => 'frame'],
             ['key' => 'photo_frame_inset', 'label' => 'Photo frame: photo margin inside the frame (%)', 'type' => 'number', 'admin_only' => true, 'min' => 0, 'max' => 40],
             ['key' => 'people', 'label' => 'People', 'type' => 'repeater', 'max' => 6, 'fields' => [
@@ -71,6 +76,7 @@ return [
                 ['key' => 'parents', 'label' => 'Parents / organization', 'type' => 'text'],
                 ['key' => 'description', 'label' => 'Description', 'type' => 'textarea'],
                 ['key' => 'photo', 'label' => 'Photo', 'type' => 'image', 'illustrations' => 'person', 'focus' => true],
+                ['key' => 'photo_side', 'label' => 'Photo position', 'type' => 'select', 'variants' => ['photo-beside'], 'default' => 'left', 'options' => ['left' => 'Left of the name', 'right' => 'Right of the name']],
                 ['key' => 'instagram', 'label' => 'Instagram URL', 'type' => 'url'],
                 ['key' => 'tiktok', 'label' => 'TikTok URL', 'type' => 'url'],
                 ['key' => 'facebook', 'label' => 'Facebook URL', 'type' => 'url'],
@@ -116,9 +122,10 @@ return [
                 ['key' => 'title', 'label' => 'Title', 'type' => 'text'],
                 ['key' => 'description', 'label' => 'Description', 'type' => 'textarea'],
                 // Marker on the timeline (config "story_icons").
-                ['key' => 'icon', 'label' => 'Icon', 'type' => 'select', 'options' => [
+                ['key' => 'icon', 'label' => 'Icon', 'type' => 'select', 'default' => 'heart', 'options' => [
                     'heart' => 'Heart', 'chat' => 'Conversation', 'ring' => 'Ring', 'home' => 'Home', 'star' => 'Star',
                     'plane' => 'Travel', 'calendar' => 'Calendar', 'camera' => 'Photo', 'graduation' => 'Graduation', 'gift' => 'Gift',
+                    'none' => 'No icon',
                 ]],
                 ['key' => 'image', 'label' => 'Image', 'type' => 'image', 'illustrations' => 'story', 'focus' => true],
             ]],
@@ -234,7 +241,7 @@ return [
             'label' => 'Cover',
             'icon' => 'fa-regular fa-image',
             'variants' => ['centered', 'framed'],
-            'defaults' => ['title' => '', 'subtitle' => '', 'date_text' => '', 'background_image' => null, 'background_motion' => 'none', 'overlay' => true, 'frame_style' => 'blur', 'alignment' => 'center', 'title_position' => 'design', 'title_offset' => 0, 'button_label' => 'Open Invitation', 'desktop_image' => null, 'desktop_subtitle' => '', 'desktop_title' => '', 'desktop_text' => '', 'desktop_text_position' => 'center'],
+            'defaults' => ['title' => '', 'subtitle' => '', 'date_text' => '', 'background_image' => null, 'background_motion' => 'none', 'overlay' => true, 'frame_style' => 'blur', 'frame_shape' => 'rectangle', 'alignment' => 'center', 'title_position' => 'design', 'title_offset' => 0, 'button_label' => 'Open Invitation', 'button_display' => 'label', 'desktop_image' => null, 'desktop_subtitle' => '', 'desktop_title' => '', 'desktop_text' => '', 'desktop_text_position' => 'center'],
         ],
         'greeting' => [
             'label' => 'Greeting',
@@ -246,7 +253,7 @@ return [
             'label' => 'Couple / Host',
             'icon' => 'fa-solid fa-user-group',
             'variants' => ['side-by-side', 'stacked', 'photo-beside'],
-            'defaults' => ['heading' => 'The Hosts', 'opening' => '', 'intro' => '', 'photo_side' => 'left', 'photo_shape' => 'default', 'photo_frame' => null, 'photo_frame_inset' => 12, 'people' => []],
+            'defaults' => ['heading' => 'The Hosts', 'opening' => '', 'intro' => '', 'photo_shape' => 'default', 'photo_radius_top_left' => 0, 'photo_radius_top_right' => 0, 'photo_radius_bottom_right' => 0, 'photo_radius_bottom_left' => 0, 'photo_frame' => null, 'photo_frame_inset' => 12, 'people' => []],
         ],
         'quote' => [
             'label' => 'Quote',
@@ -471,7 +478,7 @@ return [
         'classic' => [
             'label' => 'Classic',
             'description' => 'Centered sections on the theme colors. Works with every section.',
-            'fonts' => [],
+            'fonts' => ['Amiri'],
             'assets' => [],
             'features' => [],
         ],

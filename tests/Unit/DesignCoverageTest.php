@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Services\FontRegistry;
 use App\Services\Invitation\DesignRegistry;
 use App\Services\Invitation\SectionRegistry;
 use Illuminate\Support\Facades\File;
@@ -103,6 +104,17 @@ class DesignCoverageTest extends TestCase
                 }
             }
         }
+    }
+
+    public function test_every_design_loads_the_font_for_arabic_letters(): void
+    {
+        $designs = app(DesignRegistry::class);
+
+        foreach (array_keys($designs->all()) as $design) {
+            $this->assertContains(FontRegistry::ARABIC, $designs->fonts($design), "Design [{$design}] does not load the Arabic font.");
+        }
+
+        $this->assertSame("'Amiri', serif", app(FontRegistry::class)->stack(FontRegistry::ARABIC));
     }
 
     public function test_design_pages_render_the_scroll_backdrop_and_section_markers(): void

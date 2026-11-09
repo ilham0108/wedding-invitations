@@ -20,6 +20,9 @@ class FontRegistry
 
     public const CATEGORIES = ['serif', 'sans-serif', 'display', 'handwritten'];
 
+    /** Takes over the Arabic letters of every font that has none; loaded by each design (config invitation.designs.*.fonts). */
+    public const ARABIC = 'Amiri';
+
     /** CSS fallback stack per category, used for installed fonts. */
     public const FALLBACKS = [
         'serif' => 'Georgia, serif',
@@ -55,6 +58,16 @@ class FontRegistry
     public function get(string $name): ?array
     {
         return $this->all()[$name] ?? null;
+    }
+
+    /**
+     * CSS font-family value of a known font.
+     */
+    public function stack(string $name): string
+    {
+        $arabic = $name === self::ARABIC ? '' : "'".self::ARABIC."', ";
+
+        return "'{$name}', {$arabic}".$this->all()[$name]['fallback'];
     }
 
     /**

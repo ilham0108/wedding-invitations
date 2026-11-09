@@ -4,6 +4,7 @@
 
 const root = document.querySelector('[data-mg-root]');
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const COVER_SWIPE_DISTANCE = 50;
 
 function openInvitation(animate = true) {
     const cover = document.querySelector('[data-mg-cover]');
@@ -51,10 +52,37 @@ function setupCover() {
         return;
     }
 
-    document.querySelector('[data-mg-open]')?.addEventListener('click', () => {
+    const opener = document.querySelector('[data-mg-open]');
+    const open = () => {
         window.scrollTo(0, 0);
         openInvitation(! reducedMotion);
-    });
+    };
+
+    opener?.addEventListener('click', open);
+
+    // An icon-only button promises scrolling, so a wheel turn or an upward swipe on the cover opens it too.
+    if (opener?.classList.contains('inv-cue')) {
+        const cover = document.querySelector('[data-mg-cover]');
+        let touchY = null;
+
+        cover.addEventListener('wheel', (event) => {
+            if (event.deltaY > 0) {
+                open();
+            }
+        }, { passive: true });
+
+        cover.addEventListener('touchstart', (event) => {
+            touchY = event.touches.length === 1 ? event.touches[0].clientY : null;
+        }, { passive: true });
+
+        cover.addEventListener('touchend', (event) => {
+            if (touchY !== null && touchY - event.changedTouches[0].clientY >= COVER_SWIPE_DISTANCE) {
+                open();
+            }
+
+            touchY = null;
+        }, { passive: true });
+    }
 
     // Skip the cover after a form redirect (#rsvp-form), a menu link, or when an editor preview jumps to a section.
     const previewSection = new URLSearchParams(window.location.search).get('preview_section');

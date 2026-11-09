@@ -4,7 +4,7 @@
 
     <div class="mg-people-beside">
         @foreach ($config['people'] as $person)
-            <div class="mg-person inv-animate {{ \App\Support\PhotoSide::classes($config['photo_side'] ?? null, $loop->index, filled($person['photo'])) }}">
+            <div class="mg-person inv-animate {{ \App\Support\PhotoSide::classes($person['photo_side'], filled($person['photo'])) }}">
                 @if ($person['photo'])
                     @include('invitation.partials.framed-photo', ['src' => $person['photo'], 'focus' => $person['photo_focus'] ?? null, 'alt' => $person['name'] ?? '', 'imageClass' => 'mg-portrait', 'wrapperClass' => 'mg-portrait-shape'])
                 @endif

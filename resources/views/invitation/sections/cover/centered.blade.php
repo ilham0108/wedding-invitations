@@ -32,11 +32,6 @@
             <p class="text-sm tracking-wide">{{ $config['date_text'] }}</p>
         @endif
 
-        @if (filled($config['button_label']))
-            <button type="button" class="inv-btn mt-10" x-data
-                x-on:click="$el.closest('section').nextElementSibling?.scrollIntoView({ behavior: 'smooth' })">
-                <i class="fa-regular fa-envelope-open" aria-hidden="true"></i>{{ $config['button_label'] }}
-            </button>
-        @endif
+        @include('invitation.sections.cover._button', ['onPhoto' => $hasImage])
     </div>
 </div>

@@ -134,6 +134,122 @@ class SectionFieldsTest extends TestCase
         $this->get(route('templates.preview', $centered))->assertOk()->assertDontSee('mg-framebox', false);
     }
 
+    public function test_frame_shape_is_whitelisted_and_defaults_to_rectangle(): void
+    {
+        $this->assertSame('arch', $this->render(['cover' => ['frame_shape' => 'arch']])['cover']['frame_shape']);
+        $this->assertSame('rectangle', $this->render(['cover' => ['frame_shape' => '" onload="x']])['cover']['frame_shape']);
+        $this->assertSame('rectangle', $this->render(['cover' => []])['cover']['frame_shape']);
+    }
+
+    public function test_framed_covers_use_the_chosen_frame_shape_in_every_design(): void
+    {
+        $classes = ['classic' => 'inv-frame--arch', 'mocha-glass' => 'mg-framebox--arch', 'botanical-cream' => 'bc-frame--arch'];
+
+        foreach ($classes as $design => $class) {
+            $template = fn (array $cover) => InvitationTemplate::factory()->create([
+                'design' => $design,
+                'schema' => ['sections' => [['type' => 'cover', 'variant' => 'framed'], 'closing']],
+                'sample_content' => ['cover' => ['title' => 'Arina & Bagas', ...$cover]],
+            ]);
+
+            $this->get(route('templates.preview', $template(['frame_shape' => 'arch'])))->assertOk()->assertSee($class, false);
+            $this->get(route('templates.preview', $template([])))->assertOk()->assertDontSee($class, false);
+        }
+    }
+
+    public function test_story_entries_can_have_no_icon(): void
+    {
+        $entries = $this->render(['story' => ['entries' => [['icon' => 'none', 'title' => 'A'], ['icon' => 'ring', 'title' => 'B'], ['title' => 'C']]]])['story']['entries'];
+
+        $this->assertNull($entries[0]['icon_class']);
+        $this->assertSame('fa-solid fa-ring', $entries[1]['icon_class']);
+        $this->assertSame('fa-regular fa-heart', $entries[2]['icon_class']);
+    }
+
+    public function test_story_entries_without_an_icon_get_a_dot_on_the_timeline_in_every_design(): void
+    {
+        foreach (['classic', 'mocha-glass', 'botanical-cream'] as $design) {
+            $story = fn (array $icons) => InvitationTemplate::factory()->create([
+                'design' => $design,
+                'schema' => ['sections' => ['story', 'closing']],
+                'sample_content' => ['story' => ['heading' => 'Kisah', 'entries' => array_map(fn (string $icon): array => ['icon' => $icon, 'title' => 'Pertemuan'], $icons)]],
+            ]);
+
+            $none = $this->get(route('templates.preview', $story(['none', 'none'])))->assertOk()->assertDontSee('fa-ring', false)->assertSee('Pertemuan')->getContent();
+            $mixed = $this->get(route('templates.preview', $story(['ring', 'none'])))->assertOk()->assertSee('fa-ring', false)->getContent();
+
+            $this->assertSame(2, substr_count($none, 'inv-story-dot'), "[{$design}]");
+            $this->assertSame(1, substr_count($mixed, 'inv-story-dot'), "[{$design}]");
+        }
+    }
+
+    public function test_button_display_is_whitelisted_and_defaults_to_text(): void
+    {
+        $this->assertSame('arrow', $this->render(['cover' => ['button_display' => 'arrow']])['cover']['button_display']);
+        $this->assertSame('label', $this->render(['cover' => ['button_display' => '" onload="x']])['cover']['button_display']);
+        $this->assertSame('label', $this->render(['cover' => []])['cover']['button_display']);
+    }
+
+    public function test_icon_only_cover_buttons_keep_a_name_in_every_design_and_layout(): void
+    {
+        foreach (['classic', 'mocha-glass', 'botanical-cream'] as $design) {
+            foreach (['centered', 'framed'] as $variant) {
+                foreach (['scroll' => 'inv-cue__mouse', 'arrow' => 'inv-cue__arrow'] as $display => $iconClass) {
+                    $template = InvitationTemplate::factory()->create([
+                        'design' => $design,
+                        'schema' => ['sections' => [['type' => 'cover', 'variant' => $variant], 'closing']],
+                        'sample_content' => ['cover' => ['title' => 'Arina & Bagas', 'button_label' => 'Lihat Undangan', 'button_display' => $display]],
+                    ]);
+
+                    $this->get(route('templates.preview', $template))->assertOk()
+                        ->assertSee($iconClass, false)
+                        ->assertSee('aria-label="Lihat Undangan"', false)
+                        ->assertDontSee('>Lihat Undangan<', false)
+                        ->assertDontSee('fa-envelope-open', false);
+                }
+            }
+        }
+    }
+
+    public function test_classic_shows_an_icon_only_button_without_a_label(): void
+    {
+        $template = InvitationTemplate::factory()->create([
+            'design' => 'classic',
+            'schema' => ['sections' => ['cover', 'closing']],
+            'sample_content' => ['cover' => ['title' => 'Arina & Bagas', 'button_label' => '', 'button_display' => 'arrow']],
+        ]);
+
+        $this->get(route('templates.preview', $template))->assertOk()
+            ->assertSee('inv-cue__arrow', false)
+            ->assertSee('aria-label="Open Invitation"', false);
+    }
+
+    public function test_text_cover_buttons_are_unchanged(): void
+    {
+        $template = InvitationTemplate::factory()->create([
+            'design' => 'classic',
+            'schema' => ['sections' => ['cover', 'closing']],
+            'sample_content' => ['cover' => ['title' => 'Arina & Bagas', 'button_label' => 'Lihat Undangan']],
+        ]);
+
+        $this->get(route('templates.preview', $template))->assertOk()
+            ->assertSee('Lihat Undangan')
+            ->assertSee('fa-envelope-open', false)
+            ->assertDontSee('inv-cue', false);
+    }
+
+    public function test_the_frame_shape_field_only_shows_for_the_framed_layout(): void
+    {
+        $template = InvitationTemplate::factory()->create();
+        $admin = User::factory()->superAdmin()->create();
+        $mount = fn (string $variant) => Livewire::actingAs($admin)->test(TemplateSectionContent::class, [
+            'templateUlid' => $template->ulid, 'type' => 'cover', 'group' => 'default_configuration', 'variant' => $variant,
+        ]);
+
+        $mount('framed')->assertSee('Frame shape')->assertSee('Arch (text centered)');
+        $mount('centered')->assertDontSee('Frame shape');
+    }
+
     public function test_the_frame_style_field_only_shows_for_the_framed_layout(): void
     {
         $template = InvitationTemplate::factory()->create();

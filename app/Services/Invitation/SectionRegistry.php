@@ -2,6 +2,7 @@
 
 namespace App\Services\Invitation;
 
+use App\Support\PhotoSide;
 use App\Support\PhotoStyle;
 use InvalidArgumentException;
 
@@ -215,7 +216,7 @@ class SectionRegistry
      */
     public function sanitize(string $type, array $input): array
     {
-        return $this->sanitizeFields($this->fields($type), $input, $this->defaults($type));
+        return $this->sanitizeFields($this->fields($type), $this->upgrade($type, $input), $this->defaults($type));
     }
 
     /**
@@ -227,7 +228,18 @@ class SectionRegistry
      */
     public function prune(string $type, array $input): array
     {
-        return $this->pruneFields($this->fields($type), $input);
+        return $this->pruneFields($this->fields($type), array_key_exists('photo_side', $input) ? $this->upgrade($type, $input) : $input);
+    }
+
+    /**
+     * Moves values of fields that changed place to where they are now, before unknown keys are dropped.
+     *
+     * @param  array<string, mixed>  $input
+     * @return array<string, mixed>
+     */
+    private function upgrade(string $type, array $input): array
+    {
+        return $type === 'couple' ? PhotoSide::perPerson($input) : $input;
     }
 
     /**

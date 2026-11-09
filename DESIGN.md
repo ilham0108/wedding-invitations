@@ -81,6 +81,10 @@ Aturan bersama semua template:
 - Tema tetap per template, tanpa toggle terang/gelap. Alasan (R-21): warna adalah bagian dari desain undangan yang dipilih pasangan.
 - Semua animasi (`inv-ornament-*`, `inv-bg-*`, `inv-music-spin`, animasi bagian `fade-up`) wajib mati saat `prefers-reduced-motion`.
 - Teks di atas foto atau kaca wajib lolos kontras WCAG AA di seluruh area latarnya (R-25). Gunakan lapisan gelap/terang di bawah teks jika perlu.
+- Huruf Arab selalu Amiri (R-06), apa pun font temanya: naskh klasik yang pantas untuk ayat, dan tampil sama di semua ponsel. Amiri dipasang sebagai font kedua di susunan font, jadi huruf Latin tetap memakai font tema.
+- Tombol sampul hanya ikon (`button_display`, R-08, R-19): panah dan ikon gulir di sini adalah kontrolnya, bukan hiasan pada tombol berteks. Bergerak tiga kali untuk memberi tahu arah gulir lalu diam, dan di foto diberi bayangan gelap agar tetap terlihat.
+- Warna ikon sosial media diatur per section Mempelai (`colors.social_icon`, `colors.social_bg`). Kosong berarti bawaan desain: mengikuti teks di Classic dan Botanical Cream, hitam di lingkaran putih di Mocha Glass supaya terbaca di atas foto.
+- Bingkai sampul Lengkung (`frame_shape`, R-11): meniru pintu lengkung pelaminan dan senada dengan bentuk foto `arch`. Teks selalu di tengah dan diberi ruang atas supaya tidak keluar dari kurva.
 
 ### Botanical Cream
 

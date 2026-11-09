@@ -10,8 +10,8 @@
 
     <div class="mx-auto mt-12 grid max-w-xl gap-12">
         @foreach ($config['people'] as $person)
-            @php($right = \App\Support\PhotoSide::isRight($config['photo_side'] ?? null, $loop->index))
-            <div class="{{ \App\Support\PhotoSide::classes($config['photo_side'] ?? null, $loop->index, filled($person['photo'])) }}">
+            @php($right = \App\Support\PhotoSide::isRight($person['photo_side']))
+            <div class="{{ \App\Support\PhotoSide::classes($person['photo_side'], filled($person['photo'])) }}">
                 @if ($person['photo'])
                     @include('invitation.partials.framed-photo', [
                         'src' => $person['photo'],

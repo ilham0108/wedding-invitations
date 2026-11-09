@@ -78,8 +78,8 @@ class SectionFonts
     public function style(array $fonts): string
     {
         $variables = [
-            '--inv-font-heading' => isset($fonts['font_heading']) ? $this->stack($fonts['font_heading']) : null,
-            '--inv-font-body' => isset($fonts['font_body']) ? $this->stack($fonts['font_body']) : null,
+            '--inv-font-heading' => isset($fonts['font_heading']) ? $this->fonts->stack($fonts['font_heading']) : null,
+            '--inv-font-body' => isset($fonts['font_body']) ? $this->fonts->stack($fonts['font_body']) : null,
             '--inv-heading-weight' => $fonts['heading_weight'] ?? null,
             '--inv-body-weight' => $fonts['body_weight'] ?? null,
         ];
@@ -100,10 +100,5 @@ class SectionFonts
             ->unique()
             ->values()
             ->all();
-    }
-
-    private function stack(string $name): string
-    {
-        return "'{$name}', ".$this->fonts->get($name)['fallback'];
     }
 }
