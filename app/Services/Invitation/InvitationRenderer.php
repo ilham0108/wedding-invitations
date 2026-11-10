@@ -10,6 +10,7 @@ use App\Services\MusicService;
 use App\Services\Rsvp\GuestbookService;
 use App\Services\Rsvp\RsvpService;
 use App\Services\Template\TemplateSchema;
+use App\Support\CoverButton;
 use App\Support\PhotoSide;
 use App\Support\SafeUrl;
 use App\Support\VideoEmbed;
@@ -287,6 +288,8 @@ class InvitationRenderer
                 'frame_style' => in_array($config['frame_style'] ?? null, ['blur', 'transparent', 'solid'], true) ? $config['frame_style'] : 'blur',
                 'frame_shape' => in_array($config['frame_shape'] ?? null, ['rectangle', 'arch'], true) ? $config['frame_shape'] : 'rectangle',
                 'button_display' => in_array($config['button_display'] ?? null, ['label', 'scroll', 'arrow'], true) ? $config['button_display'] : 'label',
+                'button_position' => in_array($config['button_position'] ?? null, CoverButton::POSITIONS, true) ? $config['button_position'] : 'design',
+                'button_align' => in_array($config['button_align'] ?? null, CoverButton::ALIGNS, true) ? $config['button_align'] : 'text',
             ],
             'greeting' => [...$config, 'emblem' => $this->safeUrl($config['emblem'] ?? null)],
             'couple' => [

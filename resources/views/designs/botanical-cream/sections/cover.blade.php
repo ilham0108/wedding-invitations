@@ -31,15 +31,13 @@
         @if ($invitation->guestName)
             <p class="bc-guest">{{ __('To:') }} <b>{{ $invitation->guestName }}</b></p>
         @endif
+        @unless (\App\Support\CoverButton::atBottom($config['button_position'] ?? null, designBottom: true))
+            @include('designs.botanical-cream.partials.cover-scroll')
+        @endunless
     </div>
 
-    @php($iconOnly = $config['button_display'] !== 'label')
-    <a href="#" @class(['bc-scroll inv-animate', 'inv-cue' => $iconOnly]) @animate('button_label') data-bc-scroll @if ($iconOnly) aria-label="{{ $config['button_label'] ?: __('Scroll down') }}" @endif>
-        @if ($iconOnly)
-            @include('invitation.partials.cover-cue', ['cue' => $config['button_display']])
-        @else
-            <span class="bc-scroll__mouse" aria-hidden="true"><span></span></span>
-            <span class="bc-scroll__label">{{ $config['button_label'] ?: __('Scroll down') }}</span>
-        @endif
-    </a>
+    {{-- The design's own place is the bottom of the screen, below the text block. --}}
+    @if (\App\Support\CoverButton::atBottom($config['button_position'] ?? null, designBottom: true))
+        @include('designs.botanical-cream.partials.cover-scroll')
+    @endif
 </div>

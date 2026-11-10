@@ -1640,5 +1640,10 @@
     "Item order": "Urutan item",
     "All the same": "Sama semua",
     "Zigzag": "Zigzag",
-    "Items come in from the left and the right in turn. With a zoom, they zoom in from the side.": "Item masuk bergantian dari kiri dan kanan. Dengan efek zoom, item membesar sambil masuk dari samping."
+    "Items come in from the left and the right in turn. With a zoom, they zoom in from the side.": "Item masuk bergantian dari kiri dan kanan. Dengan efek zoom, item membesar sambil masuk dari samping.",
+    "Button position": "Posisi tombol",
+    "Below the text": "Di bawah teks",
+    "Bottom of the screen": "Bawah layar",
+    "Button alignment": "Perataan tombol",
+    "Follow the text alignment": "Ikut perataan teks"
 }

@@ -741,6 +741,36 @@ body [data-inv-heading-color] :is(
 }
 
 /*
+| Cover button (cover fields button_position / button_align, App\Support\CoverButton). The button is its own
+| block, so it can sit on the left, in the middle or on the right whatever the text alignment.
+| At the bottom of the screen: Classic puts it in .inv-cover-bar (pinned to the cover's bottom edge, the text
+| keeps clear of it); Mocha Glass after the guest's name, last in the cover layer, and it no longer follows the
+| title's nudge; Botanical Cream below the text block, its own place.
+*/
+.inv-cover-button { display: flex; width: fit-content; }
+.inv-cover-button--left { margin-inline: 0 auto; }
+.inv-cover-button--center { margin-inline: auto; }
+.inv-cover-button--right { margin-inline: auto 0; }
+
+.inv-cover-bar {
+    position: absolute;
+    inset-inline: 0;
+    bottom: max(2rem, calc(env(safe-area-inset-bottom) + 1rem));
+    z-index: 10;
+    max-width: 39rem;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+}
+
+.inv-cover:has(> .inv-cover-bar) { padding-bottom: 8rem; }
+
+.mg-cover > .mg-btn-open.inv-cover-button--bottom {
+    order: 1;
+    margin-top: 1.2rem;
+    translate: none;
+}
+
+/*
 | Section title alignment (section "heading_align", builder Section panel). The line or ornament under the title
 | follows it; !important because the divider and ornament rules center it with long selectors.
 */

@@ -35,6 +35,14 @@
             <p class="text-sm tracking-wide" @animate('date_text')>{{ $config['date_text'] }}</p>
         @endif
 
-        @include('invitation.sections.cover._button', ['onPhoto' => $hasImage && $config['frame_style'] !== 'solid'])
+        @unless (\App\Support\CoverButton::atBottom($config['button_position'] ?? null))
+            @include('invitation.sections.cover._button', ['onPhoto' => $hasImage && $config['frame_style'] !== 'solid'])
+        @endunless
     </div>
+
+    @if (\App\Support\CoverButton::atBottom($config['button_position'] ?? null))
+        <div class="inv-cover-bar">
+            @include('invitation.sections.cover._button', ['onPhoto' => $hasImage])
+        </div>
+    @endif
 </div>

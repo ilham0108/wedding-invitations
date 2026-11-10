@@ -28,4 +28,7 @@
     @endif
 
     <button type="submit" class="inv-btn w-full" @disabled(! $wishes['action'])>{{ __('Send wishes') }}</button>
+    @unless ($wishes['action'])
+        <p class="text-center text-xs inv-muted">{{ __('Preview mode: responses are not saved.') }}</p>
+    @endunless
 </form>

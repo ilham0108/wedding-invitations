@@ -43,6 +43,9 @@ return [
             ['key' => 'button_label', 'label' => 'Button label', 'type' => 'text'],
             // With an icon only, the label stays as the button's name for screen readers.
             ['key' => 'button_display', 'label' => 'Button shape', 'type' => 'select', 'options' => ['label' => 'Button with text', 'scroll' => 'Scroll icon only', 'arrow' => 'Down arrow only']],
+            // Place of the button (App\Support\CoverButton): below the text, or pinned to the bottom of the screen.
+            ['key' => 'button_position', 'label' => 'Button position', 'type' => 'select', 'admin_only' => true, 'options' => ['design' => 'Design default', 'text' => 'Below the text', 'bottom' => 'Bottom of the screen']],
+            ['key' => 'button_align', 'label' => 'Button alignment', 'type' => 'select', 'admin_only' => true, 'options' => ['text' => 'Follow the text alignment', 'left' => 'Left', 'center' => 'Center', 'right' => 'Right']],
             // Desktop side panel (designs with the "desktop_panel" feature); empty fields reuse the cover's.
             // Admin only (the owner's choice, 2026-10-25): the template sets the panel, clients only fill the cover.
             ['key' => 'desktop_image', 'label' => 'Desktop panel: background image', 'type' => 'image', 'illustrations' => 'cover', 'admin_only' => true, 'feature' => 'desktop_panel', 'focus' => true],
@@ -273,7 +276,7 @@ return [
             'label' => 'Cover',
             'icon' => 'fa-regular fa-image',
             'variants' => ['centered', 'framed'],
-            'defaults' => ['title' => '', 'subtitle' => '', 'date_text' => '', 'background_image' => null, 'background_motion' => 'none', 'overlay' => true, 'frame_style' => 'blur', 'frame_shape' => 'rectangle', 'alignment' => 'center', 'title_position' => 'design', 'title_offset' => 0, 'button_label' => 'Open Invitation', 'button_display' => 'label', 'desktop_image' => null, 'desktop_subtitle' => '', 'desktop_title' => '', 'desktop_text' => '', 'desktop_text_position' => 'center'],
+            'defaults' => ['title' => '', 'subtitle' => '', 'date_text' => '', 'background_image' => null, 'background_motion' => 'none', 'overlay' => true, 'frame_style' => 'blur', 'frame_shape' => 'rectangle', 'alignment' => 'center', 'title_position' => 'design', 'title_offset' => 0, 'button_label' => 'Open Invitation', 'button_display' => 'label', 'button_position' => 'design', 'button_align' => 'text', 'desktop_image' => null, 'desktop_subtitle' => '', 'desktop_title' => '', 'desktop_text' => '', 'desktop_text_position' => 'center'],
         ],
         'greeting' => [
             'label' => 'Greeting',

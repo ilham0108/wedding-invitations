@@ -66,18 +66,18 @@
             @if (filled($cover['config']['date_text']))
                 <p class="mg-date" @animate('date_text')>{{ $cover['config']['date_text'] }}</p>
             @endif
-            @php($iconOnly = $cover['config']['button_display'] !== 'label')
-            <button type="button" @class(['mg-btn-open', 'inv-cue inv-cue--on-photo' => $iconOnly]) @animate('button_label') data-mg-open @if ($iconOnly) aria-label="{{ $cover['config']['button_label'] ?: __('Open Invitation') }}" @endif>
-                @if ($iconOnly)
-                    @include('invitation.partials.cover-cue', ['cue' => $cover['config']['button_display']])
-                @else
-                    <i class="fa-regular fa-envelope-open" aria-hidden="true"></i>{{ $cover['config']['button_label'] ?: __('Open Invitation') }}
-                @endif
-            </button>
+            @php($buttonAtBottom = \App\Support\CoverButton::atBottom($cover['config']['button_position'] ?? null))
+            @unless ($buttonAtBottom)
+                @include('designs.mocha-glass.partials.cover-button')
+            @endunless
             @if ($cover['variant'] === 'framed')
                 </div>
             @endif
             @include('designs.mocha-glass.partials.guest')
+            {{-- At the bottom of the screen the button comes after the guest's name, outside the title block. --}}
+            @if ($buttonAtBottom)
+                @include('designs.mocha-glass.partials.cover-button')
+            @endif
             @include('invitation.partials.ornaments', ['ornaments' => $cover['ornaments'], 'owner' => $cover['key']])
         </div>
     @endif
