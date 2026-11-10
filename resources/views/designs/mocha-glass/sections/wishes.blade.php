@@ -16,17 +16,20 @@
         @include('invitation.partials.wishes-form', ['formClass' => 'mg-form mg-form--glass'])
     @endif
 
-    @if ($wishes['messages'])
-        <ul class="mg-wishes">
-            @foreach ($wishes['messages'] as $message)
-                <li class="mg-wish" @animate('messages', $loop->index)>
-                    <b>{{ $message['name'] }}</b>
-                    <small><i class="fa-regular fa-clock" aria-hidden="true"></i> {{ $message['date'] }}</small>
-                    <p>{{ $message['message'] }}</p>
-                </li>
-            @endforeach
-        </ul>
-    @elseif (! session('wish_saved'))
-        <p class="mg-small mg-center" @animate('messages')>{{ __('No wishes yet. Be the first!') }}</p>
-    @endif
+    {{-- Swapped in place after a preview wish is sent (invitation.js, setupPreviewWishes). --}}
+    <div data-inv-wishes-list>
+        @if ($wishes['messages'])
+            <ul class="mg-wishes">
+                @foreach ($wishes['messages'] as $message)
+                    <li class="mg-wish" @animate('messages', $loop->index)>
+                        <b>{{ $message['name'] }}</b>
+                        <small><i class="fa-regular fa-clock" aria-hidden="true"></i> {{ $message['date'] }}</small>
+                        <p>{{ $message['message'] }}</p>
+                    </li>
+                @endforeach
+            </ul>
+        @elseif (! session('wish_saved'))
+            <p class="mg-small mg-center" @animate('messages')>{{ __('No wishes yet. Be the first!') }}</p>
+        @endif
+    </div>
 </div>

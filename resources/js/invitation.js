@@ -135,6 +135,72 @@ function setupElementAnimations() {
 }
 
 setupElementAnimations();
+
+// Preview wishes (PreviewGuestbook): send the form in the background, then swap in the wishes list of the freshly
+// rendered page, so every design keeps its own list markup. Without JavaScript the form posts and reloads as usual.
+function setupPreviewWishes() {
+    document.querySelectorAll('form[data-inv-preview-wishes]').forEach((form) => {
+        const status = form.querySelector('[data-inv-wish-status]');
+        const errors = form.querySelector('[data-inv-wish-errors]');
+        const button = form.querySelector('button[type="submit"]');
+
+        const showErrors = (messages) => {
+            errors.replaceChildren(...messages.map((text) => Object.assign(document.createElement('li'), { textContent: text })));
+            errors.classList.toggle('hidden', messages.length === 0);
+        };
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            button.disabled = true;
+            form.setAttribute('aria-busy', 'true');
+            showErrors([]);
+            status.textContent = '';
+
+            try {
+                const response = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+                const body = await response.json().catch(() => ({}));
+
+                if (! response.ok) {
+                    showErrors(response.status === 422 ? Object.values(body.errors ?? {}).flat() : [form.dataset.errorText]);
+
+                    return;
+                }
+
+                form.querySelector('[name="message"]').value = '';
+                status.textContent = body.status ?? '';
+                await refreshWishesList(form);
+            } catch {
+                showErrors([form.dataset.errorText]);
+            } finally {
+                button.disabled = false;
+                form.removeAttribute('aria-busy');
+            }
+        });
+    });
+}
+
+async function refreshWishesList(form) {
+    const section = form.closest('section');
+    const current = section?.querySelector('[data-inv-wishes-list]');
+
+    if (! current) {
+        return;
+    }
+
+    const html = await (await fetch(location.href, { credentials: 'same-origin', headers: { Accept: 'text/html' } })).text();
+    const fresh = new DOMParser().parseFromString(html, 'text/html').querySelector(`#${CSS.escape(section.id)} [data-inv-wishes-list]`);
+
+    if (! fresh) {
+        return;
+    }
+
+    // The new list is already on screen: show it at once instead of waiting for an entrance.
+    fresh.querySelectorAll('[data-inv-anim]').forEach((element) => element.classList.add('is-in'));
+    fresh.querySelectorAll('.inv-animate').forEach((element) => element.classList.add('is-shown'));
+    current.replaceWith(document.importNode(fresh, true));
+}
+
+setupPreviewWishes();
 setupPhotoFrames();
 
 // Background photos that change while scrolling (invitation.partials.scroll-backdrop): show the

@@ -16,16 +16,19 @@
         @include('invitation.partials.wishes-form')
     @endif
 
-    @if ($wishes['messages'])
-        <ul class="mx-auto mt-8 max-w-md space-y-3 text-left">
-            @foreach ($wishes['messages'] as $message)
-                <li class="inv-card p-4" @animate('messages', $loop->index)>
-                    <p class="text-sm">{{ $message['message'] }}</p>
-                    <p class="mt-2 text-xs inv-muted">— {{ $message['name'] }} · {{ $message['date'] }}</p>
-                </li>
-            @endforeach
-        </ul>
-    @elseif (! session('wish_saved'))
-        <p class="mt-6 text-sm inv-muted" @animate('messages')>{{ __('No wishes yet. Be the first!') }}</p>
-    @endif
+    {{-- Swapped in place after a preview wish is sent (invitation.js, setupPreviewWishes). --}}
+    <div data-inv-wishes-list>
+        @if ($wishes['messages'])
+            <ul class="mx-auto mt-8 max-w-md space-y-3 text-left">
+                @foreach ($wishes['messages'] as $message)
+                    <li class="inv-card p-4" @animate('messages', $loop->index)>
+                        <p class="text-sm">{{ $message['message'] }}</p>
+                        <p class="mt-2 text-xs inv-muted">— {{ $message['name'] }} · {{ $message['date'] }}</p>
+                    </li>
+                @endforeach
+            </ul>
+        @elseif (! session('wish_saved'))
+            <p class="mt-6 text-sm inv-muted" @animate('messages')>{{ __('No wishes yet. Be the first!') }}</p>
+        @endif
+    </div>
 </div>

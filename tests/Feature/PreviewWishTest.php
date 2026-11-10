@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\InvitationStatus;
 use App\Enums\TemplateStatus;
 use App\Models\GuestMessage;
 use App\Models\InvitationTemplate;
@@ -37,6 +38,40 @@ class PreviewWishTest extends TestCase
 
         // Another visitor (another session) sees nothing of it.
         $this->visitor('b')->get($preview)->assertOk()->assertDontSee('Selamat menempuh');
+    }
+
+    public function test_the_page_sends_the_wish_in_the_background(): void
+    {
+        $template = $this->template();
+        $url = route('templates.preview.wishes', $template);
+
+        $this->visitor('a')->withCredentials()->postJson($url, ['name' => 'Rina', 'message' => 'Tanpa muat ulang'])
+            ->assertOk()->assertExactJson(['status' => 'Thank you for your wishes!']);
+        $this->visitor('a')->withCredentials()->postJson($url, ['name' => 'Rina', 'message' => ''])
+            ->assertStatus(422)->assertJsonValidationErrors('message');
+
+        $this->visitor('a')->get(route('templates.preview', $template))->assertOk()->assertSee('Tanpa muat ulang');
+    }
+
+    public function test_every_design_marks_the_list_and_the_form_for_the_swap(): void
+    {
+        foreach (['classic', 'mocha-glass', 'botanical-cream'] as $design) {
+            $html = $this->get(route('templates.preview', $this->template(['design' => $design])))->assertOk()->getContent();
+
+            $this->assertMatchesRegularExpression('/id="section-[^"]+" data-section="wishes".*data-inv-wishes-list.*<\/section>/s', $html, "[{$design}]");
+            $this->assertStringContainsString('data-inv-preview-wishes', $html, "[{$design}]");
+            $this->assertStringContainsString('data-inv-wish-status', $html, "[{$design}]");
+        }
+    }
+
+    public function test_published_invitations_keep_the_plain_form(): void
+    {
+        $invitation = app(InvitationService::class)->createFromTemplate(User::factory()->client()->create(), $this->template(), [
+            'title' => 'Alya & Pradana', 'event_type' => 'wedding', 'timezone' => 'Asia/Jakarta',
+        ]);
+        $invitation->forceFill(['status' => InvitationStatus::Published, 'published_at' => now()])->save();
+
+        $this->get(route('invitations.public', $invitation->slug))->assertOk()->assertDontSee('data-inv-preview-wishes', false);
     }
 
     public function test_a_visitor_keeps_at_most_the_latest_wishes(): void

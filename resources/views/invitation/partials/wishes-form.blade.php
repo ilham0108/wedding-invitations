@@ -1,6 +1,7 @@
 {{-- Wishes form. Needs $wishes (InvitationRenderer interaction) and $invitation; $formClass styles the form. In a preview the action keeps the wish for the sender only. --}}
 <form method="POST" action="{{ $wishes['action'] ?? '#' }}" @animate('form') class="{{ $formClass ?? 'inv-card mx-auto mt-8 max-w-md space-y-4 p-6 text-left' }}"
-    @if (! $wishes['action']) x-data x-on:submit.prevent @endif>
+    @if (! $wishes['action']) x-data x-on:submit.prevent @endif
+    @if ($wishes['preview'] ?? false) data-inv-preview-wishes data-error-text="{{ __('The wish could not be sent. Please try again in a minute.') }}" @endif>
     @csrf
     @if ($invitation->interaction['token'] ?? null)
         <input type="hidden" name="token" value="{{ $invitation->interaction['token'] }}">
@@ -27,7 +28,15 @@
         </ul>
     @endif
 
+    @if ($wishes['preview'] ?? false)
+        {{-- Filled by invitation.js when the preview wish is sent without reloading the page. --}}
+        <ul data-inv-wish-errors class="hidden space-y-1 text-sm text-red-600" role="alert"></ul>
+    @endif
+
     <button type="submit" class="inv-btn w-full" @disabled(! $wishes['action'])>{{ __('Send wishes') }}</button>
+    @if ($wishes['preview'] ?? false)
+        <p data-inv-wish-status class="text-center text-sm" role="status" aria-live="polite"></p>
+    @endif
     @if (! $wishes['action'])
         <p class="text-center text-xs inv-muted">{{ __('Preview mode: responses are not saved.') }}</p>
     @elseif ($wishes['preview'] ?? false)
