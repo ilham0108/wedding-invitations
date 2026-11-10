@@ -5,13 +5,8 @@
     $others = collect($sections)->reject(fn (array $section): bool => $section['key'] === $selectedSection['key'] || empty($section[$ornamentList] ?? []));
 @endphp
 
-<div class="border-t border-line pt-5">
-    <div class="mb-1 flex items-center justify-between">
-        <p class="text-sm font-medium text-ink">{{ __('Ornaments') }} <span class="text-xs font-normal text-muted">({{ count($ornaments) }})</span></p>
-        <button type="button" wire:click="$toggle('ornamentPicker')" class="text-xs font-medium text-sage hover:text-ink">
-            <i class="fa-solid fa-plus" aria-hidden="true"></i> {{ __('Add ornament') }}
-        </button>
-    </div>
+{{-- The group around it (template-builder "Ornaments") carries the title and the count. --}}
+<div>
     @if ($selectedSection['type'] === 'cover' && $hasDesktopPanel)
         <div class="mb-3 flex rounded-lg border border-line p-0.5 text-xs" role="tablist" aria-label="{{ __('Ornaments for') }}">
             @foreach (['ornaments' => __('Cover (phone screen)'), 'desktop_ornaments' => __('Desktop side panel')] as $list => $listLabel)
@@ -27,6 +22,11 @@
             <span>{{ __('Drag an ornament in the preview to move it; drag its round handle to resize it.') }}</span>
         </p>
     @endif
+
+    <button type="button" wire:click="$toggle('ornamentPicker')" aria-expanded="{{ $ornamentPicker ? 'true' : 'false' }}"
+        class="mb-3 flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-ink/25 px-3 py-3 text-sm font-medium text-ink-soft transition-colors hover:border-sage hover:text-ink active:bg-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage">
+        <i @class(['fa-solid', 'fa-plus' => ! $ornamentPicker, 'fa-xmark' => $ornamentPicker]) aria-hidden="true"></i> {{ $ornamentPicker ? __('Close the ornament list') : __('Add ornament') }}
+    </button>
 
     @if ($ornamentPicker)
         <div class="mb-3 rounded-lg border border-line bg-paper p-2">
