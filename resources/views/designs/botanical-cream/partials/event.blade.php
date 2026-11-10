@@ -1,6 +1,6 @@
 {{-- One event ($event): its icon (chosen, or picked from the title by InvitationRenderer), then date, time and place rows. --}}
 
-<article class="bc-event">
+<article class="bc-event" @animate('events', $loop->index ?? 0)>
     <i class="{{ $event['icon_class'] }} bc-event__icon" aria-hidden="true"></i>
     <h3>{{ $event['title'] ?? '' }}</h3>
     <ul class="bc-event__rows">

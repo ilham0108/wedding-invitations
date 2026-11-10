@@ -11,6 +11,7 @@ use App\Services\FontRegistry;
 use App\Services\Invitation\DecorationResolver;
 use App\Services\Invitation\DesignRegistry;
 use App\Services\Invitation\Ornaments;
+use App\Services\Invitation\SectionAnimations;
 use App\Services\Invitation\SectionColors;
 use App\Services\Invitation\SectionFonts;
 use App\Services\Invitation\SectionRegistry;
@@ -112,7 +113,7 @@ class TemplateBuilder extends Component
         }
 
         $key = $this->newKey();
-        $this->sections[] = ['key' => $key, 'type' => $type, 'variant' => $registry->resolveVariant($type, null), 'background' => 'default', 'height' => 'auto', 'heading_size' => 'default', 'heading_align' => 'default', 'text_size' => 'default', 'fonts' => [], 'colors' => [], 'ornaments' => [], 'desktop_ornaments' => []];
+        $this->sections[] = ['key' => $key, 'type' => $type, 'variant' => $registry->resolveVariant($type, null), 'background' => 'default', 'height' => 'auto', 'heading_size' => 'default', 'heading_align' => 'default', 'text_size' => 'default', 'fonts' => [], 'colors' => [], 'animations' => [], 'ornaments' => [], 'desktop_ornaments' => []];
         $this->selected = $key;
         $this->panel = 'section';
         $this->persistSections();
@@ -222,6 +223,46 @@ class TemplateBuilder extends Component
                 'value' => $align === 'default' ? null : $align,
             ]);
         }
+    }
+
+    /**
+     * Entrance of one element of a section ($which: effect | delay | pattern, see SectionAnimations). The preview reloads,
+     * so the new entrance plays.
+     */
+    public function setAnimation(string $key, string $target, string $which, string $value, SectionAnimations $sectionAnimations): void
+    {
+        $index = $this->sectionIndex($key);
+        $type = $this->sections[$index]['type'];
+
+        if (! array_key_exists($target, $sectionAnimations->targets($type)) || ! in_array($which, ['effect', 'delay', 'pattern'], true)) {
+            return;
+        }
+
+        $animations = $this->sections[$index]['animations'] ?? [];
+        $animation = $animations[$target] ?? ['effect' => 'default', 'delay' => 0];
+
+        if ($which === 'effect' && in_array($value, SectionAnimations::EFFECTS, true)) {
+            $animation['effect'] = $value;
+        } elseif ($which === 'delay' && is_numeric($value)) {
+            $animation['delay'] = (int) $value;
+        } elseif ($which === 'pattern' && in_array($value, SectionAnimations::PATTERNS, true)) {
+            $animation['pattern'] = $value;
+        } else {
+            return;
+        }
+
+        $this->sections[$index]['animations'] = $sectionAnimations->clean($type, [...$animations, $target => $animation]);
+        $this->persistSections();
+    }
+
+    /**
+     * Back to the design's block animation for the whole section.
+     */
+    public function resetAnimations(string $key): void
+    {
+        $index = $this->sectionIndex($key);
+        $this->sections[$index]['animations'] = [];
+        $this->persistSections();
     }
 
     /**
@@ -646,6 +687,7 @@ class TemplateBuilder extends Component
                 'text_size' => $section['text_size'] ?? 'default',
                 'fonts' => app(SectionFonts::class)->clean($section['fonts']),
                 'colors' => app(SectionColors::class)->clean($section['colors']),
+                'animations' => app(SectionAnimations::class)->clean($section['type'], $section['animations']),
                 'ornaments' => app(Ornaments::class)->clean($section['ornaments']),
                 'desktop_ornaments' => app(Ornaments::class)->clean($section['desktop_ornaments']),
             ])
@@ -676,6 +718,7 @@ class TemplateBuilder extends Component
             'text_size' => $section['text_size'] ?? 'default',
             'fonts' => $section['fonts'] ?? [],
             'colors' => $section['colors'] ?? [],
+            'animations' => $section['animations'] ?? [],
             'ornaments' => $section['ornaments'] ?? [],
             'desktop_ornaments' => $section['desktop_ornaments'] ?? [],
         ], $this->sections);

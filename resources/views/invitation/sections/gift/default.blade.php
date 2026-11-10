@@ -1,12 +1,12 @@
 <div class="inv-container text-center">
-    <h2 class="inv-heading text-4xl">{{ $config['heading'] }}</h2>
+    <h2 class="inv-heading text-4xl" @animate('heading')>{{ $config['heading'] }}</h2>
     @if (filled($config['description']))
-        <p class="mx-auto mt-4 max-w-md inv-muted">{{ $config['description'] }}</p>
+        <p class="mx-auto mt-4 max-w-md inv-muted" @animate('description')>{{ $config['description'] }}</p>
     @endif
 
     <div class="mx-auto mt-10 grid max-w-2xl gap-4 sm:grid-cols-2">
         @foreach ($config['accounts'] as $account)
-            <div class="inv-card p-6 text-left" x-data="copyText(@js((string) ($account['account_number'] ?? '')))">
+            <div class="inv-card p-6 text-left" @animate('accounts', $loop->index) x-data="copyText(@js((string) ($account['account_number'] ?? '')))">
                 <p class="text-xs uppercase tracking-[0.25em] inv-accent">{{ ($account['type'] ?? 'bank') === 'ewallet' ? __('E-wallet') : __('Bank') }}</p>
                 <p class="mt-1 font-semibold">{{ $account['provider'] ?? '' }}</p>
                 <p class="mt-3 font-mono text-lg tracking-wider">{{ $account['account_number'] ?? '' }}</p>
@@ -20,7 +20,7 @@
     </div>
 
     @if (filled($config['address']))
-        <div class="inv-card mx-auto mt-4 max-w-2xl p-6" x-data="copyText(@js((string) $config['address']))">
+        <div class="inv-card mx-auto mt-4 max-w-2xl p-6" @animate('address') x-data="copyText(@js((string) $config['address']))">
             <p class="text-xs uppercase tracking-[0.25em] inv-accent">{{ __('Gift address') }}</p>
             <p class="mt-2 text-sm">{{ $config['address'] }}</p>
             <button type="button" class="inv-btn mt-4" x-on:click="copy()">
@@ -31,8 +31,8 @@
     @endif
 
     @if (! empty($config['wishlist']))
-        <h3 class="inv-heading mt-12 text-2xl">{{ $config['wishlist_heading'] }}</h3>
-        <ul class="inv-card mx-auto mt-6 max-w-2xl divide-y divide-black/10 text-left">
+        <h3 class="inv-heading mt-12 text-2xl" @animate('wishlist')>{{ $config['wishlist_heading'] }}</h3>
+        <ul class="inv-card mx-auto mt-6 max-w-2xl divide-y divide-black/10 text-left" @animate('wishlist', 1)>
             @foreach ($config['wishlist'] as $item)
                 <li class="flex items-center justify-between gap-3 px-5 py-3 text-sm">
                     <span>{{ $item['item'] ?? '' }}</span>

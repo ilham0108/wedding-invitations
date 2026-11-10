@@ -12,9 +12,9 @@
     @include('designs.botanical-cream.partials.heading', ['text' => $config['heading']])
 
     @if (empty($config['images']))
-        <p class="bc-lead">{{ __('Photos will be added soon.') }}</p>
+        <p class="bc-lead" @animate('images')>{{ __('Photos will be added soon.') }}</p>
     @else
-        <div class="bc-slideshow inv-animate">
+        <div class="bc-slideshow inv-animate" @animate('images')>
             <button type="button" class="bc-slideshow__main" x-on:click="zoom = true" aria-label="{{ __('Enlarge photo') }}">
                 <img x-bind:src="images[index]" src="{{ $config['images'][0] }}" alt="" decoding="async">
             </button>

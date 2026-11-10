@@ -106,6 +106,38 @@ class DesignCoverageTest extends TestCase
         }
     }
 
+    public function test_every_design_marks_each_element_that_has_its_own_entrance(): void
+    {
+        $designs = app(DesignRegistry::class);
+        $sections = app(SectionRegistry::class);
+
+        foreach (array_keys($designs->all()) as $design) {
+            foreach ($sections->types() as $type) {
+                $targets = array_keys(config("invitation.animation_targets.{$type}", []));
+                $this->assertNotEmpty($targets, "Section [{$type}] has no elements to animate.");
+
+                foreach ($sections->variants($type) as $variant) {
+                    $view = $designs->sectionView($design, $type, $variant);
+
+                    // Classic views inside a design page are checked with the classic design.
+                    if ($design !== DesignRegistry::DEFAULT && ! $view['native']) {
+                        continue;
+                    }
+
+                    $source = $this->sourceWithIncludes($view['view'], 3);
+
+                    if ($type === 'cover' && $designs->pageView($design)) {
+                        $source .= $this->sourceWithIncludes($designs->pageView($design));
+                    }
+
+                    foreach ($targets as $key) {
+                        $this->assertMatchesRegularExpression("/@animate\\((?:\\\$animateAs \\?\\? )?'".preg_quote($key, '/')."'/", $source, "Design [{$design}] does not animate [{$type}.{$key}] in the [{$variant}] layout.");
+                    }
+                }
+            }
+        }
+    }
+
     public function test_every_design_loads_the_font_for_arabic_letters(): void
     {
         $designs = app(DesignRegistry::class);

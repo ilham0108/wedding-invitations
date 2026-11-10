@@ -50,22 +50,24 @@
     </aside>
 
     @if ($cover)
+        {{-- The cover layer's elements read the cover section (@animate). --}}
+        @php($section = $cover)
         <div class="mg-cover" data-mg-cover {!! \App\Support\CoverTitle::attributes($cover['config']['title_position'] ?? null) !!}
             @include('invitation.partials.section-style', ['section' => $cover, 'withStyle' => false])
             style="{{ \App\Support\CoverTitle::style($cover['config']['title_offset'] ?? 0) }} {{ $cover['section_style'] }}">
             <div class="mg-photo inv-bg-motion--{{ $cover['config']['background_motion'] }}" @if ($photo) style="background-image: {{ \App\Support\CssUrl::wrap($photo) }}; {{ $photoPosition }}" @endif></div>
             @if (filled($cover['config']['subtitle']))
-                <span class="mg-tag">{{ $cover['config']['subtitle'] }}</span>
+                <span class="mg-tag" @animate('subtitle')>{{ $cover['config']['subtitle'] }}</span>
             @endif
             @if ($cover['variant'] === 'framed')
                 <div @class(['mg-framebox mg-framebox--'.$cover['config']['frame_style'], 'mg-framebox--arch' => $cover['config']['frame_shape'] === 'arch'])>
             @endif
-            <h1 class="mg-names">@include('designs.mocha-glass.partials.names', ['names' => $names])</h1>
+            <h1 class="mg-names" @animate('title')>@include('designs.mocha-glass.partials.names', ['names' => $names])</h1>
             @if (filled($cover['config']['date_text']))
-                <p class="mg-date">{{ $cover['config']['date_text'] }}</p>
+                <p class="mg-date" @animate('date_text')>{{ $cover['config']['date_text'] }}</p>
             @endif
             @php($iconOnly = $cover['config']['button_display'] !== 'label')
-            <button type="button" @class(['mg-btn-open', 'inv-cue inv-cue--on-photo' => $iconOnly]) data-mg-open @if ($iconOnly) aria-label="{{ $cover['config']['button_label'] ?: __('Open Invitation') }}" @endif>
+            <button type="button" @class(['mg-btn-open', 'inv-cue inv-cue--on-photo' => $iconOnly]) @animate('button_label') data-mg-open @if ($iconOnly) aria-label="{{ $cover['config']['button_label'] ?: __('Open Invitation') }}" @endif>
                 @if ($iconOnly)
                     @include('invitation.partials.cover-cue', ['cue' => $cover['config']['button_display']])
                 @else

@@ -99,6 +99,42 @@ document.addEventListener('click', (event) => {
 });
 
 setupAnimations();
+
+// Entrance of single elements in sections with their own animations (data-inv-anim, see invitation.css).
+// The design's block animation stays still in those sections, so the elements are not animated twice.
+function setupElementAnimations() {
+    document.querySelectorAll('[data-inv-own-anim]').forEach((section) => {
+        [section, ...section.querySelectorAll('.inv-animate')].forEach((element) => element.classList.add('is-shown'));
+    });
+
+    const elements = [...document.querySelectorAll('[data-inv-anim]')];
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (reduced || ! ('IntersectionObserver' in window)) {
+        elements.forEach((element) => element.classList.add('is-in'));
+
+        return;
+    }
+
+    const finish = (element) => element.classList.remove('inv-anim-run');
+
+    const observer = new IntersectionObserver((entries) => entries.forEach((entry) => {
+        if (! entry.isIntersecting) {
+            return;
+        }
+
+        const element = entry.target;
+        observer.unobserve(element);
+        element.classList.add('inv-anim-run', 'is-in');
+        element.addEventListener('transitionend', (event) => event.target === element && finish(element));
+        // Fallback when no transition ends (e.g. the element is not displayed): duration + delay is at most ~3 s.
+        setTimeout(() => finish(element), 3500);
+    }), { threshold: 0.12, rootMargin: '0px 0px -5% 0px' });
+
+    elements.forEach((element) => observer.observe(element));
+}
+
+setupElementAnimations();
 setupPhotoFrames();
 
 // Background photos that change while scrolling (invitation.partials.scroll-backdrop): show the

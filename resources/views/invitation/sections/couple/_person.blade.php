@@ -1,4 +1,4 @@
-<div>
+<div @animate('people', $loop->index ?? 0)>
     @if ($person['photo'])
         @include('invitation.partials.framed-photo', [
             'src' => $person['photo'],

@@ -1,10 +1,10 @@
 <div class="inv-container">
-    <h2 class="inv-heading text-center text-4xl">{{ $config['heading'] }}</h2>
+    <h2 class="inv-heading text-center text-4xl" @animate('heading')>{{ $config['heading'] }}</h2>
 
     @if (empty($config['images']))
-        <p class="mt-6 text-center inv-muted">{{ __('Photos will be added soon.') }}</p>
+        <p class="mt-6 text-center inv-muted" @animate('images')>{{ __('Photos will be added soon.') }}</p>
     @else
-        <div class="mt-10" x-data="{ images: @js($config['images']), index: 0, show(i) { this.index = (i + this.images.length) % this.images.length } }">
+        <div class="mt-10" @animate('images') x-data="{ images: @js($config['images']), index: 0, show(i) { this.index = (i + this.images.length) % this.images.length } }">
             <div class="relative overflow-hidden inv-rounded">
                 <img x-bind:src="images[index]" src="{{ $config['images'][0] }}" alt="" decoding="async" class="aspect-[3/2] w-full object-cover">
                 @if (count($config['images']) > 1)

@@ -18,17 +18,17 @@
         },
         destroy() { clearInterval(this.timer) },
     }">
-    <h2 class="mg-title">{{ $config['heading'] }}</h2>
+    <h2 class="mg-title" @animate('heading')>{{ $config['heading'] }}</h2>
 
     @if (empty($config['images']))
-        <p class="mg-lead">{{ __('Photos will be added soon.') }}</p>
+        <p class="mg-lead" @animate('images')>{{ __('Photos will be added soon.') }}</p>
     @else
-        <button type="button" class="mg-gallery__main" x-on:click="zoom = true" aria-label="{{ __('Enlarge photo') }}">
+        <button type="button" class="mg-gallery__main" @animate('images') x-on:click="zoom = true" aria-label="{{ __('Enlarge photo') }}">
             <img x-bind:src="images[index]" src="{{ $config['images'][0] }}" alt="" decoding="async">
         </button>
 
         @if (count($config['images']) > 1)
-            <div class="mg-gallery__strip">
+            <div class="mg-gallery__strip" @animate('images', 1)>
                 <button type="button" class="mg-gallery__nav" x-on:click="show(index - 1)" aria-label="{{ __('Previous photo') }}"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
                 <div class="mg-gallery__thumbs" x-ref="thumbs">
                     @foreach ($config['images'] as $image)

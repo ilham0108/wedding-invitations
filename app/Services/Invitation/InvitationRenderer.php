@@ -37,6 +37,7 @@ class InvitationRenderer
         private MusicService $music,
         private SectionFonts $sectionFonts,
         private SectionColors $sectionColors,
+        private SectionAnimations $sectionAnimations,
     ) {}
 
     public function forInvitation(Invitation $invitation, bool $isPreview = false, ?Guest $guest = null): RenderedInvitation
@@ -62,6 +63,7 @@ class InvitationRenderer
                 textSize: $section->theme['text_size'] ?? null,
                 fonts: $section->theme['fonts'] ?? [],
                 colors: $section->theme['colors'] ?? [],
+                animations: $section->theme['animations'] ?? [],
                 config: array_replace(
                     $this->registry->defaults($section->type),
                     $section->configuration ?? [],
@@ -177,6 +179,7 @@ class InvitationRenderer
                 textSize: $blueprint['text_size'],
                 fonts: $blueprint['fonts'],
                 colors: $blueprint['colors'],
+                animations: $blueprint['animations'],
                 config: array_replace(
                     $this->registry->defaults($blueprint['type']),
                     $templateDefaults[$blueprint['type']] ?? [],
@@ -224,9 +227,9 @@ class InvitationRenderer
 
     /**
      * @param  array<string, mixed>  $config
-     * @return array{key: string, type: string, variant: string, view: string, native: bool, background: string, height: string, heading_size: string, heading_align: string, text_size: string, fonts: array<string, string>, colors: array<string, string>, section_style: string, config: array<string, mixed>, ornaments: array<int, array<string, mixed>>, desktop_ornaments: array<int, array<string, mixed>>}
+     * @return array{key: string, type: string, variant: string, view: string, native: bool, background: string, height: string, heading_size: string, heading_align: string, text_size: string, fonts: array<string, string>, colors: array<string, string>, animations: array<string, array{effect: string, delay: int}>, section_style: string, config: array<string, mixed>, ornaments: array<int, array<string, mixed>>, desktop_ornaments: array<int, array<string, mixed>>}
      */
-    private function buildSection(string $key, string $type, ?string $variant, ?string $background, array $config, string $timezone, string $design, mixed $ornaments = [], mixed $desktopOrnaments = [], ?string $height = null, ?string $headingSize = null, ?string $textSize = null, mixed $fonts = [], mixed $colors = [], ?string $headingAlign = null): array
+    private function buildSection(string $key, string $type, ?string $variant, ?string $background, array $config, string $timezone, string $design, mixed $ornaments = [], mixed $desktopOrnaments = [], ?string $height = null, ?string $headingSize = null, ?string $textSize = null, mixed $fonts = [], mixed $colors = [], ?string $headingAlign = null, mixed $animations = []): array
     {
         $variant = $this->registry->resolveVariant($type, $variant);
         $view = $this->designs->sectionView($design, $type, $variant);
@@ -247,6 +250,8 @@ class InvitationRenderer
             // The section's own fonts and colors (follow the theme when empty), applied by invitation.partials.section-style.
             'fonts' => $fonts,
             'colors' => $colors,
+            // Entrance animations of single elements, read by the @animate directive in the section views.
+            'animations' => $this->sectionAnimations->clean($type, $animations),
             'section_style' => trim($this->sectionFonts->style($fonts).' '.$this->sectionColors->style($colors)),
             'config' => $this->normalizeConfig($type, $config, $timezone),
             'ornaments' => $this->ornaments->clean($ornaments),

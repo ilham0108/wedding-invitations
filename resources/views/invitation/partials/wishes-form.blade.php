@@ -1,5 +1,5 @@
 {{-- Wishes form. Needs $wishes (InvitationRenderer interaction) and $invitation; $formClass styles the form. --}}
-<form method="POST" action="{{ $wishes['action'] ?? '#' }}" class="{{ $formClass ?? 'inv-card mx-auto mt-8 max-w-md space-y-4 p-6 text-left' }}"
+<form method="POST" action="{{ $wishes['action'] ?? '#' }}" @animate('form') class="{{ $formClass ?? 'inv-card mx-auto mt-8 max-w-md space-y-4 p-6 text-left' }}"
     @if (! $wishes['action']) x-data x-on:submit.prevent @endif>
     @csrf
     @if ($invitation->interaction['token'] ?? null)

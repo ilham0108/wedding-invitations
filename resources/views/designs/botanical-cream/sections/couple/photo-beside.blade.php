@@ -4,7 +4,7 @@
 
     <div class="bc-people bc-people--beside">
         @foreach ($config['people'] as $person)
-            <div class="bc-person inv-animate {{ \App\Support\PhotoSide::classes($person['photo_side'], filled($person['photo'])) }}">
+            <div class="bc-person inv-animate {{ \App\Support\PhotoSide::classes($person['photo_side'], filled($person['photo'])) }}" @animate('people', $loop->index)>
                 @if ($person['photo'])
                     @include('invitation.partials.framed-photo', ['src' => $person['photo'], 'focus' => $person['photo_focus'] ?? null, 'alt' => $person['name'] ?? '', 'imageClass' => 'bc-portrait', 'wrapperClass' => 'bc-portrait-shape'])
                 @endif

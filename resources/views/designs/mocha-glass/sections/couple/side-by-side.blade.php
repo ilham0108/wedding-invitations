@@ -4,7 +4,7 @@
 
     <div class="mg-people-grid">
         @foreach ($config['people'] as $person)
-            <div class="mg-person mg-person--compact inv-animate">
+            <div class="mg-person mg-person--compact inv-animate" @animate('people', $loop->index)>
                 @if ($person['photo'])
                     @include('invitation.partials.framed-photo', ['src' => $person['photo'], 'focus' => $person['photo_focus'] ?? null, 'alt' => $person['name'] ?? '', 'imageClass' => 'mg-portrait', 'wrapperClass' => 'mg-portrait-shape'])
                 @endif

@@ -1193,6 +1193,7 @@ body:has(.inv-preview-bar) .mg-home { min-height: calc(100svh - 40px - 84px - 40
 
 .mg-closing .mg-rule { margin: 1.4rem -24px 1.4rem 0; }
 .mg-closing__inviters { margin-top: 1.4rem; }
+.mg-closing__line { display: block; }
 
 .mg-branding {
     padding: 0 24px 24px;

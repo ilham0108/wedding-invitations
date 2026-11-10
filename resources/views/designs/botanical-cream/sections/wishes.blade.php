@@ -9,7 +9,7 @@
 
     @if (filled($config['description']))
         <div class="bc-center inv-animate">
-            <p class="bc-lead">{{ $config['description'] }}</p>
+            <p class="bc-lead" @animate('description')>{{ $config['description'] }}</p>
         </div>
     @endif
 
@@ -30,7 +30,7 @@
             @foreach ($pages as $messages)
                 <ul class="bc-wishes__page" @if (! $loop->first) x-show="page === {{ $loop->index }}" x-cloak @else x-show="page === 0" @endif>
                     @foreach ($messages as $message)
-                        <li class="bc-wish">
+                        <li class="bc-wish" @animate('messages', $loop->index)>
                             <span class="bc-wish__avatar" aria-hidden="true">{{ mb_strtoupper(mb_substr($message['name'], 0, 1)) }}</span>
                             <div>
                                 <b>{{ $message['name'] }}</b>
@@ -43,7 +43,7 @@
             @endforeach
 
             @if (count($pages) > 1)
-                <div class="bc-pager">
+                <div class="bc-pager" @animate('messages', 3)>
                     <button type="button" class="bc-pager__arrow" x-on:click="page = (page - 1 + pages) % pages" aria-label="{{ __('Previous') }}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></button>
                     <div class="bc-pager__dots">
                         @foreach ($pages as $messages)
@@ -55,6 +55,6 @@
             @endif
         </div>
     @elseif (! session('wish_saved'))
-        <p class="bc-small bc-center">{{ __('No wishes yet. Be the first!') }}</p>
+        <p class="bc-small bc-center" @animate('messages')>{{ __('No wishes yet. Be the first!') }}</p>
     @endif
 </div>

@@ -1,8 +1,8 @@
 <div>
-    <h2 class="mg-title inv-animate">{{ $config['heading'] }}</h2>
+    <h2 class="mg-title inv-animate" @animate('heading')>{{ $config['heading'] }}</h2>
     <div class="mg-timeline">
         @foreach ($config['entries'] as $entry)
-            <div class="mg-story inv-animate">
+            <div class="mg-story inv-animate" @animate('entries', $loop->index)>
                 @if ($entry['icon_class'])
                     <i class="{{ $entry['icon_class'] }} mg-story__heart" aria-hidden="true"></i>
                 @else
@@ -24,6 +24,6 @@
         @endforeach
     </div>
     @if (filled($config['closing_quote'] ?? null))
-        <p class="mg-lead mg-story__quote inv-animate">&ldquo;{{ $config['closing_quote'] }}&rdquo;</p>
+        <p class="mg-lead mg-story__quote inv-animate" @animate('closing_quote')>&ldquo;{{ $config['closing_quote'] }}&rdquo;</p>
     @endif
 </div>

@@ -22,14 +22,14 @@
         @endif
 
         @if (filled($config['subtitle']))
-            <p class="text-xs uppercase tracking-[0.35em] inv-muted">{{ $config['subtitle'] }}</p>
+            <p class="text-xs uppercase tracking-[0.35em] inv-muted" @animate('subtitle')>{{ $config['subtitle'] }}</p>
         @endif
 
-        <h1 class="inv-heading mt-5 text-5xl sm:text-6xl">{{ $config['title'] ?: $invitation->title }}</h1>
+        <h1 class="inv-heading mt-5 text-5xl sm:text-6xl" @animate('title')>{{ $config['title'] ?: $invitation->title }}</h1>
 
         @if (filled($config['date_text']))
             <div class="inv-divider"></div>
-            <p class="text-sm tracking-wide">{{ $config['date_text'] }}</p>
+            <p class="text-sm tracking-wide" @animate('date_text')>{{ $config['date_text'] }}</p>
         @endif
 
         @include('invitation.sections.cover._button', ['onPhoto' => $hasImage])

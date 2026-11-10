@@ -7,6 +7,6 @@
             @include('designs.botanical-cream.partials.event')
         </div>
     @empty
-        <p class="bc-lead">{{ __('Event details will be shared soon.') }}</p>
+        <p class="bc-lead" @animate('events')>{{ __('Event details will be shared soon.') }}</p>
     @endforelse
 </div>

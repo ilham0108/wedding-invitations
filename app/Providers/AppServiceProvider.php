@@ -16,6 +16,7 @@ use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\LocaleUpdated;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
@@ -62,6 +63,10 @@ class AppServiceProvider extends ServiceProvider
          * Grant abilities that match a permission slug held by one of the user's roles.
          * Returning null lets model policies decide every other ability.
          */
+        // Section views mark the elements that have their own entrance: @animate('title'), or @animate('people', $loop->index)
+        // inside a list. It reads the section being rendered ($section) and the page's theme animation (SectionAnimations).
+        Blade::directive('animate', fn (string $expression): string => "<?php echo app(\\App\\Services\\Invitation\\SectionAnimations::class)->attributes(\$section ?? null, isset(\$invitation) ? (\$invitation->decoration['animation'] ?? null) : null, {$expression}); ?>");
+
         Gate::before(fn (User $user, string $ability): ?bool => $user->hasPermission($ability) ? true : null);
 
         // Footer and menu of the marketing site come from the admin CMS; an uploaded logo replaces the leaf wordmark.

@@ -22,11 +22,11 @@
 
     <div @class(['bc-cover__text inv-animate', 'bc-frame bc-frame--'.$config['frame_style'] => $framed, 'bc-frame--arch' => $framed && $config['frame_shape'] === 'arch'])>
         @if (filled($config['subtitle']))
-            <p class="bc-eyebrow">{{ $config['subtitle'] }}</p>
+            <p class="bc-eyebrow" @animate('subtitle')>{{ $config['subtitle'] }}</p>
         @endif
-        <h1 class="bc-names">@include('designs.botanical-cream.partials.names', ['names' => $config['title'] ?: $invitation->title])</h1>
+        <h1 class="bc-names" @animate('title')>@include('designs.botanical-cream.partials.names', ['names' => $config['title'] ?: $invitation->title])</h1>
         @if (filled($config['date_text']))
-            <p class="bc-pill">{{ $config['date_text'] }}</p>
+            <p class="bc-pill" @animate('date_text')>{{ $config['date_text'] }}</p>
         @endif
         @if ($invitation->guestName)
             <p class="bc-guest">{{ __('To:') }} <b>{{ $invitation->guestName }}</b></p>
@@ -34,7 +34,7 @@
     </div>
 
     @php($iconOnly = $config['button_display'] !== 'label')
-    <a href="#" @class(['bc-scroll inv-animate', 'inv-cue' => $iconOnly]) data-bc-scroll @if ($iconOnly) aria-label="{{ $config['button_label'] ?: __('Scroll down') }}" @endif>
+    <a href="#" @class(['bc-scroll inv-animate', 'inv-cue' => $iconOnly]) @animate('button_label') data-bc-scroll @if ($iconOnly) aria-label="{{ $config['button_label'] ?: __('Scroll down') }}" @endif>
         @if ($iconOnly)
             @include('invitation.partials.cover-cue', ['cue' => $config['button_display']])
         @else

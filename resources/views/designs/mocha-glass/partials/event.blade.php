@@ -1,5 +1,5 @@
 {{-- One event ($event) of the event section. --}}
-<article class="mg-event">
+<article class="mg-event" @animate('events', $loop->index ?? 0)>
     {{-- Only an icon the admin picked; the original design has none. --}}
     @if ($event['icon_chosen'])
         <i class="{{ $event['icon_class'] }} mg-event__icon" aria-hidden="true"></i>

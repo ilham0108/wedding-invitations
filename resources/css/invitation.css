@@ -223,6 +223,60 @@ body[data-inv-scroll='vertical'][data-inv-animation='slide'] [data-inv-pages] {
     overflow-x: clip;
 }
 
+/*
+| Entrance of single elements (section "animations", App\Services\Invitation\SectionAnimations). The section
+| carries data-inv-own-anim and its elements data-inv-anim (effect) and data-inv-delay (tenths of a second).
+| invitation.js adds .inv-anim-run and .is-in once an element scrolls into view, and drops .inv-anim-run after
+| the entrance, so the element's own transitions (e.g. a button's hover) work again.
+*/
+.inv-js [data-inv-own-anim] .inv-animate:not([data-inv-anim]),
+.inv-js .inv-animate[data-inv-own-anim] {
+    opacity: 1 !important;
+    transform: none !important;
+}
+
+.inv-js [data-inv-anim]:not(.is-in) { opacity: 0; }
+.inv-js [data-inv-anim='fade-up']:not(.is-in) { transform: translateY(32px); }
+.inv-js [data-inv-anim='fade-down']:not(.is-in) { transform: translateY(-32px); }
+.inv-js [data-inv-anim='fade-left']:not(.is-in) { transform: translateX(40px); }
+.inv-js [data-inv-anim='fade-right']:not(.is-in) { transform: translateX(-40px); }
+.inv-js [data-inv-anim='zoom-in']:not(.is-in) { transform: scale(0.9); }
+.inv-js [data-inv-anim='zoom-out']:not(.is-in) { transform: scale(1.1); }
+/* Zigzag lists: a zoom that comes in from the left or the right. */
+.inv-js [data-inv-anim='zoom-in-right']:not(.is-in) { transform: translateX(-40px) scale(0.9); }
+.inv-js [data-inv-anim='zoom-in-left']:not(.is-in) { transform: translateX(40px) scale(0.9); }
+
+.inv-anim-run {
+    transition:
+        opacity var(--inv-animation-duration, 0.9s) cubic-bezier(0.2, 0.7, 0.2, 1) var(--inv-anim-delay, 0s),
+        transform var(--inv-animation-duration, 0.9s) cubic-bezier(0.2, 0.7, 0.2, 1) var(--inv-anim-delay, 0s) !important;
+}
+
+[data-inv-delay='1'] { --inv-anim-delay: 0.1s; }
+[data-inv-delay='2'] { --inv-anim-delay: 0.2s; }
+[data-inv-delay='3'] { --inv-anim-delay: 0.3s; }
+[data-inv-delay='4'] { --inv-anim-delay: 0.4s; }
+[data-inv-delay='5'] { --inv-anim-delay: 0.5s; }
+[data-inv-delay='6'] { --inv-anim-delay: 0.6s; }
+[data-inv-delay='7'] { --inv-anim-delay: 0.7s; }
+[data-inv-delay='8'] { --inv-anim-delay: 0.8s; }
+[data-inv-delay='9'] { --inv-anim-delay: 0.9s; }
+[data-inv-delay='10'] { --inv-anim-delay: 1s; }
+[data-inv-delay='11'] { --inv-anim-delay: 1.1s; }
+[data-inv-delay='12'] { --inv-anim-delay: 1.2s; }
+[data-inv-delay='13'] { --inv-anim-delay: 1.3s; }
+[data-inv-delay='14'] { --inv-anim-delay: 1.4s; }
+[data-inv-delay='15'] { --inv-anim-delay: 1.5s; }
+
+/* Elements waiting to come in from a side must not make the page scroll sideways. */
+body[data-inv-scroll='vertical'] [data-inv-pages]:has([data-inv-anim='fade-left'], [data-inv-anim='fade-right'], [data-inv-anim='zoom-in-left'], [data-inv-anim='zoom-in-right']) {
+    overflow-x: clip;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-js [data-inv-anim]:not(.is-in) { opacity: 1; transform: none; }
+}
+
 /* Marker of a story entry without an icon; every other dot is lighter, so the timeline has a rhythm. */
 .inv-story-dot {
     display: block;

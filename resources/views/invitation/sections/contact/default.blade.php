@@ -1,9 +1,9 @@
 <div class="inv-container text-center">
-    <h2 class="inv-heading text-4xl">{{ $config['heading'] }}</h2>
+    <h2 class="inv-heading text-4xl" @animate('heading')>{{ $config['heading'] }}</h2>
 
     <div class="mx-auto mt-10 grid max-w-2xl gap-4 sm:grid-cols-2">
         @foreach ($config['contacts'] as $contact)
-            <div class="inv-card p-6">
+            <div class="inv-card p-6" @animate('contacts', $loop->index)>
                 <p class="font-semibold">{{ $contact['name'] ?? '' }}</p>
                 @if (filled($contact['role'] ?? null))
                     <p class="text-sm inv-muted">{{ $contact['role'] }}</p>

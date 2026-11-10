@@ -4,9 +4,9 @@
 
     @foreach ($config['people'] as $person)
         @if (! $loop->first)
-            <div class="mg-rule inv-animate"></div>
+            <div class="mg-rule inv-animate" @animate('people', $loop->index)></div>
         @endif
-        <div @class(['mg-person inv-animate', 'mg-person--photo-first' => $loop->even])>
+        <div @class(['mg-person inv-animate', 'mg-person--photo-first' => $loop->even]) @animate('people', $loop->index)>
             @include('designs.mocha-glass.partials.person-text')
             @if ($person['photo'])
                 @include('invitation.partials.framed-photo', ['src' => $person['photo'], 'focus' => $person['photo_focus'] ?? null, 'alt' => $person['name'] ?? '', 'imageClass' => 'mg-portrait', 'wrapperClass' => 'mg-portrait-shape'])

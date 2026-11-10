@@ -1,17 +1,17 @@
 {{-- One row per person: the portrait beside the name, on the side chosen in "photo_side" (App\Support\PhotoSide). --}}
 <div class="inv-container text-center">
     @if (filled($config['opening'] ?? null))
-        <p lang="ar" dir="auto" class="mb-6 text-xl">{{ $config['opening'] }}</p>
+        <p lang="ar" dir="auto" class="mb-6 text-xl" @animate('opening')>{{ $config['opening'] }}</p>
     @endif
-    <h2 class="inv-heading text-4xl">{{ $config['heading'] }}</h2>
+    <h2 class="inv-heading text-4xl" @animate('heading')>{{ $config['heading'] }}</h2>
     @if (filled($config['intro']))
-        <p class="mx-auto mt-4 max-w-xl inv-muted">{{ $config['intro'] }}</p>
+        <p class="mx-auto mt-4 max-w-xl inv-muted" @animate('intro')>{{ $config['intro'] }}</p>
     @endif
 
     <div class="mx-auto mt-12 grid max-w-xl gap-12">
         @foreach ($config['people'] as $person)
             @php($right = \App\Support\PhotoSide::isRight($person['photo_side']))
-            <div class="{{ \App\Support\PhotoSide::classes($person['photo_side'], filled($person['photo'])) }}">
+            <div class="{{ \App\Support\PhotoSide::classes($person['photo_side'], filled($person['photo'])) }}" @animate('people', $loop->index)>
                 @if ($person['photo'])
                     @include('invitation.partials.framed-photo', [
                         'src' => $person['photo'],

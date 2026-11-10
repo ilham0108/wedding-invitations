@@ -1,6 +1,6 @@
 {{-- RSVP form. Needs $rsvp (InvitationRenderer interaction) and $invitation; $formClass styles the form. --}}
 @php($attendance = old('attendance', $rsvp['existing']['attendance'] ?? 'attending'))
-<form method="POST" action="{{ $rsvp['action'] ?? '#' }}" x-data="{ attendance: @js($attendance) }"
+<form method="POST" action="{{ $rsvp['action'] ?? '#' }}" @unless ($formStill ?? false) @animate('form') @endunless x-data="{ attendance: @js($attendance) }"
     class="{{ $formClass ?? 'inv-card mx-auto mt-8 max-w-md space-y-4 p-6 text-left' }}"
     @if (! $rsvp['action']) x-on:submit.prevent @endif>
     @csrf

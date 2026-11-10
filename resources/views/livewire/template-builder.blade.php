@@ -531,6 +531,57 @@
                             <p class="text-xs text-muted">{{ __('With a background photo, check the colors in the preview: the contrast is measured against the section color only.') }}</p>
                         </x-builder.group>
 
+                        {{-- Entrance of single elements (SectionAnimations). Changing one makes the whole section enter element by element. --}}
+                        @php($sectionAnimations = $selectedSection['animations'] ?? [])
+                        <x-builder.group id="section-animation" :title="__('Animation')" icon="fa-solid fa-wand-magic-sparkles" :count="count($sectionAnimations) ?: null">
+                            <p class="text-xs text-muted">{{ __('Change one element and this section enters element by element while guests scroll. Elements on "Follow the theme" use the theme animation.') }}</p>
+                            @php($animationService = app(\App\Services\Invitation\SectionAnimations::class))
+                            @foreach ($animationService->targets($selectedSection['type']) as $target => $targetLabel)
+                                @php($animation = $sectionAnimations[$target] ?? ['effect' => 'default', 'delay' => 0])
+                                <div wire:key="section-animation-{{ $sectionKey }}-{{ $target }}-{{ $animation['effect'] }}-{{ $animation['delay'] }}-{{ $animation['pattern'] ?? 'same' }}" class="rounded-lg border border-line p-3">
+                                    <label for="section-animation-{{ $target }}" class="mb-1.5 block text-sm font-medium text-ink">{{ __($targetLabel) }}</label>
+                                    <select id="section-animation-{{ $target }}" x-on:change="$wire.setAnimation('{{ $sectionKey }}', '{{ $target }}', 'effect', $event.target.value)" class="{{ $selectClass }}">
+                                        @foreach (['default' => 'Follow the theme', 'none' => 'No entrance', 'fade' => 'Fade', 'fade-up' => 'Fade up', 'fade-down' => 'Fade down', 'fade-right' => 'Fade from the left', 'fade-left' => 'Fade from the right', 'zoom-in' => 'Zoom in', 'zoom-out' => 'Zoom out'] as $option => $optionLabel)
+                                            <option value="{{ $option }}" @selected($animation['effect'] === $option)>{{ __($optionLabel) }}</option>
+                                        @endforeach
+                                    </select>
+                                    {{-- A list can bring its items in from alternating sides, however many items the client adds. --}}
+                                    @if ($animationService->isList($selectedSection['type'], $target))
+                                        <div role="group" aria-labelledby="section-animation-{{ $target }}-pattern" class="mt-3">
+                                            <p id="section-animation-{{ $target }}-pattern" class="mb-1.5 text-xs font-medium text-ink-soft">{{ __('Item order') }}</p>
+                                            <div class="grid grid-cols-2 gap-2">
+                                                @foreach (['same' => [__('All the same'), 'fa-solid fa-grip-lines'], 'zigzag' => [__('Zigzag'), 'fa-solid fa-arrow-right-arrow-left']] as $pattern => [$patternLabel, $patternIcon])
+                                                    @php($on = ($animation['pattern'] ?? 'same') === $pattern)
+                                                    <button type="button" wire:click="setAnimation('{{ $sectionKey }}', '{{ $target }}', 'pattern', '{{ $pattern }}')" aria-pressed="{{ $on ? 'true' : 'false' }}"
+                                                        @class([$segmentClass, 'text-xs', $segmentOn => $on, $segmentOff => ! $on])>
+                                                        <i class="{{ $patternIcon }}" aria-hidden="true"></i>{{ $patternLabel }}
+                                                    </button>
+                                                @endforeach
+                                            </div>
+                                            @if (($animation['pattern'] ?? 'same') === 'zigzag')
+                                                <p class="mt-1.5 text-xs text-muted">{{ __('Items come in from the left and the right in turn. With a zoom, they zoom in from the side.') }}</p>
+                                            @endif
+                                        </div>
+                                    @endif
+                                    <div x-data="{ delay: {{ $animation['delay'] }} }" class="mt-3">
+                                        <div class="mb-1 flex items-center justify-between text-xs">
+                                            <label for="section-animation-{{ $target }}-delay" class="font-medium text-ink-soft">{{ __('Delay') }}</label>
+                                            <output for="section-animation-{{ $target }}-delay" class="tabular-nums text-ink-soft" x-text="@js(__(':value s')).replace(':value', (delay / 10).toLocaleString(@js(str_replace('_', '-', app()->getLocale())), { minimumFractionDigits: 1 }))">{{ __(':value s', ['value' => \Illuminate\Support\Number::format($animation['delay'] / 10, 1)]) }}</output>
+                                        </div>
+                                        <input type="range" id="section-animation-{{ $target }}-delay" min="0" max="{{ \App\Services\Invitation\SectionAnimations::MAX_DELAY }}" step="1" value="{{ $animation['delay'] }}"
+                                            x-model.number="delay" x-on:change="$wire.setAnimation('{{ $sectionKey }}', '{{ $target }}', 'delay', String(delay))"
+                                            class="block h-11 w-full cursor-pointer accent-sage">
+                                    </div>
+                                </div>
+                            @endforeach
+                            @if ($sectionAnimations)
+                                <button type="button" wire:click="resetAnimations('{{ $sectionKey }}')"
+                                    class="flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-line px-3 text-sm text-ink-soft hover:border-ink/30 hover:text-ink active:bg-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage">
+                                    <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>{{ __('Back to the design animation') }}
+                                </button>
+                            @endif
+                        </x-builder.group>
+
                         <x-builder.group id="section-ornaments" :title="__('Ornaments')" icon="fa-solid fa-leaf" :count="count($selectedSection[$ornamentList] ?? [])">
                             @include('livewire.partials.ornament-panel')
                         </x-builder.group>

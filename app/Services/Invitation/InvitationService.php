@@ -26,6 +26,7 @@ class InvitationService
         private MusicService $music,
         private SectionFonts $sectionFonts,
         private SectionColors $sectionColors,
+        private SectionAnimations $sectionAnimations,
     ) {}
 
     /**
@@ -73,7 +74,7 @@ class InvitationService
                         $templateDefaults[$blueprint['type']] ?? [],
                         $this->prefill($blueprint['type'], $data),
                     ),
-                    // Section presentation: its background, height, font sizes, fonts, colors and the template's ornaments for it.
+                    // Section presentation: its background, height, font sizes, fonts, colors, element animations and the template's ornaments for it.
                     'theme' => array_filter([
                         'background' => in_array($blueprint['background'], [null, 'default'], true) ? null : $blueprint['background'],
                         'height' => in_array($blueprint['height'], [null, 'auto'], true) ? null : $blueprint['height'],
@@ -82,6 +83,7 @@ class InvitationService
                         'text_size' => in_array($blueprint['text_size'], [null, 'default'], true) ? null : $blueprint['text_size'],
                         'fonts' => $this->sectionFonts->clean($blueprint['fonts']) ?: null,
                         'colors' => $this->sectionColors->clean($blueprint['colors']) ?: null,
+                        'animations' => $this->sectionAnimations->clean($blueprint['type'], $blueprint['animations']) ?: null,
                         'ornaments' => $this->ornaments->clean($blueprint['ornaments']) ?: null,
                         'desktop_ornaments' => $this->ornaments->clean($blueprint['desktop_ornaments']) ?: null,
                     ]) ?: null,

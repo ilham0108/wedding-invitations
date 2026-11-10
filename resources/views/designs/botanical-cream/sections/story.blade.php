@@ -4,7 +4,7 @@
 
     <ol class="bc-timeline">
         @foreach ($config['entries'] as $entry)
-            <li @class(['bc-timeline__item inv-animate', 'bc-timeline__item--dot' => ! $entry['icon_class']])>
+            <li @class(['bc-timeline__item inv-animate', 'bc-timeline__item--dot' => ! $entry['icon_class']]) @animate('entries', $loop->index)>
                 @if ($entry['icon_class'])
                     <span class="bc-timeline__icon"><i class="{{ $entry['icon_class'] }}" aria-hidden="true"></i></span>
                 @else
@@ -28,6 +28,6 @@
     </ol>
 
     @if (filled($config['closing_quote'] ?? null))
-        <p class="bc-story-quote inv-animate">&ldquo;{{ $config['closing_quote'] }}&rdquo;</p>
+        <p class="bc-story-quote inv-animate" @animate('closing_quote')>&ldquo;{{ $config['closing_quote'] }}&rdquo;</p>
     @endif
 </div>

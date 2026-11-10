@@ -5,7 +5,7 @@
     <div class="bc-people">
         @foreach ($config['people'] as $person)
             @if (! $loop->first)
-                <p class="bc-people__amp inv-animate" aria-hidden="true">&amp;</p>
+                <p class="bc-people__amp inv-animate" aria-hidden="true" @animate('people', $loop->index)>&amp;</p>
             @endif
             @include('designs.botanical-cream.partials.person')
         @endforeach

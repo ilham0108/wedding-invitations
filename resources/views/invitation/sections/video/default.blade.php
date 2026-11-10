@@ -1,9 +1,9 @@
 <div class="inv-container text-center">
-    <h2 class="inv-heading text-4xl">{{ $config['heading'] }}</h2>
+    <h2 class="inv-heading text-4xl" @animate('heading')>{{ $config['heading'] }}</h2>
 
     @if ($config['embed_url'])
         {{-- Click-to-load: no third-party player is fetched until the guest asks for it. --}}
-        <div x-data="{ playing: false }" class="relative mt-10 aspect-video overflow-hidden inv-rounded" style="background: var(--inv-surface);">
+        <div x-data="{ playing: false }" @animate('url') class="relative mt-10 aspect-video overflow-hidden inv-rounded" style="background: var(--inv-surface);">
             <template x-if="playing">
                 <iframe src="{{ $config['embed_url'] }}" class="absolute inset-0 h-full w-full" title="{{ $config['heading'] }}"
                     allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
@@ -18,6 +18,6 @@
             </button>
         </div>
     @else
-        <p class="mt-6 inv-muted">{{ __('Video coming soon.') }}</p>
+        <p class="mt-6 inv-muted" @animate('url')>{{ __('Video coming soon.') }}</p>
     @endif
 </div>

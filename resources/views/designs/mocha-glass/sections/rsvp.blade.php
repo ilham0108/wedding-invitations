@@ -2,12 +2,12 @@
 
 {{-- The form opens in a modal; it reopens by itself when the server sent validation errors back. --}}
 <div class="mg-card mg-center inv-animate" id="rsvp-form" x-data="{ open: @js($errors->rsvp->any()) }">
-    <h2 class="mg-title">{{ $config['heading'] }}</h2>
+    <h2 class="mg-title" @animate('heading')>{{ $config['heading'] }}</h2>
     @if (filled($config['description']))
-        <p class="mg-lead">{{ $config['description'] }}</p>
+        <p class="mg-lead" @animate('description')>{{ $config['description'] }}</p>
     @endif
     @if ($config['deadline_label'] && $rsvp['open'])
-        <p class="mg-small">{{ __('Please respond by :date.', ['date' => $config['deadline_label']]) }}</p>
+        <p class="mg-small" @animate('description')>{{ __('Please respond by :date.', ['date' => $config['deadline_label']]) }}</p>
     @endif
 
     @if (session('rsvp_saved'))
@@ -17,9 +17,9 @@
     @endif
 
     @if (! $rsvp['open'])
-        <p class="mg-status">{{ $config['closed_message'] }}</p>
+        <p class="mg-status" @animate('form')>{{ $config['closed_message'] }}</p>
     @else
-        <button type="button" class="mg-btn-white" x-on:click="open = true">
+        <button type="button" class="mg-btn-white" @animate('form') x-on:click="open = true">
             <i class="fa-regular fa-circle-check" aria-hidden="true"></i>{{ $rsvp['existing'] ? __('Change my answer') : __('Confirm attendance') }}
         </button>
 
@@ -28,7 +28,7 @@
                 <div class="mg-modal__box">
                     <button type="button" class="mg-modal__close" x-on:click="open = false" aria-label="{{ __('Close') }}"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                     <h3 class="mg-modal__title">{{ $config['heading'] }}</h3>
-                    @include('invitation.partials.rsvp-form', ['formClass' => 'mg-form'])
+                    @include('invitation.partials.rsvp-form', ['formClass' => 'mg-form', 'formStill' => true])
                 </div>
             </div>
         </template>

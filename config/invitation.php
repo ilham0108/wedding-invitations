@@ -236,6 +236,38 @@ return [
         ['key' => 'background_overlay', 'label' => 'Background photo: overlay', 'type' => 'select', 'admin_only' => true, 'except' => ['cover'], 'options' => ['strong' => 'Strong (78%)', 'medium' => 'Medium (55%)', 'light' => 'Light (30%)', 'none' => 'None (photo only)']],
     ],
 
+    /*
+    | Elements of each section type that have their own entrance animation (App\Services\Invitation\SectionAnimations,
+    | template builder "Animation" group), element => label. A key is usually the field the element shows; a list
+    | (repeater, images) animates each of its items. Every section view marks these elements with @animate('key').
+    */
+    'animation_targets' => [
+        'cover' => ['subtitle' => 'Subtitle', 'title' => 'Title', 'date_text' => 'Date text', 'button_label' => 'Button'],
+        'greeting' => ['emblem' => 'Ornament', 'opening' => 'Opening line', 'message' => 'Greeting', 'names' => 'Names'],
+        'couple' => ['heading' => 'Heading', 'opening' => 'Opening line', 'intro' => 'Introduction', 'people' => 'People (each person)'],
+        'quote' => ['arabic_text' => 'Arabic text', 'text' => 'Quote', 'author' => 'Author'],
+        'countdown' => ['heading' => 'Heading', 'timer' => 'Countdown', 'expired_message' => 'Message after the date'],
+        'event' => ['heading' => 'Heading', 'events' => 'Events (each event)'],
+        'story' => ['heading' => 'Heading', 'entries' => 'Story (each entry)', 'closing_quote' => 'Closing quote'],
+        'timeline' => ['heading' => 'Heading', 'items' => 'Schedule (each item)'],
+        'gallery' => ['heading' => 'Heading', 'images' => 'Photos (each photo)'],
+        'video' => ['heading' => 'Heading', 'url' => 'Video'],
+        'rsvp' => ['heading' => 'Heading', 'description' => 'Description', 'form' => 'Form'],
+        'wishes' => ['heading' => 'Heading', 'description' => 'Description', 'form' => 'Form', 'messages' => 'Wishes (each message)'],
+        'gift' => ['heading' => 'Heading', 'description' => 'Description', 'accounts' => 'Accounts (each account)', 'address' => 'Gift address', 'wishlist' => 'Wishlist'],
+        'maps' => ['heading' => 'Heading', 'venue' => 'Venue', 'address' => 'Address', 'maps_url' => 'Map and directions'],
+        'dress_code' => ['heading' => 'Heading', 'description' => 'Description', 'colors' => 'Colors', 'attire' => 'Attire', 'notes' => 'Notes'],
+        'contact' => ['heading' => 'Heading', 'contacts' => 'Contacts (each contact)'],
+        'closing' => ['photo' => 'Photo', 'heading' => 'Heading', 'message' => 'Message', 'sign_off' => 'Sign-off', 'signature' => 'Signature', 'inviters' => 'Inviters'],
+        'health_protocol' => ['heading' => 'Heading', 'description' => 'Description', 'items' => 'Protocols (each item)'],
+    ],
+
+    // The elements above that are lists: every item enters on its own and the list can zigzag (SectionAnimations).
+    'animation_lists' => [
+        'couple' => ['people'], 'event' => ['events'], 'story' => ['entries'], 'timeline' => ['items'], 'gallery' => ['images'],
+        'wishes' => ['messages'], 'gift' => ['accounts'], 'dress_code' => ['attire'], 'contact' => ['contacts'], 'health_protocol' => ['items'],
+    ],
+
     'sections' => [
         'cover' => [
             'label' => 'Cover',

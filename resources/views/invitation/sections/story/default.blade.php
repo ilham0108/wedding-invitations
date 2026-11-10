@@ -1,12 +1,12 @@
 {{-- Timeline with an icon per entry on a line; an entry without an icon gets a small dot. --}}
 <div class="inv-container">
-    <h2 class="inv-heading text-center text-4xl">{{ $config['heading'] }}</h2>
+    <h2 class="inv-heading text-center text-4xl" @animate('heading')>{{ $config['heading'] }}</h2>
 
     {{-- The left padding keeps the icons, which hang outside the list, on the page margin. --}}
     <div class="mx-auto mt-12 max-w-xl pl-3.5">
         <ol class="relative space-y-10 border-l pl-8" style="border-color: color-mix(in srgb, var(--inv-text) 15%, transparent);">
             @foreach ($config['entries'] as $entry)
-                <li class="relative">
+                <li class="relative" @animate('entries', $loop->index)>
                     @if ($entry['icon_class'])
                         <span class="inv-story-icon absolute -left-[2.85rem] -top-0.5 flex h-7 w-7 items-center justify-center rounded-full text-xs" style="background: var(--inv-secondary); color: var(--inv-bg);">
                             <i class="{{ $entry['icon_class'] }}" aria-hidden="true"></i>
@@ -30,6 +30,6 @@
     </div>
 
     @if (filled($config['closing_quote'] ?? null))
-        <p class="mx-auto mt-12 max-w-xl text-center italic inv-muted">&ldquo;{{ $config['closing_quote'] }}&rdquo;</p>
+        <p class="mx-auto mt-12 max-w-xl text-center italic inv-muted" @animate('closing_quote')>&ldquo;{{ $config['closing_quote'] }}&rdquo;</p>
     @endif
 </div>

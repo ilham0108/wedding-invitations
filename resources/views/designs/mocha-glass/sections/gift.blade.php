@@ -1,21 +1,21 @@
 <div x-data="{ modal: null }">
     <div class="mg-card mg-center inv-animate">
-        <h2 class="mg-title">{{ $config['heading'] }}</h2>
+        <h2 class="mg-title" @animate('heading')>{{ $config['heading'] }}</h2>
         @if (filled($config['description']))
-            <p class="mg-lead">{{ $config['description'] }}</p>
+            <p class="mg-lead" @animate('description')>{{ $config['description'] }}</p>
         @endif
         @if ($config['accounts'] || filled($config['address']))
-            <button type="button" class="mg-btn-white mg-btn-white--tall" x-on:click="modal = 'gift'">
+            <button type="button" class="mg-btn-white mg-btn-white--tall" @animate('accounts') x-on:click="modal = 'gift'">
                 <i class="fa-solid fa-gift" aria-hidden="true"></i>{{ __('Send a gift') }}
             </button>
         @endif
     </div>
 
     @if ($config['wishlist'])
-        <div class="mg-dots inv-animate" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div class="mg-dots inv-animate" aria-hidden="true" @animate('wishlist')><span></span><span></span><span></span></div>
         <div class="mg-center inv-animate">
-            <h2 class="mg-title">{{ $config['wishlist_heading'] }}</h2>
-            <button type="button" class="mg-btn-white mg-btn-white--tall mg-narrow" x-on:click="modal = 'wishlist'">
+            <h2 class="mg-title" @animate('wishlist')>{{ $config['wishlist_heading'] }}</h2>
+            <button type="button" class="mg-btn-white mg-btn-white--tall mg-narrow" @animate('wishlist', 1) x-on:click="modal = 'wishlist'">
                 <i class="fa-solid fa-list-check" aria-hidden="true"></i>{{ __('See the gift registry') }}
             </button>
         </div>
@@ -38,7 +38,7 @@
                         </div>
                     @endforeach
                     @if (filled($config['address']))
-                        <div class="mg-bank" x-data="copyText(@js((string) $config['address']))">
+                        <div class="mg-bank" @animate('address') x-data="copyText(@js((string) $config['address']))">
                             <b>{{ __('Gift address') }}</b>
                             <p>{{ $config['address'] }}</p>
                             <button type="button" x-on:click="copy()"><span x-text="copied ? @js(__('Copied!')) : @js(__('Copy address'))">{{ __('Copy address') }}</span></button>

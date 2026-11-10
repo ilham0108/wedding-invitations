@@ -85,13 +85,13 @@ class InvitationTemplate extends Model
      * Ordered section blueprint from the schema. Entries may be a plain type string
      * or ['type' => 'cover', 'variant' => 'framed', 'background' => 'muted', 'ornaments' => [...]].
      *
-     * @return array<int, array{type: string, variant: ?string, background: ?string, height: ?string, heading_size: ?string, heading_align: ?string, text_size: ?string, fonts: array<string, mixed>, colors: array<string, mixed>, ornaments: array<int, array<string, mixed>>, desktop_ornaments: array<int, array<string, mixed>>}>
+     * @return array<int, array{type: string, variant: ?string, background: ?string, height: ?string, heading_size: ?string, heading_align: ?string, text_size: ?string, fonts: array<string, mixed>, colors: array<string, mixed>, animations: array<string, mixed>, ornaments: array<int, array<string, mixed>>, desktop_ornaments: array<int, array<string, mixed>>}>
      */
     public function sectionBlueprint(): array
     {
         return collect($this->schema['sections'] ?? [])
             ->map(fn (array|string $section): array => is_string($section)
-                ? ['type' => $section, 'variant' => null, 'background' => null, 'height' => null, 'heading_size' => null, 'heading_align' => null, 'text_size' => null, 'fonts' => [], 'colors' => [], 'ornaments' => [], 'desktop_ornaments' => []]
+                ? ['type' => $section, 'variant' => null, 'background' => null, 'height' => null, 'heading_size' => null, 'heading_align' => null, 'text_size' => null, 'fonts' => [], 'colors' => [], 'animations' => [], 'ornaments' => [], 'desktop_ornaments' => []]
                 : [
                     'type' => (string) ($section['type'] ?? ''),
                     'variant' => $section['variant'] ?? null,
@@ -102,6 +102,7 @@ class InvitationTemplate extends Model
                     'text_size' => $section['text_size'] ?? null,
                     'fonts' => is_array($section['fonts'] ?? null) ? $section['fonts'] : [],
                     'colors' => is_array($section['colors'] ?? null) ? $section['colors'] : [],
+                    'animations' => is_array($section['animations'] ?? null) ? $section['animations'] : [],
                     'ornaments' => is_array($section['ornaments'] ?? null) ? $section['ornaments'] : [],
                     'desktop_ornaments' => is_array($section['desktop_ornaments'] ?? null) ? $section['desktop_ornaments'] : [],
                 ])

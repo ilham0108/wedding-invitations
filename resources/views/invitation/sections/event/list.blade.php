@@ -5,14 +5,14 @@
 @php($shared = $config['shared_place'] ?? null)
 
 <div class="inv-container text-center">
-    <h2 class="inv-heading text-4xl">{{ $config['heading'] }}</h2>
+    <h2 class="inv-heading text-4xl" @animate('heading')>{{ $config['heading'] }}</h2>
 
     @if (empty($config['events']))
-        <p class="mt-6 inv-muted">{{ __('Event details will be shared soon.') }}</p>
+        <p class="mt-6 inv-muted" @animate('events')>{{ __('Event details will be shared soon.') }}</p>
     @else
         <div class="mx-auto mt-8 max-w-md text-left">
             @foreach ($config['events'] as $event)
-                <article @class(['inv-event-row', 'inv-event-row--ruled' => ! $loop->first])>
+                <article @class(['inv-event-row', 'inv-event-row--ruled' => ! $loop->first]) @animate('events', $loop->index)>
                     <i class="{{ $event['icon_class'] }} inv-event-row__icon inv-accent" aria-hidden="true"></i>
                     <div class="min-w-0">
                         <h3 class="inv-heading text-3xl">{{ $event['title'] ?? '' }}</h3>
@@ -53,7 +53,7 @@
             @endforeach
 
             @if ($shared)
-                <div class="inv-event-row inv-event-row--ruled">
+                <div class="inv-event-row inv-event-row--ruled" @animate('events', count($config['events']))>
                     <i class="fa-solid fa-location-dot inv-event-row__icon inv-accent" aria-hidden="true"></i>
                     <div class="min-w-0">
                         @if ($shared['venue'] !== '')
@@ -65,7 +65,7 @@
                     </div>
                 </div>
                 @if ($shared['maps_url'])
-                    <div class="mt-2 text-center">
+                    <div class="mt-2 text-center" @animate('events', count($config['events']))>
                         <a href="{{ $shared['maps_url'] }}" target="_blank" rel="noopener noreferrer" class="inv-btn">
                             <i class="fa-solid fa-location-dot" aria-hidden="true"></i>{{ __('Open Google Maps') }}
                         </a>

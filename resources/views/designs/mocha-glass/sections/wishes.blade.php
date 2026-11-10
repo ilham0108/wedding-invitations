@@ -1,9 +1,9 @@
 @php($wishes = $invitation->interaction['wishes'] ?? ['open' => false, 'action' => null, 'messages' => []])
 
 <div class="mg-card inv-animate" id="wishes-form">
-    <h2 class="mg-title">{{ $config['heading'] }}</h2>
+    <h2 class="mg-title" @animate('heading')>{{ $config['heading'] }}</h2>
     @if (filled($config['description']))
-        <p class="mg-lead">{{ $config['description'] }}</p>
+        <p class="mg-lead" @animate('description')>{{ $config['description'] }}</p>
     @endif
 
     @if (session('wish_saved'))
@@ -19,7 +19,7 @@
     @if ($wishes['messages'])
         <ul class="mg-wishes">
             @foreach ($wishes['messages'] as $message)
-                <li class="mg-wish">
+                <li class="mg-wish" @animate('messages', $loop->index)>
                     <b>{{ $message['name'] }}</b>
                     <small><i class="fa-regular fa-clock" aria-hidden="true"></i> {{ $message['date'] }}</small>
                     <p>{{ $message['message'] }}</p>
@@ -27,6 +27,6 @@
             @endforeach
         </ul>
     @elseif (! session('wish_saved'))
-        <p class="mg-small mg-center">{{ __('No wishes yet. Be the first!') }}</p>
+        <p class="mg-small mg-center" @animate('messages')>{{ __('No wishes yet. Be the first!') }}</p>
     @endif
 </div>

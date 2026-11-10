@@ -7,14 +7,14 @@
 
 <div class="mg-card mg-card--tight inv-animate">
     <div class="mg-dresscode">
-        <i class="fa-solid fa-ribbon mg-dresscode__ribbon" aria-hidden="true"></i>
-        <h2>{{ $config['heading'] }}</h2>
+        <i class="fa-solid fa-ribbon mg-dresscode__ribbon" aria-hidden="true" @animate('heading')></i>
+        <h2 @animate('heading')>{{ $config['heading'] }}</h2>
         @if (filled($config['description']))
-            <p class="mg-dresscode__sub">{{ $config['description'] }}</p>
+            <p class="mg-dresscode__sub" @animate('description')>{{ $config['description'] }}</p>
         @endif
 
         @if (! empty($config['colors']))
-            <div class="mg-dresscode__palette">
+            <div class="mg-dresscode__palette" @animate('colors')>
                 @foreach ($config['colors'] as $color)
                     <span style="background: {{ $color }};" title="{{ $color }}"></span>
                 @endforeach
@@ -24,7 +24,7 @@
         @if ($details)
             <div class="mg-dresscode__grid">
                 @foreach ($details as $icon => [$label, $value])
-                    <div>
+                    <div @animate('attire', $loop->index)>
                         <span class="mg-dresscode__icon"><i class="{{ $icon }}" aria-hidden="true"></i></span>
                         <b>{{ __($label) }}</b>{{ $value }}
                     </div>
@@ -33,7 +33,7 @@
         @endif
 
         @if (! empty($config['notes']))
-            <div class="mg-dresscode__notes">
+            <div class="mg-dresscode__notes" @animate('notes')>
                 <i class="fa-solid fa-square-parking" aria-hidden="true"></i>
                 <ul>
                     @foreach ($config['notes'] as $note)

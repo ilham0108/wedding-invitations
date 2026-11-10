@@ -1,4 +1,4 @@
-<article class="inv-card p-6 sm:p-8">
+<article class="inv-card p-6 sm:p-8" @animate('events', $loop->index ?? 0)>
     {{-- Only an icon the admin picked; the list layout always shows one. --}}
     @if ($event['icon_chosen'])
         <i class="{{ $event['icon_class'] }} mb-3 block text-2xl inv-accent" aria-hidden="true"></i>

@@ -4,11 +4,11 @@
     @include('designs.botanical-cream.partials.heading', ['text' => $config['heading']])
 
     @if (empty($config['images']))
-        <p class="bc-lead">{{ __('Photos will be added soon.') }}</p>
+        <p class="bc-lead" @animate('images')>{{ __('Photos will be added soon.') }}</p>
     @else
         <div class="bc-gallery-grid inv-animate">
             @foreach ($config['images'] as $image)
-                <button type="button" x-on:click="index = {{ $loop->index }}; zoom = true" aria-label="{{ __('Enlarge photo') }}"
+                <button type="button" @animate('images', $loop->index % 6) x-on:click="index = {{ $loop->index }}; zoom = true" aria-label="{{ __('Enlarge photo') }}"
                     @class(['bc-gallery-grid__wide' => $loop->index % 3 === 0 || ($loop->last && $loop->index % 3 === 1)])
                     @if ($loop->index >= $limit) x-show="all" x-cloak @endif>
                     <img src="{{ $image }}" alt="" loading="lazy" decoding="async">
