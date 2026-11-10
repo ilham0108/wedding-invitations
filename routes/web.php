@@ -30,6 +30,7 @@ use App\Http\Controllers\InvitationRsvpController;
 use App\Http\Controllers\InvitationWishController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentWebhookController;
+use App\Http\Controllers\PreviewWishController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicInvitationController;
 use App\Http\Controllers\SiteManifestController;
@@ -47,6 +48,8 @@ Route::get('/fonts/stylesheet', FontStylesheetController::class)->name('fonts.st
 
 Route::get('/templates/{template}/preview', TemplatePreviewController::class)->name('templates.preview');
 Route::get('/templates/{template}/card', TemplateCardController::class)->name('templates.card');
+// Wishes sent from a preview stay with the sender only, for a while (PreviewGuestbook).
+Route::post('/templates/{template}/preview/wishes', [PreviewWishController::class, 'template'])->middleware('throttle:5,1')->name('templates.preview.wishes');
 Route::get('/invitation/{slug}', [PublicInvitationController::class, 'show'])->name('invitations.public');
 Route::post('/invitation/{slug}/rsvp', InvitationRsvpController::class)->middleware('throttle:10,1')->name('invitations.rsvp');
 Route::post('/invitation/{slug}/wishes', InvitationWishController::class)->middleware('throttle:5,1')->name('invitations.wishes');
@@ -78,6 +81,7 @@ Route::middleware(['auth', 'active', 'verified'])->group(function () {
             Route::get('/invitations/create', [InvitationController::class, 'create'])->name('invitations.create');
             Route::get('/invitations/{invitation}/edit', [InvitationController::class, 'edit'])->name('invitations.edit');
             Route::get('/invitations/{invitation}/preview', [InvitationController::class, 'preview'])->name('invitations.preview');
+            Route::post('/invitations/{invitation}/preview/wishes', [PreviewWishController::class, 'invitation'])->middleware('throttle:5,1')->name('invitations.preview.wishes');
             Route::get('/invitations/{invitation}/story', InvitationStoryController::class)->name('invitations.story');
             Route::delete('/invitations/{invitation}', [InvitationController::class, 'destroy'])->name('invitations.destroy');
 

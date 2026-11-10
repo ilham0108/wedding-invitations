@@ -8,6 +8,7 @@ use App\Models\InvitationSection;
 use App\Models\InvitationTemplate;
 use App\Services\MusicService;
 use App\Services\Rsvp\GuestbookService;
+use App\Services\Rsvp\PreviewGuestbook;
 use App\Services\Rsvp\RsvpService;
 use App\Services\Template\TemplateSchema;
 use App\Support\CoverButton;
@@ -39,6 +40,7 @@ class InvitationRenderer
         private SectionFonts $sectionFonts,
         private SectionColors $sectionColors,
         private SectionAnimations $sectionAnimations,
+        private PreviewGuestbook $previewGuestbook,
     ) {}
 
     public function forInvitation(Invitation $invitation, bool $isPreview = false, ?Guest $guest = null): RenderedInvitation
@@ -140,10 +142,17 @@ class InvitationRenderer
         if (in_array('wishes', $types, true)) {
             $config = $this->firstConfig($sections, 'wishes');
 
+            $showMessages = $config['show_messages'] ?? true;
+
+            // In the owner's preview a wish is kept for the owner only, above the real ones (PreviewGuestbook).
             $interaction['wishes'] = [
                 'open' => ! $invitation->hasExpired(),
-                'action' => $isPreview ? null : route('invitations.wishes', $invitation->slug),
-                'messages' => ($config['show_messages'] ?? true) ? $this->guestbook->approvedForDisplay($invitation) : [],
+                'action' => $isPreview ? route('dashboard.invitations.preview.wishes', $invitation) : route('invitations.wishes', $invitation->slug),
+                'preview' => $isPreview,
+                'messages' => $showMessages ? [
+                    ...($isPreview ? $this->previewGuestbook->messages(PreviewGuestbook::invitationScope($invitation)) : []),
+                    ...$this->guestbook->approvedForDisplay($invitation),
+                ] : [],
             ];
         }
 
@@ -221,7 +230,15 @@ class InvitationRenderer
             interaction: [
                 'token' => null,
                 'rsvp' => ['open' => true, 'action' => null, 'max_guests' => 5, 'meal_options' => [], 'existing' => null],
-                'wishes' => ['open' => true, 'action' => null, 'messages' => []],
+                // A wish sent here is kept for the sender only (PreviewGuestbook); template cards have no form.
+                'wishes' => [
+                    'open' => true,
+                    'action' => $coverOnly ? null : route('templates.preview.wishes', $template),
+                    'preview' => true,
+                    'messages' => $coverOnly || ! ($this->firstConfig($sections, 'wishes')['show_messages'] ?? true)
+                        ? []
+                        : $this->previewGuestbook->messages(PreviewGuestbook::templateScope($template)),
+                ],
             ],
         );
     }

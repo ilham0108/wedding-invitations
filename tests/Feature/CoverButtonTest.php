@@ -65,7 +65,7 @@ class CoverButtonTest extends TestCase
     {
         $template = InvitationTemplate::factory()->create(['schema' => ['sections' => ['cover', 'wishes']]]);
 
-        $this->get(route('templates.preview', $template))->assertOk()->assertSee('Preview mode: responses are not saved.');
+        $this->get(route('templates.preview', $template))->assertOk()->assertSee('Preview: only you see the wishes you send here, for 2 hours. They never reach the hosts.');
     }
 
     /**

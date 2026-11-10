@@ -1,4 +1,4 @@
-{{-- Wishes form. Needs $wishes (InvitationRenderer interaction) and $invitation; $formClass styles the form. --}}
+{{-- Wishes form. Needs $wishes (InvitationRenderer interaction) and $invitation; $formClass styles the form. In a preview the action keeps the wish for the sender only. --}}
 <form method="POST" action="{{ $wishes['action'] ?? '#' }}" @animate('form') class="{{ $formClass ?? 'inv-card mx-auto mt-8 max-w-md space-y-4 p-6 text-left' }}"
     @if (! $wishes['action']) x-data x-on:submit.prevent @endif>
     @csrf
@@ -28,7 +28,10 @@
     @endif
 
     <button type="submit" class="inv-btn w-full" @disabled(! $wishes['action'])>{{ __('Send wishes') }}</button>
-    @unless ($wishes['action'])
+    @if (! $wishes['action'])
         <p class="text-center text-xs inv-muted">{{ __('Preview mode: responses are not saved.') }}</p>
-    @endunless
+    @elseif ($wishes['preview'] ?? false)
+        {{-- PreviewGuestbook: only the sender sees it, for 2 hours. --}}
+        <p class="text-center text-xs inv-muted">{{ __('Preview: only you see the wishes you send here, for 2 hours. They never reach the hosts.') }}</p>
+    @endif
 </form>
