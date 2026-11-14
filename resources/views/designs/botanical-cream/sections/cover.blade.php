@@ -21,12 +21,15 @@
     @endif
 
     <div @class(['bc-cover__text inv-animate', 'bc-frame bc-frame--'.$config['frame_style'] => $framed, 'bc-frame--arch' => $framed && $config['frame_shape'] === 'arch'])>
-        @if (filled($config['subtitle']))
-            <p class="bc-eyebrow" @animate('subtitle')>{{ $config['subtitle'] }}</p>
+        @if (filled($config['arabic_text'] ?? null))
+            <p class="inv-cover-arabic" lang="ar" dir="rtl" @animate('arabic_text')>{{ $config['arabic_text'] }}</p>
         @endif
-        <h1 class="bc-names" @animate('title')>@include('designs.botanical-cream.partials.names', ['names' => $config['title'] ?: $invitation->title])</h1>
+        @if (filled($config['subtitle']))
+            <p class="bc-eyebrow" dir="auto" @animate('subtitle')>{{ $config['subtitle'] }}</p>
+        @endif
+        <h1 class="bc-names" dir="auto" @animate('title')>@include('designs.botanical-cream.partials.names', ['names' => $config['title'] ?: $invitation->title])</h1>
         @if (filled($config['date_text']))
-            <p class="bc-pill" @animate('date_text')>{{ $config['date_text'] }}</p>
+            <p class="bc-pill" dir="auto" @animate('date_text')>{{ $config['date_text'] }}</p>
         @endif
         @if ($invitation->guestName)
             <p class="bc-guest">{{ __('To:') }} <b>{{ $invitation->guestName }}</b></p>

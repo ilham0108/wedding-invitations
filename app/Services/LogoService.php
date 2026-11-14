@@ -62,6 +62,22 @@ class LogoService
             : null;
     }
 
+    /**
+     * Absolute logo URL for emails, built on APP_URL (never the request's Host header). An uploaded PNG, JPEG
+     * or GIF logo is used as it is; otherwise the bundled email logo, as Outlook cannot show WebP or SVG.
+     */
+    public function emailUrl(): string
+    {
+        $path = $this->path();
+        $base = rtrim((string) config('app.url'), '/');
+
+        if ($path !== null && in_array(strtolower(pathinfo($path, PATHINFO_EXTENSION)), ['png', 'jpg', 'jpeg', 'gif'], true)) {
+            return $base.parse_url(Storage::disk(MediaService::DISK)->url($path), PHP_URL_PATH);
+        }
+
+        return $base.'/images/email-logo.png';
+    }
+
     private function path(): ?string
     {
         $path = (string) $this->settings->get('logo');

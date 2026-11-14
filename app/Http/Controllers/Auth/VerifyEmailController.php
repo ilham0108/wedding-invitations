@@ -3,25 +3,39 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\VerifyEmailRequest;
+use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
+/**
+ * The link in the verification email. It works in any browser, signed in or not, and whoever is signed in:
+ * people often open it on another device, or while signed in to another account. The signed, expiring URL
+ * with the public ULID and the hash of the address is the proof; the session plays no part.
+ */
 class VerifyEmailController extends Controller
 {
-    /**
-     * Mark the authenticated user's email address as verified.
-     */
-    public function __invoke(VerifyEmailRequest $request): RedirectResponse
+    public function __invoke(Request $request, string $id, string $hash): RedirectResponse
     {
-        if ($request->user()->hasVerifiedEmail()) {
+        $user = User::query()->where('ulid', $id)->first();
+
+        abort_if($user === null || ! hash_equals(sha1($user->getEmailForVerification()), $hash), 403);
+
+        if (! $user->hasVerifiedEmail() && $user->markEmailAsVerified()) {
+            event(new Verified($user));
+        }
+
+        $current = $request->user();
+
+        if ($current?->is($user)) {
             return redirect()->intended(route('dashboard', absolute: false).'?verified=1');
         }
 
-        if ($request->user()->markEmailAsVerified()) {
-            event(new Verified($request->user()));
+        // Signed in to another account: that session stays as it is.
+        if ($current !== null) {
+            return to_route('dashboard')->with('success', __('The email address has been verified. Sign in with that account to use it.'));
         }
 
-        return redirect()->intended(route('dashboard', absolute: false).'?verified=1');
+        return to_route('login')->with('status', __('Your email address has been verified. Please sign in.'));
     }
 }

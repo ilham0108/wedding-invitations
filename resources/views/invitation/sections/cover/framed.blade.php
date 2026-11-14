@@ -24,15 +24,19 @@
             <p class="mb-6 text-sm">{{ __('Dear') }} <span class="font-semibold">{{ $invitation->guestName }}</span>,</p>
         @endif
 
-        @if (filled($config['subtitle']))
-            <p class="text-xs uppercase tracking-[0.35em] inv-muted" @animate('subtitle')>{{ $config['subtitle'] }}</p>
+        @if (filled($config['arabic_text'] ?? null))
+            <p class="inv-cover-arabic" lang="ar" dir="rtl" @animate('arabic_text')>{{ $config['arabic_text'] }}</p>
         @endif
 
-        <h1 class="inv-heading mt-5 text-5xl sm:text-6xl" @animate('title')>{{ $config['title'] ?: $invitation->title }}</h1>
+        @if (filled($config['subtitle']))
+            <p dir="auto" class="text-xs uppercase tracking-[0.35em] inv-muted" @animate('subtitle')>{{ $config['subtitle'] }}</p>
+        @endif
+
+        <h1 dir="auto" class="inv-heading mt-5 text-5xl sm:text-6xl" @animate('title')>{{ $config['title'] ?: $invitation->title }}</h1>
 
         @if (filled($config['date_text']))
             <div class="inv-divider"></div>
-            <p class="text-sm tracking-wide" @animate('date_text')>{{ $config['date_text'] }}</p>
+            <p dir="auto" class="text-sm tracking-wide" @animate('date_text')>{{ $config['date_text'] }}</p>
         @endif
 
         @unless (\App\Support\CoverButton::atBottom($config['button_position'] ?? null))

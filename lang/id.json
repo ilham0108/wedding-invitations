@@ -1647,5 +1647,22 @@
     "Button alignment": "Perataan tombol",
     "Follow the text alignment": "Ikut perataan teks",
     "Preview: only you see the wishes you send here, for 2 hours. They never reach the hosts.": "Pratinjau: ucapan yang Anda kirim di sini hanya terlihat oleh Anda selama 2 jam dan tidak sampai ke tuan rumah.",
-    "The wish could not be sent. Please try again in a minute.": "Ucapan belum terkirim. Coba lagi sebentar lagi."
+    "The wish could not be sent. Please try again in a minute.": "Ucapan belum terkirim. Coba lagi sebentar lagi.",
+    "Arabic text above the title (e.g. Bismillah)": "Teks Arab di atas judul (mis. Bismillah)",
+    "The email address has been verified. Sign in with that account to use it.": "Alamat email berhasil diverifikasi. Masuk dengan akun tersebut untuk memakainya.",
+    "Your email address has been verified. Please sign in.": "Alamat email Anda berhasil diverifikasi. Silakan masuk.",
+    "Confirm your email address": "Konfirmasi alamat email Anda",
+    "Hi :name,": "Halo :name,",
+    "Thank you for signing up for :app. Confirm that this email address is yours to start making your invitations.": "Terima kasih sudah mendaftar di :app. Konfirmasi bahwa alamat email ini milik Anda untuk mulai membuat undangan.",
+    "Confirm email address": "Konfirmasi alamat email",
+    "The link is valid for :count minutes.": "Link ini berlaku selama :count menit.",
+    "Did not sign up? You can ignore this email; no account is activated without this confirmation.": "Tidak merasa mendaftar? Abaikan email ini. Tidak ada akun yang aktif tanpa konfirmasi ini.",
+    "Reset your password": "Atur ulang kata sandi Anda",
+    "We received a request to reset the password of your :app account.": "Kami menerima permintaan untuk mengatur ulang kata sandi akun :app Anda.",
+    "The link is valid for :count minutes and works once.": "Link ini berlaku selama :count menit dan hanya bisa dipakai sekali.",
+    "Did not ask for this? Ignore this email: your password stays the same.": "Tidak merasa meminta? Abaikan email ini. Kata sandi Anda tidak berubah.",
+    "This email was sent automatically by :app.": "Email ini dikirim otomatis oleh :app.",
+    "Need help? Write to": "Butuh bantuan? Kirim email ke",
+    "The :app team": "Tim :app",
+    "Button not working? Copy this link into your browser:": "Tombol tidak berfungsi? Salin link ini ke browser Anda:"
 }

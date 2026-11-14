@@ -20,7 +20,15 @@
     <meta property="og:title" content="{{ $invitation->meta['title'] }}">
     <meta property="og:description" content="{{ $invitation->meta['description'] }}">
     @if ($invitation->meta['image'])
+        {{-- Usually a 1200×630 JPEG made by OgImageService, the size chat apps show as a large preview. --}}
         <meta property="og:image" content="{{ url($invitation->meta['image']) }}">
+        @if (str_ends_with($invitation->meta['image'], '.jpg'))
+            <meta property="og:image:type" content="image/jpeg">
+            <meta property="og:image:width" content="{{ \App\Services\OgImageService::WIDTH }}">
+            <meta property="og:image:height" content="{{ \App\Services\OgImageService::HEIGHT }}">
+        @endif
+        <meta property="og:image:alt" content="{{ $invitation->meta['title'] }}">
+        <meta name="twitter:card" content="summary_large_image">
     @endif
 
     <link rel="preconnect" href="https://fonts.bunny.net">

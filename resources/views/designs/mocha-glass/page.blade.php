@@ -57,14 +57,18 @@
             style="{{ \App\Support\CoverTitle::style($cover['config']['title_offset'] ?? 0) }} {{ $cover['section_style'] }}">
             <div class="mg-photo inv-bg-motion--{{ $cover['config']['background_motion'] }}" @if ($photo) style="background-image: {{ \App\Support\CssUrl::wrap($photo) }}; {{ $photoPosition }}" @endif></div>
             @if (filled($cover['config']['subtitle']))
-                <span class="mg-tag" @animate('subtitle')>{{ $cover['config']['subtitle'] }}</span>
+                <span class="mg-tag" dir="auto" @animate('subtitle')>{{ $cover['config']['subtitle'] }}</span>
             @endif
             @if ($cover['variant'] === 'framed')
                 <div @class(['mg-framebox mg-framebox--'.$cover['config']['frame_style'], 'mg-framebox--arch' => $cover['config']['frame_shape'] === 'arch'])>
             @endif
-            <h1 class="mg-names" @animate('title')>@include('designs.mocha-glass.partials.names', ['names' => $names])</h1>
+            {{-- The eyebrow tag sits at the top of the layer, so the Arabic line goes right above the names. --}}
+            @if (filled($cover['config']['arabic_text'] ?? null))
+                <p class="inv-cover-arabic" lang="ar" dir="rtl" @animate('arabic_text')>{{ $cover['config']['arabic_text'] }}</p>
+            @endif
+            <h1 class="mg-names" dir="auto" @animate('title')>@include('designs.mocha-glass.partials.names', ['names' => $names])</h1>
             @if (filled($cover['config']['date_text']))
-                <p class="mg-date" @animate('date_text')>{{ $cover['config']['date_text'] }}</p>
+                <p class="mg-date" dir="auto" @animate('date_text')>{{ $cover['config']['date_text'] }}</p>
             @endif
             @php($buttonAtBottom = \App\Support\CoverButton::atBottom($cover['config']['button_position'] ?? null))
             @unless ($buttonAtBottom)

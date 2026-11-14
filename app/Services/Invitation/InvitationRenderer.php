@@ -7,6 +7,7 @@ use App\Models\Invitation;
 use App\Models\InvitationSection;
 use App\Models\InvitationTemplate;
 use App\Services\MusicService;
+use App\Services\OgImageService;
 use App\Services\Rsvp\GuestbookService;
 use App\Services\Rsvp\PreviewGuestbook;
 use App\Services\Rsvp\RsvpService;
@@ -41,6 +42,7 @@ class InvitationRenderer
         private SectionColors $sectionColors,
         private SectionAnimations $sectionAnimations,
         private PreviewGuestbook $previewGuestbook,
+        private OgImageService $ogImages,
     ) {}
 
     public function forInvitation(Invitation $invitation, bool $isPreview = false, ?Guest $guest = null): RenderedInvitation
@@ -97,7 +99,10 @@ class InvitationRenderer
             meta: [
                 'title' => $settings?->meta_title ?: $invitation->title,
                 'description' => $settings?->meta_description ?: ($cover['subtitle'] ?? '') ?: __('You are invited to :title.', ['title' => $invitation->title]),
-                'image' => $this->safeUrl($settings?->og_image ?: ($cover['background_image'] ?? null)),
+                // A share picture chat apps can show (OgImageService); the cover is cropped around its focal point.
+                'image' => $settings?->og_image
+                    ? $this->ogImages->url($this->safeUrl($settings->og_image))
+                    : $this->ogImages->url($cover['background_image'] ?? null, $cover['background_image_focus'] ?? null),
                 'canonical' => route('invitations.public', $invitation->slug),
                 'indexable' => ! $isPreview && $invitation->isPublished() && (bool) $settings?->allow_search_indexing,
             ],
@@ -220,7 +225,10 @@ class InvitationRenderer
             meta: [
                 'title' => $template->name.' · '.__('Template preview'),
                 'description' => (string) $template->description,
-                'image' => null,
+                // Shared links show the template: its thumbnail, else the cover photo of the shown content.
+                'image' => $coverOnly ? null : ($template->thumbnailUrl() !== null
+                    ? $this->ogImages->url($template->thumbnailUrl())
+                    : $this->ogImages->url($this->firstConfig($sections, 'cover')['background_image'] ?? null, $this->firstConfig($sections, 'cover')['background_image_focus'] ?? null)),
                 'canonical' => null,
                 'indexable' => false,
             ],

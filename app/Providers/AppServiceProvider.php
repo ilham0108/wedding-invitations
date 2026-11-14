@@ -12,9 +12,11 @@ use App\Services\SiteContentService;
 use App\Services\Subscription\SubscriptionLimitService;
 use App\Services\SystemSettings;
 use App\Services\TemplateCatalog;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\LocaleUpdated;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
@@ -53,11 +55,35 @@ class AppServiceProvider extends ServiceProvider
         Number::useLocale($this->app->getLocale());
         Event::listen(LocaleUpdated::class, fn (LocaleUpdated $event) => Number::useLocale($event->locale));
 
+        // In production every generated URL (email links, assets) uses APP_URL, never the request's Host header:
+        // a forged Host must not put a password reset token on another domain (security audit, finding 1).
+        if ($this->app->environment('production') && filled(config('app.url'))) {
+            URL::forceRootUrl((string) config('app.url'));
+            URL::forceScheme((string) parse_url((string) config('app.url'), PHP_URL_SCHEME) ?: 'https');
+        }
+
         VerifyEmail::createUrlUsing(fn (User $user): string => URL::temporarySignedRoute(
             'verification.verify',
             now()->addMinutes((int) config('auth.verification.expire', 60)),
             ['id' => $user->getRouteKey(), 'hash' => sha1($user->getEmailForVerification())],
         ));
+
+        // The two emails the platform sends (resources/views/vendor/mail holds their branded layout).
+        VerifyEmail::toMailUsing(fn (User $user, string $url): MailMessage => (new MailMessage)
+            ->subject(__('Confirm your email address'))
+            ->greeting(__('Hi :name,', ['name' => $user->name]))
+            ->line(__('Thank you for signing up for :app. Confirm that this email address is yours to start making your invitations.', ['app' => config('app.name')]))
+            ->action(__('Confirm email address'), $url)
+            ->line(__('The link is valid for :count minutes.', ['count' => (int) config('auth.verification.expire', 60)]))
+            ->line(__('Did not sign up? You can ignore this email; no account is activated without this confirmation.')));
+
+        ResetPassword::toMailUsing(fn (User $user, string $token): MailMessage => (new MailMessage)
+            ->subject(__('Reset your password'))
+            ->greeting(__('Hi :name,', ['name' => $user->name]))
+            ->line(__('We received a request to reset the password of your :app account.', ['app' => config('app.name')]))
+            ->action(__('Choose a new password'), route('password.reset', ['token' => $token, 'email' => $user->getEmailForPasswordReset()]))
+            ->line(__('The link is valid for :count minutes and works once.', ['count' => (int) config('auth.passwords.'.config('auth.defaults.passwords').'.expire', 60)]))
+            ->line(__('Did not ask for this? Ignore this email: your password stays the same.')));
 
         /**
          * Grant abilities that match a permission slug held by one of the user's roles.

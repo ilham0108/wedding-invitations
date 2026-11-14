@@ -28,6 +28,8 @@ return [
 
     'fields' => [
         'cover' => [
+            // A line in Arabic letters above the title (e.g. the Basmala), set in the Arabic font (invitation.css "Cover Arabic line").
+            ['key' => 'arabic_text', 'label' => 'Arabic text above the title (e.g. Bismillah)', 'type' => 'text'],
             ['key' => 'title', 'label' => 'Title', 'type' => 'text'],
             ['key' => 'subtitle', 'label' => 'Subtitle', 'type' => 'text'],
             ['key' => 'date_text', 'label' => 'Date text', 'type' => 'text'],
@@ -245,7 +247,7 @@ return [
     | (repeater, images) animates each of its items. Every section view marks these elements with @animate('key').
     */
     'animation_targets' => [
-        'cover' => ['subtitle' => 'Subtitle', 'title' => 'Title', 'date_text' => 'Date text', 'button_label' => 'Button'],
+        'cover' => ['arabic_text' => 'Arabic text', 'subtitle' => 'Subtitle', 'title' => 'Title', 'date_text' => 'Date text', 'button_label' => 'Button'],
         'greeting' => ['emblem' => 'Ornament', 'opening' => 'Opening line', 'message' => 'Greeting', 'names' => 'Names'],
         'couple' => ['heading' => 'Heading', 'opening' => 'Opening line', 'intro' => 'Introduction', 'people' => 'People (each person)'],
         'quote' => ['arabic_text' => 'Arabic text', 'text' => 'Quote', 'author' => 'Author'],
@@ -276,7 +278,7 @@ return [
             'label' => 'Cover',
             'icon' => 'fa-regular fa-image',
             'variants' => ['centered', 'framed'],
-            'defaults' => ['title' => '', 'subtitle' => '', 'date_text' => '', 'background_image' => null, 'background_motion' => 'none', 'overlay' => true, 'frame_style' => 'blur', 'frame_shape' => 'rectangle', 'alignment' => 'center', 'title_position' => 'design', 'title_offset' => 0, 'button_label' => 'Open Invitation', 'button_display' => 'label', 'button_position' => 'design', 'button_align' => 'text', 'desktop_image' => null, 'desktop_subtitle' => '', 'desktop_title' => '', 'desktop_text' => '', 'desktop_text_position' => 'center'],
+            'defaults' => ['arabic_text' => '', 'title' => '', 'subtitle' => '', 'date_text' => '', 'background_image' => null, 'background_motion' => 'none', 'overlay' => true, 'frame_style' => 'blur', 'frame_shape' => 'rectangle', 'alignment' => 'center', 'title_position' => 'design', 'title_offset' => 0, 'button_label' => 'Open Invitation', 'button_display' => 'label', 'button_position' => 'design', 'button_align' => 'text', 'desktop_image' => null, 'desktop_subtitle' => '', 'desktop_title' => '', 'desktop_text' => '', 'desktop_text_position' => 'center'],
         ],
         'greeting' => [
             'label' => 'Greeting',

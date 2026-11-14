@@ -1,0 +1,3 @@
+# Mail templates are Markdown: an indented line becomes a code block. Keep formatters away from them.
+resources/views/vendor/mail/**
+resources/views/vendor/notifications/**
