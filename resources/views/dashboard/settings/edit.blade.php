@@ -60,7 +60,7 @@
             </form>
         </x-ui.card>
 
-        <x-ui.card :title="__('Delete account')" :description="__('Your account will be deactivated and you will be signed out.')">
+        <x-ui.card :title="__('Delete account')" :description="__('Removes your account, invitations, and guest data for good.')">
             <x-ui.button variant="danger" type="button" x-data x-on:click="$dispatch('open-modal', 'confirm-user-deletion')">{{ __('Delete account') }}</x-ui.button>
         </x-ui.card>
     </div>
@@ -70,20 +70,45 @@
             @csrf
             @method('DELETE')
 
-            <h2 class="text-lg font-semibold text-ink">{{ __('Are you sure you want to delete your account?') }}</h2>
-            @if ($user->hasPassword())
-                <p class="mt-1 text-sm text-muted">{{ __('Please enter your password to confirm.') }}</p>
+            <h2 class="text-lg font-semibold text-ink">{{ __('Delete your account permanently?') }}</h2>
+            <p class="mt-1 text-sm text-ink-soft">{{ __('This cannot be undone. The following is deleted right away:') }}</p>
 
+            {{-- Real counts from AccountDeletionService::summary(), so the user sees what is lost. --}}
+            <ul class="mt-3 list-disc space-y-1 rounded-lg border border-red-200 bg-red-50 py-3 pl-8 pr-4 text-sm text-red-900">
+                <li>{{ trans_choice(':count invitation, with its sections, photos, and music|:count invitations, with their sections, photos, and music', $deletion['invitations'], ['count' => Number::format($deletion['invitations'])]) }}</li>
+                <li>{{ trans_choice(':count guest, with their personal link, RSVP, and wishes|:count guests, with their personal links, RSVPs, and wishes', $deletion['guests'], ['count' => Number::format($deletion['guests'])]) }}</li>
+                <li>{{ __('Your WhatsApp campaigns, message templates, and connected WhatsApp number') }}</li>
+            </ul>
+
+            <p class="mt-3 text-sm text-ink-soft">
+                {{ __('Invitation links you have shared stop working, and an active plan ends. Payment records are kept without your name or email.') }}
+                @if ($deletion['guests'] > 0)
+                    <a href="{{ route('dashboard.guests.index') }}" class="font-medium text-sage underline underline-offset-2 hover:text-ink">{{ __('Export your guest list first') }}</a>
+                    {{ __('if you still need it.') }}
+                @endif
+            </p>
+
+            @if ($user->hasPassword())
                 <x-ui.field name="password" for="delete_password" :label="__('Password')" bag="userDeletion" class="mt-5">
-                    <x-ui.input name="password" type="password" bag="userDeletion" id="delete_password" />
+                    <x-ui.input name="password" type="password" bag="userDeletion" id="delete_password" autocomplete="current-password" />
                 </x-ui.field>
-            @else
-                <p class="mt-1 text-sm text-muted">{{ __('This cannot be undone from your account.') }}</p>
             @endif
 
-            <div class="mt-6 flex justify-end gap-2">
-                <x-ui.button variant="secondary" type="button" x-on:click="$dispatch('close-modal', 'confirm-user-deletion')">{{ __('Cancel') }}</x-ui.button>
-                <x-ui.button variant="danger">{{ __('Delete account') }}</x-ui.button>
+            <div class="mt-5">
+                <label for="confirm_permanent" class="flex cursor-pointer items-start gap-3 text-sm text-ink">
+                    <input id="confirm_permanent" type="checkbox" name="confirm_permanent" value="1" required
+                        class="mt-0.5 size-4 cursor-pointer rounded border-line text-red-600 focus:ring-red-600">
+                    <span>{{ __('I understand that my invitations and guest data are deleted permanently and cannot be recovered.') }}</span>
+                </label>
+                @error('confirm_permanent', 'userDeletion')
+                    <p class="mt-1.5 text-xs font-medium text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- On phones "Keep my account" sits on top, so a stray tap lands on the safe choice; 44px targets. --}}
+            <div class="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">
+                <x-ui.button variant="secondary" type="button" class="h-11 sm:h-10" x-on:click="$dispatch('close-modal', 'confirm-user-deletion')">{{ __('Keep my account') }}</x-ui.button>
+                <x-ui.button variant="danger" class="h-11 sm:h-10">{{ __('Delete permanently') }}</x-ui.button>
             </div>
         </form>
     </x-ui.modal>

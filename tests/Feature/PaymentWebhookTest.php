@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use App\Jobs\ProcessPaymentWebhook;
 use App\Livewire\OrderStatus as OrderStatusComponent;
 use App\Models\Order;
@@ -13,6 +14,7 @@ use App\Notifications\PaymentFailed;
 use App\Services\Payment\PaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
@@ -91,7 +93,34 @@ class PaymentWebhookTest extends TestCase
             ->post('/dashboard/subscription/checkout', ['price' => $price->ulid])
             ->assertSessionHasErrors(['price' => 'The payment page could not be opened. Please try again in a moment.']);
 
-        $this->assertSame(0, Order::query()->count());
+        // The order is kept for the record, closed, and never offered again as an unpaid checkout.
+        $order = Order::query()->with('latestPayment')->sole();
+        $this->assertSame(OrderStatus::Failed, $order->status);
+        $this->assertSame(PaymentStatus::Failed, $order->latestPayment->status);
+        $this->assertNull($order->latestPayment->checkout_url);
+    }
+
+    public function test_gateway_is_called_after_the_order_is_committed(): void
+    {
+        $price = PlanPrice::factory()->for(Plan::factory()->create())->create();
+        $levels = [];
+        Http::fake(function () use (&$levels) {
+            $levels[] = DB::transactionLevel();
+
+            return Http::response([
+                'id' => 'inv-after-commit', 'invoice_url' => 'https://checkout.xendit.co/web/inv-after-commit',
+                'status' => 'PENDING', 'expiry_date' => now()->addDay()->toIso8601String(),
+            ]);
+        });
+        $baseLevel = DB::transactionLevel();
+
+        $this->actingAs($this->user)->post('/dashboard/subscription/checkout', ['price' => $price->ulid])
+            ->assertRedirect('https://checkout.xendit.co/web/inv-after-commit');
+
+        $this->assertSame([$baseLevel], $levels, 'No transaction may be open while the gateway is called.');
+        $payment = Order::query()->sole()->latestPayment()->first();
+        $this->assertSame('inv-after-commit', $payment->gateway_reference);
+        $this->assertSame(PaymentStatus::Pending, $payment->status);
     }
 
     public function test_webhook_with_a_wrong_token_is_rejected(): void

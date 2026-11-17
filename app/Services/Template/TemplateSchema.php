@@ -228,6 +228,7 @@ class TemplateSchema
             "{$path}.*.anchor" => ['sometimes', Rule::in($options['anchors'])],
             "{$path}.*.flip" => ['sometimes', 'boolean'],
             "{$path}.*.flip_y" => ['sometimes', 'boolean'],
+            "{$path}.*.rotate" => ['sometimes', 'numeric', 'between:-180,180'],
             "{$path}.*.layer" => ['sometimes', Rule::in($options['layers'])],
             "{$path}.*.enter" => ['sometimes', Rule::in($options['enters'])],
             "{$path}.*.duration" => ['sometimes', 'numeric', 'between:0.2,8'],

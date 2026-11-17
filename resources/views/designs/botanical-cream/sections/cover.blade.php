@@ -21,6 +21,7 @@
     @endif
 
     <div @class(['bc-cover__text inv-animate', 'bc-frame bc-frame--'.$config['frame_style'] => $framed, 'bc-frame--arch' => $framed && $config['frame_shape'] === 'arch'])>
+        @include('invitation.partials.cover-photo', ['alt' => $config['title'] ?: $invitation->title])
         @if (filled($config['arabic_text'] ?? null))
             <p class="inv-cover-arabic" lang="ar" dir="rtl" @animate('arabic_text')>{{ $config['arabic_text'] }}</p>
         @endif

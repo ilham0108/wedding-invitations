@@ -17,6 +17,8 @@
         'text-left' => ($config['alignment'] ?? 'center') === 'left',
         'text-white' => $hasImage && $config['overlay'],
     ])>
+        @include('invitation.partials.cover-photo', ['alt' => $config['title'] ?: $invitation->title])
+
         @if ($invitation->guestName)
             <p class="mb-6 text-sm">{{ __('Dear') }} <span class="font-semibold">{{ $invitation->guestName }}</span>,</p>
         @endif

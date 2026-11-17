@@ -9,12 +9,13 @@ use App\Models\InvitationTemplate;
 use App\Services\Invitation\InvitationService;
 use App\Services\Subscription\SubscriptionLimitService;
 use App\Services\TemplateCatalog;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -93,15 +94,18 @@ class InvitationCreator extends Component
         $template = InvitationTemplate::query()->published()->where('slug', $validated['template'])->firstOrFail();
         $limits = app(SubscriptionLimitService::class);
 
-        if (! $limits->canCreateInvitation(Auth::user())) {
-            throw ValidationException::withMessages(['plan' => __('You have reached the invitation limit of your plan.')]);
-        }
-
         if (! $limits->canUseTemplate(Auth::user(), $template)) {
             throw ValidationException::withMessages(['plan' => __('This template is only available on Premium.')]);
         }
 
-        $invitation = $invitations->createFromTemplate(Auth::user(), $template, $validated);
+        // Check and create under one lock per user, so two quick submits cannot both pass the plan limit.
+        $invitation = Cache::lock('invitation-create:'.Auth::user()->ulid, 15)->block(10, function () use ($limits, $invitations, $template, $validated) {
+            if (! $limits->canCreateInvitation(Auth::user())) {
+                throw ValidationException::withMessages(['plan' => __('You have reached the invitation limit of your plan.')]);
+            }
+
+            return $invitations->createFromTemplate(Auth::user(), $template, $validated);
+        });
 
         session()->flash('success', __('Invitation created. Start customizing it below.'));
 

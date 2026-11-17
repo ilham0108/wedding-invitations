@@ -74,6 +74,7 @@ class ProfileTest extends TestCase
             ->actingAs($user)
             ->delete('/dashboard/settings', [
                 'password' => 'password',
+                'confirm_permanent' => '1',
             ]);
 
         $response

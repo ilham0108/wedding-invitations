@@ -5,16 +5,14 @@ namespace App\Jobs;
 use App\Models\Invitation;
 use App\Models\User;
 use App\Services\AuditLogger;
-use App\Services\Guest\GuestService;
-use App\Services\Subscription\SubscriptionLimitService;
+use App\Services\Guest\GuestImportService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Persists rows already validated by GuestImportService. Phones that appeared
- * between preview and commit are skipped instead of creating duplicates.
+ * Persists rows already validated by GuestImportService. Safe to retry: the rows are saved
+ * in one transaction, and guests that already exist are skipped (GuestImportService::persist).
  */
 class ProcessGuestImport implements ShouldQueue
 {
@@ -31,30 +29,12 @@ class ProcessGuestImport implements ShouldQueue
         public array $rows,
     ) {}
 
-    public function handle(GuestService $guests, AuditLogger $auditLogger): void
+    public function handle(GuestImportService $imports, AuditLogger $auditLogger): void
     {
         $invitation = Invitation::query()->where('ulid', $this->invitationUlid)->firstOrFail();
         $user = User::query()->where('ulid', $this->userUlid)->firstOrFail();
 
-        $imported = 0;
-        $skipped = 0;
-        $limits = app(SubscriptionLimitService::class);
-
-        foreach (array_chunk($this->rows, 200) as $chunk) {
-            DB::transaction(function () use ($chunk, $invitation, $guests, $limits, &$imported, &$skipped): void {
-                foreach ($chunk as $row) {
-                    // Re-checked here: guests may have been added since the preview.
-                    if (($row['phone'] !== null && $guests->phoneExists($invitation, $row['phone'])) || ! $limits->canAddGuest($invitation)) {
-                        $skipped++;
-
-                        continue;
-                    }
-
-                    $guests->create($invitation, $row);
-                    $imported++;
-                }
-            });
-        }
+        ['imported' => $imported, 'skipped' => $skipped] = $imports->persist($invitation, $this->rows);
 
         $auditLogger->record('guest.imported', $user, $invitation, ['imported' => $imported, 'skipped' => $skipped]);
 

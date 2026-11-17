@@ -97,6 +97,23 @@ class SectionSettingsTest extends TestCase
         $this->assertTrue($media->invitation->is($invitation));
     }
 
+    public function test_clients_upload_a_cover_photo_but_not_its_frame(): void
+    {
+        Storage::fake('public');
+        $invitation = $this->createInvitation();
+
+        $this->settings($invitation, 'cover')
+            ->assertSee('Photo above the names (e.g. the couple)')
+            ->assertSee('Photo size')
+            ->assertDontSee('Photo frame (transparent image with an opening in the middle)')
+            ->set('uploads.photo', UploadedFile::fake()->image('couple.jpg', 1200, 1600))
+            ->assertHasNoErrors();
+
+        $url = $this->configOf($invitation, 'cover')['photo'];
+        $this->assertSame(Media::query()->sole()->url(), $url);
+        $this->assertStringEndsWith('.webp', $url);
+    }
+
     public function test_non_image_uploads_are_rejected(): void
     {
         Storage::fake('public');

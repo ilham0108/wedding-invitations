@@ -54,8 +54,7 @@ class OgImageService
             return $source;
         }
 
-        $focus = PhotoStyle::focus($focus);
-        $target = self::DIRECTORY.'/'.sha1($file.'|'.filemtime($file).'|'.$focus.'|'.self::VERSION).'.jpg';
+        $target = $this->target($file, $focus);
         $disk = Storage::disk(MediaService::DISK);
 
         if (! $disk->exists($target)) {
@@ -119,6 +118,24 @@ class OgImageService
      * The file behind a URL of this site, or null. Paths are resolved with realpath() and must stay inside
      * public/ (bundled pictures) or the public disk (uploads), so "../" can never reach other files.
      */
+    /**
+     * Delete the cached crop made from a picture. Call it before the picture itself is deleted:
+     * the cache name is derived from the source file.
+     */
+    public function forget(?string $source, mixed $focus = null): void
+    {
+        $file = $source ? $this->localFile($source) : null;
+
+        if ($file !== null) {
+            Storage::disk(MediaService::DISK)->delete($this->target($file, $focus));
+        }
+    }
+
+    private function target(string $file, mixed $focus): string
+    {
+        return self::DIRECTORY.'/'.sha1($file.'|'.filemtime($file).'|'.PhotoStyle::focus($focus).'|'.self::VERSION).'.jpg';
+    }
+
     private function localFile(string $source): ?string
     {
         $path = $source;

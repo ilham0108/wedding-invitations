@@ -8,7 +8,8 @@
         @if ($categories->isEmpty())
             <x-ui.empty-state icon="fa-solid fa-tags" :title="__('No categories yet.')" />
         @else
-            <div class="overflow-x-auto">
+            {{-- "relative" keeps the absolutely positioned sr-only heading inside the scroll box, so it cannot widen the page. --}}
+            <div class="relative overflow-x-auto">
                 <table class="min-w-full divide-y divide-line text-sm">
                     <thead class="bg-paper text-left text-xs uppercase tracking-wide text-muted">
                         <tr>

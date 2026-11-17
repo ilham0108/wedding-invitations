@@ -147,12 +147,24 @@ class RsvpService
      */
     public function stats(Invitation $invitation): array
     {
+        // One query with a subquery per number instead of five round trips.
+        $totals = Invitation::query()
+            ->whereKey($invitation->getKey())
+            ->withCount([
+                'guests as invited_count',
+                'guests as pending_count' => fn ($query) => $query->where('rsvp_status', RsvpStatus::Pending),
+                'rsvps as attending_count' => fn ($query) => $query->where('attendance', RsvpAttendance::Attending),
+                'rsvps as not_attending_count' => fn ($query) => $query->where('attendance', RsvpAttendance::NotAttending),
+            ])
+            ->withSum(['rsvps as people' => fn ($query) => $query->where('attendance', RsvpAttendance::Attending)], 'number_of_guests')
+            ->firstOrFail(['id']);
+
         return [
-            'invited' => $invitation->guests()->count(),
-            'attending' => $invitation->rsvps()->where('attendance', RsvpAttendance::Attending)->count(),
-            'not_attending' => $invitation->rsvps()->where('attendance', RsvpAttendance::NotAttending)->count(),
-            'pending' => $invitation->guests()->where('rsvp_status', RsvpStatus::Pending)->count(),
-            'people' => (int) $invitation->rsvps()->where('attendance', RsvpAttendance::Attending)->sum('number_of_guests'),
+            'invited' => (int) $totals->invited_count,
+            'attending' => (int) $totals->attending_count,
+            'not_attending' => (int) $totals->not_attending_count,
+            'pending' => (int) $totals->pending_count,
+            'people' => (int) $totals->people,
         ];
     }
 

@@ -62,6 +62,7 @@
             @if ($cover['variant'] === 'framed')
                 <div @class(['mg-framebox mg-framebox--'.$cover['config']['frame_style'], 'mg-framebox--arch' => $cover['config']['frame_shape'] === 'arch'])>
             @endif
+            @include('invitation.partials.cover-photo', ['config' => $cover['config'], 'alt' => $names])
             {{-- The eyebrow tag sits at the top of the layer, so the Arabic line goes right above the names. --}}
             @if (filled($cover['config']['arabic_text'] ?? null))
                 <p class="inv-cover-arabic" lang="ar" dir="rtl" @animate('arabic_text')>{{ $cover['config']['arabic_text'] }}</p>

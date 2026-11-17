@@ -182,6 +182,24 @@
 }
 
 /*
+| Cover photo above the names (cover "photo", invitation.partials.cover-photo).
+| The width follows "photo_size" but never more than a share of the screen height, so the names,
+| date and button still fit on a short phone screen, where some designs pin the cover in place.
+*/
+.inv-cover-photo {
+    width: min(var(--inv-cover-photo-width, 11rem), 30svh, 70%);
+    margin: 0 auto 1.25rem;
+}
+
+.inv-cover-photo--small { --inv-cover-photo-width: 7.5rem; }
+.inv-cover-photo--large { --inv-cover-photo-width: 15rem; }
+.inv-cover-photo--start { margin-left: 0; }
+
+/* Oval and arch read as portraits; the circle stays square (.inv-photo--circle). */
+.inv-cover-photo .inv-photo--oval:not(.inv-photo--framed),
+.inv-cover-photo .inv-photo--arch:not(.inv-photo--framed) { aspect-ratio: 3 / 4; }
+
+/*
 | Entrance animations (template decoration "animation" / "animation_speed").
 | Elements with .inv-animate start hidden only when JavaScript runs (html.inv-js) and an
 | animation is chosen; invitation.js adds .is-shown when they scroll into view.

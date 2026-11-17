@@ -3,6 +3,10 @@ import forms from '@tailwindcss/forms';
 
 /** @type {import('tailwindcss').Config} */
 export default {
+    // The app ships a light theme only (DESIGN.md). With the default "media" setting, dark: classes in
+    // vendor views (Livewire, Laravel pagination) followed the OS setting and turned dark inside light pages.
+    darkMode: 'class',
+
     content: [
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',

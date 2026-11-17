@@ -308,6 +308,12 @@ class InvitationRenderer
                 ...$config,
                 'background_image' => $this->safeUrl($config['background_image'] ?? null),
                 'desktop_image' => $this->safeUrl($config['desktop_image'] ?? null),
+                // The photo above the names (invitation.partials.cover-photo) and its optional frame.
+                'photo' => $this->safeUrl($config['photo'] ?? null),
+                'photo_frame' => $this->safeUrl($config['photo_frame'] ?? null),
+                'photo_shape' => in_array($config['photo_shape'] ?? null, ['circle', 'oval', 'arch', 'rounded'], true) ? $config['photo_shape'] : 'circle',
+                'photo_size' => in_array($config['photo_size'] ?? null, ['small', 'medium', 'large'], true) ? $config['photo_size'] : 'medium',
+                'photo_frame_inset' => max(0, min(40, (float) ($config['photo_frame_inset'] ?? 12))),
                 'desktop_text_position' => in_array($config['desktop_text_position'] ?? null, ['top', 'center', 'bottom'], true) ? $config['desktop_text_position'] : 'center',
                 'background_motion' => in_array($config['background_motion'] ?? null, ['none', 'zoom-out', 'drift'], true) ? $config['background_motion'] : 'none',
                 'frame_style' => in_array($config['frame_style'] ?? null, ['blur', 'transparent', 'solid'], true) ? $config['frame_style'] : 'blur',

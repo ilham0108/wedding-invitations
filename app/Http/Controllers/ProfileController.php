@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Services\AccountDeletionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,10 +16,12 @@ class ProfileController extends Controller
     /**
      * Display the user's profile form.
      */
-    public function edit(Request $request): View
+    public function edit(Request $request, AccountDeletionService $accounts): View
     {
         return view('dashboard.settings.edit', [
             'user' => $request->user(),
+            // Real counts for the deletion warning, so the user sees exactly what will be lost.
+            'deletion' => $accounts->summary($request->user()),
             'timezones' => timezone_identifiers_list(),
         ]);
     }
@@ -40,19 +43,23 @@ class ProfileController extends Controller
     }
 
     /**
-     * Delete the user's account. Accounts without a password (Google sign-up) confirm in the dialog only.
+     * Delete the user's account and its invitations for good (AccountDeletionService).
+     * The user ticks a box naming what is lost; accounts with a password also re-enter it.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request, AccountDeletionService $accounts): RedirectResponse
     {
         $request->validateWithBag('userDeletion', [
             'password' => [Rule::requiredIf($request->user()->hasPassword()), 'current_password'],
+            'confirm_permanent' => ['accepted'],
+        ], [
+            'confirm_permanent.accepted' => __('Tick the box to confirm that you understand this cannot be undone.'),
         ]);
 
         $user = $request->user();
 
         Auth::logout();
 
-        $user->delete();
+        $accounts->delete($user);
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

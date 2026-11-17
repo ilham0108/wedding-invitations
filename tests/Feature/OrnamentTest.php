@@ -39,7 +39,7 @@ class OrnamentTest extends TestCase
     {
         return [
             'image' => '/illustrations/ornament-flower-corner.svg', 'x' => 0, 'y' => 100, 'width' => 35, 'anchor' => 'bottom-left',
-            'flip' => false, 'flip_y' => false, 'layer' => 'front', 'enter' => 'fade-up', 'duration' => 1.6, 'delay' => 0, 'motion' => 'sway', ...$overrides,
+            'flip' => false, 'flip_y' => false, 'rotate' => 0, 'layer' => 'front', 'enter' => 'fade-up', 'duration' => 1.6, 'delay' => 0, 'motion' => 'sway', ...$overrides,
         ];
     }
 
@@ -53,9 +53,9 @@ class OrnamentTest extends TestCase
         ]);
 
         $this->assertSame([
-            ['image' => '/illustrations/a.svg', 'x' => 120.46, 'y' => -50.0, 'width' => 150.0, 'anchor' => 'center', 'flip' => true, 'flip_y' => false, 'layer' => 'back',
+            ['image' => '/illustrations/a.svg', 'x' => 120.46, 'y' => -50.0, 'width' => 150.0, 'anchor' => 'center', 'flip' => true, 'flip_y' => false, 'rotate' => 0.0, 'layer' => 'back',
                 'enter' => 'zoom-in-up', 'duration' => 8.0, 'delay' => 0.0, 'motion' => 'float'],
-            ['image' => '/illustrations/b.svg', 'x' => 0.0, 'y' => 100.0, 'width' => 35.0, 'anchor' => 'bottom-left', 'flip' => false, 'flip_y' => false, 'layer' => 'front',
+            ['image' => '/illustrations/b.svg', 'x' => 0.0, 'y' => 100.0, 'width' => 35.0, 'anchor' => 'bottom-left', 'flip' => false, 'flip_y' => false, 'rotate' => 0.0, 'layer' => 'front',
                 'enter' => 'fade-up', 'duration' => 1.6, 'delay' => 0.0, 'motion' => 'sway'],
         ], $clean);
 
@@ -84,6 +84,40 @@ class OrnamentTest extends TestCase
         app(TemplateSchema::class)->validate(['schema' => ['sections' => [['type' => 'cover', 'ornaments' => [$this->item(['flip_y' => 'upside'])]]]]]);
     }
 
+    public function test_ornaments_can_be_rotated_around_their_centre(): void
+    {
+        $ornaments = app(Ornaments::class);
+        [$tilted, $tooFar, $plain] = $ornaments->clean([$this->item(['rotate' => '-45.5']), $this->item(['rotate' => 999]), $this->item()]);
+
+        $this->assertSame(-45.5, $tilted['rotate']);
+        $this->assertSame(180.0, $tooFar['rotate']);
+        $this->assertStringContainsString('rotate: -45.5deg;', $ornaments->style($tilted, 0));
+        $this->assertStringNotContainsString('rotate:', $ornaments->style($plain, 0), 'An unrotated ornament adds no rotate property.');
+
+        // A flipped and rotated ornament keeps both: the flip class (scale) and the rotate property.
+        $both = $ornaments->clean([$this->item(['rotate' => 30, 'flip' => true])])[0];
+        $this->assertStringContainsString('inv-ornament--flip', $ornaments->classes($both));
+        $this->assertStringContainsString('rotate: 30deg;', $ornaments->style($both, 0));
+
+        $this->expectException(ValidationException::class);
+        app(TemplateSchema::class)->validate(['schema' => ['sections' => [['type' => 'cover', 'ornaments' => [$this->item(['rotate' => 400])]]]]]);
+    }
+
+    public function test_the_builder_saves_an_ornament_rotation(): void
+    {
+        $ornament = $this->ornament();
+        $template = InvitationTemplate::factory()->create(['schema' => ['sections' => ['cover', 'closing']]]);
+
+        Livewire::actingAs(User::factory()->superAdmin()->create())
+            ->test(TemplateBuilder::class, ['template' => $template])
+            ->call('addOrnament', $ornament->ulid)
+            ->call('updateOrnament', 0, 'rotate', '90')
+            ->assertSee('Rotation')
+            ->call('save');
+
+        $this->assertEquals(90, $template->fresh()->schema['sections'][0]['ornaments'][0]['rotate']);
+    }
+
     public function test_the_template_schema_keeps_ornaments_per_section(): void
     {
         $definition = app(TemplateSchema::class)->validate(['schema' => ['sections' => [
@@ -91,7 +125,7 @@ class OrnamentTest extends TestCase
             'closing',
         ]]]);
 
-        $this->assertSame([$this->item(['x' => 0.0, 'y' => 100.0, 'width' => 35.0, 'delay' => 0.0])], $definition['schema']['sections'][0]['ornaments']);
+        $this->assertSame([$this->item(['x' => 0.0, 'y' => 100.0, 'width' => 35.0, 'rotate' => 0.0, 'delay' => 0.0])], $definition['schema']['sections'][0]['ornaments']);
         $this->assertSame(['type' => 'closing', 'variant' => 'default', 'background' => 'default'], $definition['schema']['sections'][1]);
 
         $this->expectException(ValidationException::class);
@@ -108,7 +142,7 @@ class OrnamentTest extends TestCase
         foreach ($definition['schema']['sections'] as $section) {
             $this->assertSame([[
                 'image' => '/illustrations/a.svg', 'x' => 100.0, 'y' => 0.0, 'width' => 52.0, 'anchor' => 'top-right', 'flip' => true, 'flip_y' => false,
-                'layer' => 'front', 'enter' => 'fade-down', 'duration' => 1.3, 'delay' => 0.0, 'motion' => 'sway',
+                'rotate' => 0.0, 'layer' => 'front', 'enter' => 'fade-down', 'duration' => 1.3, 'delay' => 0.0, 'motion' => 'sway',
             ]], $section['ornaments']);
         }
 

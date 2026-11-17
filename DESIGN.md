@@ -85,6 +85,8 @@ Aturan bersama semua template:
 - Tombol sampul hanya ikon (`button_display`, R-08, R-19): panah dan ikon gulir di sini adalah kontrolnya, bukan hiasan pada tombol berteks. Bergerak tiga kali untuk memberi tahu arah gulir lalu diam, dan di foto diberi bayangan gelap agar tetap terlihat.
 - Warna ikon sosial media diatur per section Mempelai (`colors.social_icon`, `colors.social_bg`). Kosong berarti bawaan desain: mengikuti teks di Classic dan Botanical Cream, hitam di lingkaran putih di Mocha Glass supaya terbaca di atas foto.
 - Bingkai sampul Lengkung (`frame_shape`, R-11): meniru pintu lengkung pelaminan dan senada dengan bentuk foto `arch`. Teks selalu di tengah dan diberi ruang atas supaya tidak keluar dari kurva.
+- Foto sampul (`photo`, `invitation.partials.cover-photo`): foto pasangan di atas nama, di depan gambar latar. Bentuk dan bingkainya memakai pilihan yang sama dengan potret Mempelai (lingkaran, oval, lengkung, sudut bulat), supaya satu undangan konsisten. Lebarnya dibatasi 30% tinggi layar karena sampul Mocha Glass terkunci setinggi layar: nama, tanggal, dan tombol harus tetap muat di ponsel pendek. Dimuat langsung (bukan lazy) karena ada di layar pertama (R-40).
+- Rotasi ornamen (`rotate`, -180 sampai 180 derajat, R-19 bukan animasi): satu ilustrasi bisa dipakai di sudut dan sisi berbeda tanpa admin membuat file baru. Berputar di titik tengah gambar, terpisah dari cermin (`flip`), jadi sudutnya terbaca sama di layar.
 
 ### Botanical Cream
 

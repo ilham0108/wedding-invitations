@@ -8,6 +8,7 @@ use App\Enums\UserStatus;
 use App\Livewire\UserDetail;
 use App\Livewire\UserManager;
 use App\Models\AuditLog;
+use App\Models\Guest;
 use App\Models\Invitation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -104,21 +105,46 @@ class AdminUserManagementTest extends TestCase
         $this->get(route('invitations.public', $invitation->slug))->assertOk();
     }
 
-    public function test_deleting_removes_invitations_and_ends_the_subscription(): void
+    public function test_deleting_removes_invitations_for_good_and_frees_the_email(): void
     {
-        $client = User::factory()->client()->create();
+        $client = User::factory()->client()->create(['email' => 'klien@example.com']);
         $invitation = $this->published($client);
+        Guest::factory()->for($invitation)->count(2)->create();
         $subscription = $this->subscribe($client);
 
         Livewire::actingAs($this->admin)->test(UserDetail::class, ['user' => $client])
+            ->assertSee('1 invitation, with its sections, photos, and music')
+            ->assertSee('2 guests, with their personal links, RSVPs, and wishes')
+            ->set('confirmPermanent', true)
             ->call('delete')
             ->assertRedirect(route('admin.users.index'));
 
         $this->assertSoftDeleted($client);
-        $this->assertSoftDeleted($invitation);
+        $this->assertNull(Invitation::withTrashed()->find($invitation->id));
+        $this->assertSame(0, Guest::withTrashed()->where('invitation_id', $invitation->id)->count());
         $this->assertSame(SubscriptionStatus::Cancelled, $subscription->fresh()->status);
+        $this->assertNotSame('klien@example.com', User::withTrashed()->find($client->id)->email);
         $this->get(route('invitations.public', $invitation->slug))->assertNotFound();
-        $this->assertTrue(AuditLog::query()->where('action', 'user.deleted')->exists());
+
+        // The admin's audit entry still says whom they removed.
+        $log = AuditLog::query()->where('action', 'user.deleted')->sole();
+        $this->assertSame($this->admin->id, $log->user_id);
+        $this->assertSame('klien@example.com', $log->metadata['email']);
+        $this->assertSame(2, $log->metadata['guests']);
+    }
+
+    public function test_deleting_requires_ticking_the_confirmation(): void
+    {
+        $client = User::factory()->client()->create();
+        $invitation = $this->published($client);
+
+        Livewire::actingAs($this->admin)->test(UserDetail::class, ['user' => $client])
+            ->call('delete')
+            ->assertHasErrors(['confirmPermanent' => 'accepted'])
+            ->assertNoRedirect();
+
+        $this->assertNotSoftDeleted($client);
+        $this->assertNotNull($invitation->fresh());
     }
 
     public function test_admins_cannot_suspend_or_delete_themselves_or_other_admins(): void
@@ -130,6 +156,7 @@ class AdminUserManagementTest extends TestCase
             ->assertDispatched('notify', type: 'error');
 
         Livewire::actingAs($this->admin)->test(UserDetail::class, ['user' => $otherAdmin])
+            ->set('confirmPermanent', true)
             ->call('delete')
             ->assertDispatched('notify', type: 'error');
 

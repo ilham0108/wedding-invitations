@@ -7,6 +7,7 @@ use App\Enums\RsvpStatus;
 use App\Http\Requests\StoreGuestRequest;
 use App\Livewire\Concerns\ResolvesEditableInvitation;
 use App\Models\Guest;
+use App\Models\Invitation;
 use App\Services\Guest\GuestService;
 use App\Services\Subscription\SubscriptionLimitService;
 use Illuminate\Support\Facades\Auth;
@@ -201,15 +202,34 @@ class GuestTable extends Component
             'guests' => $page,
             'links' => $page->getCollection()->mapWithKeys(fn (Guest $guest): array => [$guest->ulid => $guests->personalUrl($guest, $invitation)]),
             'groups' => $invitation->guestGroups()->withCount('guests')->get(['id', 'ulid', 'name']),
-            'stats' => [
-                'guests' => $invitation->guests()->count(),
-                'people' => (int) $invitation->guests()->sum('number_of_guests'),
-                'attending' => $invitation->guests()->where('rsvp_status', RsvpStatus::Attending)->count(),
-            ],
+            'stats' => $this->stats($invitation),
             'rsvpStatuses' => RsvpStatus::cases(),
             'invitationStatuses' => GuestInvitationStatus::cases(),
             'exportQuery' => array_filter($filters),
         ]);
+    }
+
+    /**
+     * Summary cards, read in one query.
+     *
+     * @return array{guests: int, people: int, attending: int}
+     */
+    private function stats(Invitation $invitation): array
+    {
+        $totals = Invitation::query()
+            ->whereKey($invitation->getKey())
+            ->withCount([
+                'guests',
+                'guests as attending_count' => fn ($query) => $query->where('rsvp_status', RsvpStatus::Attending),
+            ])
+            ->withSum('guests', 'number_of_guests')
+            ->firstOrFail(['id']);
+
+        return [
+            'guests' => (int) $totals->guests_count,
+            'people' => (int) $totals->guests_sum_number_of_guests,
+            'attending' => (int) $totals->attending_count,
+        ];
     }
 
     private function guest(string $guestUlid): Guest

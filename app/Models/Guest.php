@@ -8,6 +8,7 @@ use Database\Factories\GuestFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -17,7 +18,12 @@ use Illuminate\Support\Str;
 class Guest extends Model
 {
     /** @use HasFactory<GuestFactory> */
-    use HasFactory, HasUlids, SoftDeletes;
+    use HasFactory, HasUlids, MassPrunable, SoftDeletes;
+
+    /**
+     * Deleted guests are removed for good after this many days (scheduled model:prune).
+     */
+    public const PRUNE_AFTER_DAYS = 30;
 
     public const TOKEN_LENGTH = 32;
 
@@ -114,6 +120,14 @@ class Guest extends Model
                 $inner->orWhere('phone', 'like', '%'.$digits.'%');
             }
         });
+    }
+
+    /**
+     * @return Builder<static>
+     */
+    public function prunable(): Builder
+    {
+        return static::onlyTrashed()->where('deleted_at', '<=', now()->subDays(self::PRUNE_AFTER_DAYS));
     }
 
     /**

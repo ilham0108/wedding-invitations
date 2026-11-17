@@ -7,43 +7,49 @@
     </div>
 
     <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_260px]">
-        <x-ui.card padding="p-0">
-            {{-- Toolbar --}}
-            <div class="flex flex-wrap items-center gap-2 border-b border-line p-4">
-                <div class="relative min-w-[12rem] flex-1">
-                    <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted" aria-hidden="true"></i>
-                    <input type="search" wire:model.live.debounce.400ms="search" placeholder="{{ __('Search name, phone, or email') }}" aria-label="{{ __('Search guests') }}"
-                        class="h-9 w-full rounded-lg border-line pl-8 text-sm focus:border-sage focus:ring-sage">
+        {{-- The pager scrolls back here after a page change; scroll-mt clears the sticky header. --}}
+        <x-ui.card padding="p-0" class="min-w-0 scroll-mt-20" data-pagination-anchor>
+            {{-- Toolbar. Row 1: search and the two actions; row 2: filters, so "Add Guest" never wraps on its own. --}}
+            <div class="space-y-2 border-b border-line p-4">
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="relative min-w-[12rem] flex-1">
+                        <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted" aria-hidden="true"></i>
+                        <input type="search" wire:model.live.debounce.400ms="search" placeholder="{{ __('Search name, phone, or email') }}" aria-label="{{ __('Search guests') }}"
+                            class="h-9 w-full rounded-lg border-line pl-8 text-sm focus:border-sage focus:ring-sage">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <x-ui.dropdown width="w-44">
+                            <x-slot:trigger>
+                                <x-ui.button type="button" variant="secondary" size="sm" icon="fa-solid fa-file-export">{{ __('Export') }}</x-ui.button>
+                            </x-slot:trigger>
+                            <a href="{{ route('dashboard.guests.export', ['invitation' => $invitation, 'format' => 'xlsx', ...$exportQuery]) }}" class="block px-4 py-2 text-sm text-ink-soft hover:bg-paper">{{ __('Excel (.xlsx)') }}</a>
+                            <a href="{{ route('dashboard.guests.export', ['invitation' => $invitation, 'format' => 'csv', ...$exportQuery]) }}" class="block px-4 py-2 text-sm text-ink-soft hover:bg-paper">{{ __('CSV') }}</a>
+                        </x-ui.dropdown>
+                        <x-ui.button type="button" size="sm" icon="fa-solid fa-plus" wire:click="create">{{ __('Add Guest') }}</x-ui.button>
+                    </div>
                 </div>
-                <select wire:model.live="group" aria-label="{{ __('Filter by group') }}" class="h-9 rounded-lg border-line text-sm focus:border-sage focus:ring-sage">
-                    <option value="">{{ __('All groups') }}</option>
-                    <option value="none">{{ __('No group') }}</option>
-                    @foreach ($groups as $groupOption)
-                        <option value="{{ $groupOption->ulid }}">{{ $groupOption->name }}</option>
-                    @endforeach
-                </select>
-                <select wire:model.live="rsvp" aria-label="{{ __('Filter by RSVP') }}" class="h-9 rounded-lg border-line text-sm focus:border-sage focus:ring-sage">
-                    <option value="">{{ __('All RSVP') }}</option>
-                    @foreach ($rsvpStatuses as $rsvpStatus)
-                        <option value="{{ $rsvpStatus->value }}">{{ __($rsvpStatus->label()) }}</option>
-                    @endforeach
-                </select>
-                <select wire:model.live="status" aria-label="{{ __('Filter by invitation status') }}" class="h-9 rounded-lg border-line text-sm focus:border-sage focus:ring-sage">
-                    <option value="">{{ __('All statuses') }}</option>
-                    @foreach ($invitationStatuses as $invitationStatus)
-                        <option value="{{ $invitationStatus->value }}">{{ __($invitationStatus->label()) }}</option>
-                    @endforeach
-                </select>
 
-                <x-ui.dropdown width="w-44">
-                    <x-slot:trigger>
-                        <x-ui.button type="button" variant="secondary" size="sm" icon="fa-solid fa-file-export">{{ __('Export') }}</x-ui.button>
-                    </x-slot:trigger>
-                    <a href="{{ route('dashboard.guests.export', ['invitation' => $invitation, 'format' => 'xlsx', ...$exportQuery]) }}" class="block px-4 py-2 text-sm text-ink-soft hover:bg-paper">{{ __('Excel (.xlsx)') }}</a>
-                    <a href="{{ route('dashboard.guests.export', ['invitation' => $invitation, 'format' => 'csv', ...$exportQuery]) }}" class="block px-4 py-2 text-sm text-ink-soft hover:bg-paper">{{ __('CSV') }}</a>
-                </x-ui.dropdown>
-
-                <x-ui.button type="button" size="sm" icon="fa-solid fa-plus" wire:click="create">{{ __('Add Guest') }}</x-ui.button>
+                <div class="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
+                    <select wire:model.live="group" aria-label="{{ __('Filter by group') }}" class="h-9 rounded-lg border-line text-sm focus:border-sage focus:ring-sage">
+                        <option value="">{{ __('All groups') }}</option>
+                        <option value="none">{{ __('No group') }}</option>
+                        @foreach ($groups as $groupOption)
+                            <option value="{{ $groupOption->ulid }}">{{ $groupOption->name }}</option>
+                        @endforeach
+                    </select>
+                    <select wire:model.live="rsvp" aria-label="{{ __('Filter by RSVP') }}" class="h-9 rounded-lg border-line text-sm focus:border-sage focus:ring-sage">
+                        <option value="">{{ __('All RSVP') }}</option>
+                        @foreach ($rsvpStatuses as $rsvpStatus)
+                            <option value="{{ $rsvpStatus->value }}">{{ __($rsvpStatus->label()) }}</option>
+                        @endforeach
+                    </select>
+                    <select wire:model.live="status" aria-label="{{ __('Filter by invitation status') }}" class="h-9 rounded-lg border-line text-sm focus:border-sage focus:ring-sage">
+                        <option value="">{{ __('All statuses') }}</option>
+                        @foreach ($invitationStatuses as $invitationStatus)
+                            <option value="{{ $invitationStatus->value }}">{{ __($invitationStatus->label()) }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
 
             {{-- Bulk actions --}}
@@ -75,14 +81,19 @@
                     <x-ui.empty-state icon="fa-solid fa-filter" :title="__('No guests match these filters.')" />
                 @endif
             @else
-                <div class="overflow-x-auto">
+                {{-- Dimmed while a search, filter, sort, or page change is loading. "relative" keeps the
+                     absolutely positioned sr-only headings inside the scroll box, so they cannot widen the page. --}}
+                <div class="relative overflow-x-auto transition-opacity" wire:loading.class="opacity-50" wire:loading.attr="aria-busy"
+                    wire:target="search, group, rsvp, status, sortBy, gotoPage, nextPage, previousPage">
                     <table class="w-full text-left text-sm">
-                        <thead class="text-xs uppercase tracking-wide text-muted">
+                        <thead class="text-xs font-medium text-muted">
                             <tr class="border-b border-line">
                                 <th class="w-10 px-4 py-3"><span class="sr-only">{{ __('Select') }}</span></th>
                                 @foreach (['name' => __('Guest'), 'number_of_guests' => __('Pax'), 'rsvp_status' => __('RSVP')] as $field => $heading)
-                                    <th class="px-3 py-3">
-                                        <button type="button" wire:click="sortBy('{{ $field }}')" class="inline-flex items-center gap-1 font-semibold uppercase hover:text-ink">
+                                    {{-- The guest column takes the spare width; the short columns stay next to each other. --}}
+                                    <th class="{{ $field === 'name' ? 'w-full min-w-[14rem]' : 'whitespace-nowrap' }} px-3 py-3"
+                                        @if ($sortField === $field) aria-sort="{{ $sortDirection === 'asc' ? 'ascending' : 'descending' }}" @endif>
+                                        <button type="button" wire:click="sortBy('{{ $field }}')" class="inline-flex items-center gap-1 rounded font-medium hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-sage">
                                             {{ $heading }}
                                             @if ($sortField === $field)
                                                 <i class="fa-solid {{ $sortDirection === 'asc' ? 'fa-arrow-up' : 'fa-arrow-down' }} text-[10px]" aria-hidden="true"></i>
@@ -90,36 +101,42 @@
                                         </button>
                                     </th>
                                 @endforeach
-                                <th class="hidden px-3 py-3 md:table-cell">{{ __('Group') }}</th>
-                                <th class="hidden px-3 py-3 md:table-cell">{{ __('Status') }}</th>
+                                <th class="hidden whitespace-nowrap px-3 py-3 md:table-cell">{{ __('Group') }}</th>
+                                <th class="hidden whitespace-nowrap px-3 py-3 md:table-cell">{{ __('Status') }}</th>
                                 <th class="px-3 py-3"><span class="sr-only">{{ __('Actions') }}</span></th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-line">
                             @foreach ($guests as $guest)
                                 <tr wire:key="guest-{{ $guest->ulid }}" class="align-middle hover:bg-paper/60">
-                                    <td class="px-4 py-3">
-                                        <input type="checkbox" value="{{ $guest->ulid }}" wire:model.live="selected" aria-label="{{ __('Select :name', ['name' => $guest->name]) }}"
-                                            class="rounded border-line text-sage focus:ring-sage">
+                                    <td class="px-4 py-2">
+                                        {{-- The label gives the 16px checkbox a 44px touch area. --}}
+                                        <label class="-m-3.5 inline-flex cursor-pointer p-3.5">
+                                            <input type="checkbox" value="{{ $guest->ulid }}" wire:model.live="selected" aria-label="{{ __('Select :name', ['name' => $guest->name]) }}"
+                                                class="cursor-pointer rounded border-line text-sage focus:ring-sage">
+                                        </label>
                                     </td>
-                                    <td class="px-3 py-3">
+                                    <td class="px-3 py-2">
                                         <p class="font-medium text-ink">{{ $guest->name }}</p>
-                                        <p class="text-xs text-muted">{{ $guest->phone ? '+'.$guest->phone : '' }}{{ $guest->phone && $guest->email ? ' · ' : '' }}{{ $guest->email }}</p>
+                                        @if ($guest->phone || $guest->email)
+                                            <p class="text-xs text-muted [overflow-wrap:anywhere]">{{ $guest->phone ? '+'.$guest->phone : '' }}{{ $guest->phone && $guest->email ? ' · ' : '' }}{{ $guest->email }}</p>
+                                        @endif
                                     </td>
-                                    <td class="px-3 py-3 tabular-nums">{{ $guest->number_of_guests }}</td>
-                                    <td class="px-3 py-3"><x-ui.badge :variant="$guest->rsvp_status->badgeVariant()">{{ __($guest->rsvp_status->label()) }}</x-ui.badge></td>
-                                    <td class="hidden px-3 py-3 text-ink-soft md:table-cell">{{ $guest->group?->name ?? __('No group') }}</td>
-                                    <td class="hidden px-3 py-3 md:table-cell"><x-ui.badge :variant="$guest->invitation_status->badgeVariant()">{{ __($guest->invitation_status->label()) }}</x-ui.badge></td>
-                                    <td class="px-3 py-3">
-                                        <div class="flex items-center justify-end gap-1" x-data="{ copied: false }">
-                                            <button type="button" class="rounded p-1.5 text-muted hover:bg-sage-soft hover:text-ink" title="{{ __('Copy personal link') }}" aria-label="{{ __('Copy personal link') }}"
+                                    <td class="px-3 py-2 tabular-nums">{{ $guest->number_of_guests }}</td>
+                                    <td class="whitespace-nowrap px-3 py-2"><x-ui.badge :variant="$guest->rsvp_status->badgeVariant()">{{ __($guest->rsvp_status->label()) }}</x-ui.badge></td>
+                                    <td class="hidden whitespace-nowrap px-3 py-2 text-ink-soft md:table-cell">{{ $guest->group?->name ?? __('No group') }}</td>
+                                    <td class="hidden whitespace-nowrap px-3 py-2 md:table-cell"><x-ui.badge :variant="$guest->invitation_status->badgeVariant()">{{ __($guest->invitation_status->label()) }}</x-ui.badge></td>
+                                    <td class="px-2 py-1">
+                                        {{-- 44px targets on phones, 32px from sm up. --}}
+                                        <div class="flex items-center justify-end" x-data="{ copied: false }">
+                                            <button type="button" class="inline-flex size-11 items-center justify-center rounded-lg text-muted hover:bg-sage-soft hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-sage sm:size-8" title="{{ __('Copy personal link') }}" aria-label="{{ __('Copy personal link') }}"
                                                 x-on:click="navigator.clipboard.writeText(@js($links[$guest->ulid])); copied = true; setTimeout(() => copied = false, 1500)">
                                                 <i class="fa-solid" x-bind:class="copied ? 'fa-check text-emerald-600' : 'fa-link'" aria-hidden="true"></i>
                                             </button>
-                                            <button type="button" wire:click="edit('{{ $guest->ulid }}')" class="rounded p-1.5 text-muted hover:bg-sage-soft hover:text-ink" aria-label="{{ __('Edit') }}">
+                                            <button type="button" wire:click="edit('{{ $guest->ulid }}')" class="inline-flex size-11 items-center justify-center rounded-lg text-muted hover:bg-sage-soft hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-sage sm:size-8" title="{{ __('Edit') }}" aria-label="{{ __('Edit') }}">
                                                 <i class="fa-solid fa-pen" aria-hidden="true"></i>
                                             </button>
-                                            <button type="button" wire:click="delete('{{ $guest->ulid }}')" data-confirm="{{ __('Delete :name?', ['name' => $guest->name]) }}" class="rounded p-1.5 text-muted hover:bg-red-50 hover:text-red-600" aria-label="{{ __('Delete') }}">
+                                            <button type="button" wire:click="delete('{{ $guest->ulid }}')" data-confirm="{{ __('Delete :name?', ['name' => $guest->name]) }}" class="inline-flex size-11 items-center justify-center rounded-lg text-muted hover:bg-red-50 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:size-8" title="{{ __('Delete') }}" aria-label="{{ __('Delete') }}">
                                                 <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
                                             </button>
                                         </div>
@@ -143,8 +160,10 @@
                         <button type="button" wire:click="$set('group', '{{ $groupItem->ulid }}')" class="truncate text-left text-ink-soft hover:text-ink">{{ $groupItem->name }}</button>
                         <span class="flex items-center gap-2">
                             <span class="text-xs text-muted">{{ $groupItem->guests_count }}</span>
+                            {{-- Always shown on touch screens; from sm up it appears on hover or keyboard focus. --}}
                             <button type="button" wire:click="deleteGroup('{{ $groupItem->ulid }}')" data-confirm="{{ __('Delete this group? Guests stay, without a group.') }}"
-                                class="hidden text-xs text-muted hover:text-red-600 group-hover:inline" aria-label="{{ __('Delete group') }}"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                                class="inline-flex size-11 items-center justify-center rounded text-xs text-muted hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:size-6 sm:opacity-0 sm:focus-visible:opacity-100 sm:group-hover:opacity-100"
+                                title="{{ __('Delete group') }}" aria-label="{{ __('Delete group') }}"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                         </span>
                     </li>
                 @empty

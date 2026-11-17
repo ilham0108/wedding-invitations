@@ -13,13 +13,18 @@ class HomeController extends Controller
     public function __invoke(Request $request): View
     {
         $user = $request->user();
+        $user->loadCount([
+            'invitations',
+            'invitations as published_invitations_count' => fn ($query) => $query->where('status', InvitationStatus::Published),
+        ]);
 
         return view('dashboard.home', [
             'user' => $user,
             'stats' => [
-                'invitations' => $user->invitations()->count(),
-                'published' => $user->invitations()->where('status', InvitationStatus::Published)->count(),
-                'guests' => Guest::query()->whereHas('invitation', fn ($query) => $query->where('user_id', $user->id))->count(),
+                'invitations' => (int) $user->invitations_count,
+                'published' => (int) $user->published_invitations_count,
+                // whereIn on the indexed invitation_id instead of a correlated EXISTS per guest row.
+                'guests' => Guest::query()->whereIn('invitation_id', $user->invitations()->select('id'))->count(),
             ],
             'recentInvitations' => $user->invitations()
                 ->with('template:id,name')

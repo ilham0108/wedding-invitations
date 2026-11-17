@@ -28,6 +28,11 @@ use Throwable;
  */
 class PaymentService
 {
+    /**
+     * Gateways may report a payment made at the last minute a little late.
+     */
+    private const EXPIRY_GRACE_MINUTES = 60;
+
     public function __construct(
         private PaymentManager $gateways,
         private SubscriptionService $subscriptions,
@@ -81,7 +86,9 @@ class PaymentService
             return $existing;
         }
 
-        $order = DB::transaction(function () use ($user, $price, $plan, $gateway, $method): Order {
+        // The gateway is called after the commit: an HTTP call inside the transaction would hold it open
+        // for seconds, and an invoice created right before a failed commit would belong to no order.
+        [$order, $payment] = DB::transaction(function () use ($user, $price, $plan, $gateway, $method): array {
             $order = new Order([
                 'number' => $this->orderNumber(),
                 'billing_period' => $price->billing_period,
@@ -103,18 +110,29 @@ class PaymentService
                 'method' => $method,
             ]);
 
-            $intent = $gateway->createPayment($order, $payment);
-
-            $payment->update([
-                'gateway_reference' => $intent->reference,
-                'checkout_url' => $intent->checkoutUrl,
-                'expires_at' => $intent->expiresAt,
-                'payload' => $intent->payload ?: null,
-            ]);
-            $order->update(['expires_at' => $intent->expiresAt]);
-
-            return $order;
+            return [$order, $payment];
         });
+
+        try {
+            $intent = $gateway->createPayment($order, $payment);
+        } catch (Throwable $exception) {
+            // The customer never got a checkout link, so nothing can be paid on this order.
+            DB::transaction(function () use ($order, $payment): void {
+                $payment->update(['status' => PaymentStatus::Failed]);
+                $order->update(['status' => OrderStatus::Failed]);
+            });
+
+            throw $exception;
+        }
+
+        // Only these columns change, so a webhook that already moved the status is never overwritten.
+        $payment->update([
+            'gateway_reference' => $intent->reference,
+            'checkout_url' => $intent->checkoutUrl,
+            'expires_at' => $intent->expiresAt,
+            'payload' => $intent->payload ?: null,
+        ]);
+        $order->update(['expires_at' => $intent->expiresAt]);
 
         $this->auditLogger->record('order.created', $user, $order, ['plan' => $plan->slug, 'amount' => $order->amount, 'gateway' => $gateway->name()]);
 
@@ -207,6 +225,59 @@ class PaymentService
         Log::info('Payment status applied', ['order' => $order->number, 'payment' => $payment->ulid, 'status' => $payment->status->value]);
 
         return $payment;
+    }
+
+    /**
+     * Close unpaid orders whose payment window has passed (scheduled payments:expire-stale).
+     * Each one is first re-checked at the gateway, so a payment whose webhook got lost is
+     * activated instead of expired. Manual transfers are left to the admin: there is no gateway
+     * to ask, and a late bank transfer must still be confirmable.
+     *
+     * @return array{expired: int, paid: int}
+     */
+    public function expireStale(): array
+    {
+        $counts = ['expired' => 0, 'paid' => 0];
+
+        Order::query()
+            ->where('status', OrderStatus::Pending)
+            ->where('expires_at', '<=', now()->subMinutes(self::EXPIRY_GRACE_MINUTES))
+            ->with('latestPayment')
+            ->chunkById(100, function ($orders) use (&$counts): void {
+                foreach ($orders as $order) {
+                    $payment = $order->latestPayment;
+
+                    if ($payment === null || $payment->status !== PaymentStatus::Pending || $payment->gateway === 'manual') {
+                        continue;
+                    }
+
+                    try {
+                        $notification = $this->gateways->gateway($payment->gateway)->fetchPayment($payment);
+                    } catch (Throwable $exception) {
+                        $notification = null;
+                    }
+
+                    if ($notification === null) {
+                        // No answer from the gateway: try again on the next run rather than expire a payment we could not check.
+                        Log::warning('Stale payment could not be checked at the gateway', ['payment' => $payment->ulid]);
+
+                        continue;
+                    }
+
+                    // The gateway still says "waiting" after the window closed: nothing can be paid on it anymore.
+                    $payment = $this->apply($payment, $notification->status === PaymentStatus::Pending
+                        ? new PaymentNotification(externalId: $payment->external_id, status: PaymentStatus::Expired, reference: $payment->gateway_reference)
+                        : $notification);
+
+                    match ($payment->status) {
+                        PaymentStatus::Paid => $counts['paid']++,
+                        PaymentStatus::Expired, PaymentStatus::Failed => $counts['expired']++,
+                        default => null,
+                    };
+                }
+            });
+
+        return $counts;
     }
 
     /**

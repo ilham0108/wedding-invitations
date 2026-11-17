@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Livewire\Concerns\Notifies;
 use App\Models\AuditLog;
 use App\Models\User;
+use App\Services\AccountDeletionService;
 use App\Services\UserManagementService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -26,6 +27,9 @@ class UserDetail extends Component
     public string $userUlid = '';
 
     public string $reason = '';
+
+    /** The "I understand this is permanent" box in the delete dialog. */
+    public bool $confirmPermanent = false;
 
     public function mount(User $user): void
     {
@@ -58,13 +62,18 @@ class UserDetail extends Component
     {
         Gate::authorize('users.manage');
 
+        $this->validate(
+            ['confirmPermanent' => ['accepted']],
+            ['confirmPermanent.accepted' => __('Tick the box to confirm that you understand this cannot be undone.')],
+        );
+
         if ($this->attempt(fn () => $users->delete($this->user(), Auth::user()))) {
             session()->flash('success', __('Account deleted.'));
             $this->redirectRoute('admin.users.index', navigate: false);
         }
     }
 
-    public function render(): View
+    public function render(AccountDeletionService $accounts): View
     {
         $user = $this->user()->load([
             'roles:id,slug',
@@ -77,6 +86,8 @@ class UserDetail extends Component
             'current' => $user->subscriptions->first(fn ($subscription): bool => $subscription->isCurrent()),
             'activity' => AuditLog::query()->where('user_id', $user->getKey())->latest('created_at')->limit(10)->get(['action', 'metadata', 'ip_address', 'created_at']),
             'isSelf' => $user->is(Auth::user()),
+            // Real counts for the delete dialog; only needed where the delete action is offered.
+            'deletion' => $user->is(Auth::user()) || $user->isSuperAdmin() ? null : $accounts->summary($user),
         ]);
     }
 

@@ -61,9 +61,10 @@
         @forelse ($ornaments as $index => $ornament)
             <li wire:key="ornament-{{ $selectedSection['key'] }}-{{ $ornamentList }}-{{ $index }}" x-data="{ open: false }" class="rounded-lg border border-line">
                 <div class="flex items-center gap-2 p-2">
-                    <img src="{{ $ornament['image'] }}" alt="" @class(['h-10 w-10 shrink-0 rounded bg-paper object-contain', '-scale-x-100' => $ornament['flip'], '-scale-y-100' => $ornament['flip_y'] ?? false])>
+                    <img src="{{ $ornament['image'] }}" alt="" @class(['h-10 w-10 shrink-0 rounded bg-paper object-contain', '-scale-x-100' => $ornament['flip'], '-scale-y-100' => $ornament['flip_y'] ?? false])
+                        @if (($ornament['rotate'] ?? 0) != 0) style="rotate: {{ $ornament['rotate'] }}deg" @endif>
                     <button type="button" x-on:click="open = ! open" class="min-w-0 flex-1 text-left text-xs">
-                        <span class="block font-medium text-ink">#{{ $index + 1 }} · {{ __($ornamentAnchors[$ornament['anchor']]) }} · {{ $ornament['width'] }}%</span>
+                        <span class="block font-medium text-ink">#{{ $index + 1 }} · {{ __($ornamentAnchors[$ornament['anchor']]) }} · {{ $ornament['width'] }}%@if (($ornament['rotate'] ?? 0) != 0) · {{ $ornament['rotate'] + 0 }}°@endif</span>
                         <span class="block text-muted">{{ __($ornamentEnters[$ornament['enter']]) }} · {{ __($ornamentMotions[$ornament['motion']]) }} · {{ $ornament['layer'] === 'back' ? __('Behind content') : __('In front') }}</span>
                     </button>
                     <div class="flex shrink-0 items-center text-xs text-muted">
@@ -119,6 +120,21 @@
                                 x-on:change="$el.value = Math.min({{ $max }}, Math.max({{ $min }}, Number($el.value === '' ? {{ $ornament[$key] }} : $el.value))); $wire.updateOrnament({{ $index }}, '{{ $key }}', $el.value)" class="{{ $inputClass }} mt-0.5">
                         </label>
                     @endforeach
+                    {{-- Rotation around the ornament's centre; saved when the slider is released (or a key press ends). --}}
+                    <div class="col-span-6" x-data="{ angle: {{ $ornament['rotate'] ?? 0 }} }">
+                        <div class="flex items-center justify-between">
+                            <label for="ornament-rotate-{{ $index }}">{{ __('Rotation') }}</label>
+                            <span class="flex items-center gap-1">
+                                <span class="tabular-nums text-ink" x-text="angle + '°'">{{ ($ornament['rotate'] ?? 0) + 0 }}°</span>
+                                <button type="button" x-show="angle !== 0" x-on:click="angle = 0; $wire.updateOrnament({{ $index }}, 'rotate', '0')"
+                                    class="rounded px-1.5 py-0.5 text-sage hover:bg-sage-soft hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-sage">{{ __('Reset') }}</button>
+                            </span>
+                        </div>
+                        <input id="ornament-rotate-{{ $index }}" type="range" min="-180" max="180" step="1" x-model.number="angle"
+                            x-on:change="$wire.updateOrnament({{ $index }}, 'rotate', String(angle))"
+                            x-bind:aria-valuetext="angle + ' ' + @js(__('degrees'))" class="h-11 w-full cursor-pointer accent-sage">
+                    </div>
+
                     @foreach (['flip' => __('Flip horizontally'), 'flip_y' => __('Flip vertically')] as $key => $label)
                         <label class="col-span-3 flex items-center gap-1.5 text-ink-soft">
                             <input type="checkbox" @checked($ornament[$key] ?? false) wire:change="updateOrnament({{ $index }}, '{{ $key }}', $event.target.checked ? '1' : '0')" class="rounded border-line text-sage focus:ring-sage">

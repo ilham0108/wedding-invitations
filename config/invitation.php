@@ -33,6 +33,13 @@ return [
             ['key' => 'title', 'label' => 'Title', 'type' => 'text'],
             ['key' => 'subtitle', 'label' => 'Subtitle', 'type' => 'text'],
             ['key' => 'date_text', 'label' => 'Date text', 'type' => 'text'],
+            // A photo above the names, in front of the background (invitation.partials.cover-photo). Same shape and
+            // frame keys as the couple portraits, so the shared framed-photo partial draws it.
+            ['key' => 'photo', 'label' => 'Photo above the names (e.g. the couple)', 'type' => 'image', 'illustrations' => 'person', 'focus' => true],
+            ['key' => 'photo_shape', 'label' => 'Photo shape', 'type' => 'select', 'hidden_when' => 'photo_frame', 'options' => ['circle' => 'Circle', 'oval' => 'Oval', 'arch' => 'Arch', 'rounded' => 'Rounded rectangle']],
+            ['key' => 'photo_size', 'label' => 'Photo size', 'type' => 'select', 'options' => ['small' => 'Small', 'medium' => 'Medium', 'large' => 'Large']],
+            ['key' => 'photo_frame', 'label' => 'Photo frame (transparent image with an opening in the middle)', 'type' => 'image', 'admin_only' => true, 'illustrations' => 'frame'],
+            ['key' => 'photo_frame_inset', 'label' => 'Photo frame: photo margin inside the frame (%)', 'type' => 'number', 'admin_only' => true, 'min' => 0, 'max' => 40],
             ['key' => 'background_image', 'label' => 'Background image', 'type' => 'image', 'illustrations' => 'cover', 'focus' => true],
             ['key' => 'background_motion', 'label' => 'Background motion', 'type' => 'select', 'options' => ['none' => 'Still', 'zoom-out' => 'Slow zoom-out on open', 'drift' => 'Slow continuous zoom']],
             ['key' => 'overlay', 'label' => 'Dark overlay on image', 'type' => 'toggle'],
@@ -247,7 +254,7 @@ return [
     | (repeater, images) animates each of its items. Every section view marks these elements with @animate('key').
     */
     'animation_targets' => [
-        'cover' => ['arabic_text' => 'Arabic text', 'subtitle' => 'Subtitle', 'title' => 'Title', 'date_text' => 'Date text', 'button_label' => 'Button'],
+        'cover' => ['photo' => 'Photo', 'arabic_text' => 'Arabic text', 'subtitle' => 'Subtitle', 'title' => 'Title', 'date_text' => 'Date text', 'button_label' => 'Button'],
         'greeting' => ['emblem' => 'Ornament', 'opening' => 'Opening line', 'message' => 'Greeting', 'names' => 'Names'],
         'couple' => ['heading' => 'Heading', 'opening' => 'Opening line', 'intro' => 'Introduction', 'people' => 'People (each person)'],
         'quote' => ['arabic_text' => 'Arabic text', 'text' => 'Quote', 'author' => 'Author'],
@@ -278,7 +285,7 @@ return [
             'label' => 'Cover',
             'icon' => 'fa-regular fa-image',
             'variants' => ['centered', 'framed'],
-            'defaults' => ['arabic_text' => '', 'title' => '', 'subtitle' => '', 'date_text' => '', 'background_image' => null, 'background_motion' => 'none', 'overlay' => true, 'frame_style' => 'blur', 'frame_shape' => 'rectangle', 'alignment' => 'center', 'title_position' => 'design', 'title_offset' => 0, 'button_label' => 'Open Invitation', 'button_display' => 'label', 'button_position' => 'design', 'button_align' => 'text', 'desktop_image' => null, 'desktop_subtitle' => '', 'desktop_title' => '', 'desktop_text' => '', 'desktop_text_position' => 'center'],
+            'defaults' => ['arabic_text' => '', 'title' => '', 'subtitle' => '', 'date_text' => '', 'photo' => null, 'photo_shape' => 'circle', 'photo_size' => 'medium', 'photo_frame' => null, 'photo_frame_inset' => 12, 'background_image' => null, 'background_motion' => 'none', 'overlay' => true, 'frame_style' => 'blur', 'frame_shape' => 'rectangle', 'alignment' => 'center', 'title_position' => 'design', 'title_offset' => 0, 'button_label' => 'Open Invitation', 'button_display' => 'label', 'button_position' => 'design', 'button_align' => 'text', 'desktop_image' => null, 'desktop_subtitle' => '', 'desktop_title' => '', 'desktop_text' => '', 'desktop_text_position' => 'center'],
         ],
         'greeting' => [
             'label' => 'Greeting',
@@ -594,7 +601,8 @@ return [
         'layers' => ['front', 'back'],
         'enters' => ['none', 'fade', 'fade-up', 'fade-down', 'fade-left', 'fade-right', 'zoom-in', 'zoom-in-up', 'zoom-in-left', 'zoom-in-right', 'zoom-out'],
         'motions' => ['none', 'sway', 'float'],
-        'defaults' => ['x' => 0, 'y' => 100, 'width' => 35, 'anchor' => 'bottom-left', 'flip' => false, 'flip_y' => false, 'layer' => 'front', 'enter' => 'fade-up', 'duration' => 1.6, 'delay' => 0, 'motion' => 'sway'],
+        // rotate: degrees, -180 to 180, turned around the ornament's centre.
+        'defaults' => ['x' => 0, 'y' => 100, 'width' => 35, 'anchor' => 'bottom-left', 'flip' => false, 'flip_y' => false, 'rotate' => 0, 'layer' => 'front', 'enter' => 'fade-up', 'duration' => 1.6, 'delay' => 0, 'motion' => 'sway'],
     ],
 
 ];

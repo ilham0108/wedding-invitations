@@ -2,19 +2,24 @@
 
 namespace Tests\Feature;
 
+use App\Enums\GuestInvitationStatus;
+use App\Enums\RsvpStatus;
 use App\Jobs\ProcessGuestImport;
 use App\Livewire\GuestImport;
 use App\Models\Guest;
+use App\Models\GuestGroup;
 use App\Models\Invitation;
 use App\Services\Guest\GuestImportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use RuntimeException;
 use Tests\Concerns\CreatesInvitations;
 use Tests\Concerns\InteractsWithPlans;
 use Tests\TestCase;
@@ -152,6 +157,97 @@ class GuestImportTest extends TestCase
             ->assertDispatched('notify', type: 'info', message: (GuestImportService::QUEUE_THRESHOLD + 1).' guests are being imported in the background.');
 
         Queue::assertPushed(ProcessGuestImport::class, fn (ProcessGuestImport $job): bool => count($job->rows) === GuestImportService::QUEUE_THRESHOLD + 1);
+    }
+
+    /**
+     * @return array<int, array{name: string, phone: ?string, email: ?string, group: ?string, number_of_guests: int}>
+     */
+    private function rows(int $count, ?string $group = 'Family', bool $withPhone = true): array
+    {
+        return array_map(fn (int $number): array => [
+            'name' => "Guest {$number}",
+            'phone' => $withPhone ? '62813'.str_pad((string) $number, 8, '0', STR_PAD_LEFT) : null,
+            'email' => null,
+            'group' => $group,
+            'number_of_guests' => 1,
+        ], range(1, $count));
+    }
+
+    public function test_retrying_an_import_does_not_duplicate_guests_without_a_phone(): void
+    {
+        $invitation = $this->createInvitation();
+        $this->unlimited($invitation->user);
+        $job = new ProcessGuestImport($invitation->ulid, $invitation->user->ulid, $this->rows(3, withPhone: false));
+
+        dispatch_sync($job);
+        dispatch_sync($job);
+
+        $this->assertSame(3, $invitation->guests()->count());
+        $this->assertSame(1, $invitation->guestGroups()->count());
+    }
+
+    public function test_a_failed_import_saves_nothing_and_the_retry_imports_everything(): void
+    {
+        $invitation = $this->createInvitation();
+        $this->unlimited($invitation->user);
+        $rows = $this->rows(501);
+        $rows[500]['group'] = 'Breaks';
+        $job = new ProcessGuestImport($invitation->ulid, $invitation->user->ulid, $rows);
+
+        $failing = true;
+        GuestGroup::creating(function (GuestGroup $group) use (&$failing): void {
+            if ($failing && $group->name === 'Breaks') {
+                throw new RuntimeException('Simulated failure after the first chunk.');
+            }
+        });
+
+        try {
+            dispatch_sync($job);
+            $this->fail('The import should have failed.');
+        } catch (RuntimeException) {
+        }
+
+        $this->assertSame(0, $invitation->guests()->count(), 'The first 500 guests are rolled back with the failure.');
+
+        $failing = false;
+        dispatch_sync($job);
+
+        $this->assertSame(501, $invitation->guests()->count());
+    }
+
+    public function test_import_runs_a_bounded_number_of_queries(): void
+    {
+        $invitation = $this->createInvitation();
+        $this->unlimited($invitation->user);
+
+        DB::enableQueryLog();
+        $result = app(GuestImportService::class)->persist($invitation, $this->rows(1200));
+        $queries = count(DB::getQueryLog());
+        DB::disableQueryLog();
+
+        $this->assertSame(['imported' => 1200, 'skipped' => 0], $result);
+        $this->assertLessThan(25, $queries, "1200 guests took {$queries} queries.");
+
+        $guests = $invitation->guests()->get(['ulid', 'token', 'guest_group_id', 'rsvp_status', 'invitation_status']);
+        $this->assertSame(1200, $guests->pluck('token')->unique()->count());
+        $this->assertSame(1200, $guests->pluck('ulid')->filter()->unique()->count());
+        $this->assertSame(1, $guests->pluck('guest_group_id')->unique()->count());
+        $this->assertSame(RsvpStatus::Pending, $guests->first()->rsvp_status);
+        $this->assertSame(GuestInvitationStatus::NotSent, $guests->first()->invitation_status);
+    }
+
+    public function test_import_reuses_groups_and_respects_the_guest_limit_at_commit_time(): void
+    {
+        $invitation = $this->createInvitation();
+        $this->subscribe($invitation->user, ['max_guests' => 3]);
+        $invitation->guestGroups()->create(['name' => 'Family', 'sort_order' => 1]);
+        Guest::factory()->for($invitation)->create(['name' => 'Added after preview', 'phone' => null]);
+
+        $result = app(GuestImportService::class)->persist($invitation, $this->rows(4, group: 'family'));
+
+        $this->assertSame(['imported' => 2, 'skipped' => 2], $result);
+        $this->assertSame(3, $invitation->guests()->count());
+        $this->assertSame(['Family'], $invitation->guestGroups()->pluck('name')->all());
     }
 
     public function test_import_template_can_be_downloaded(): void

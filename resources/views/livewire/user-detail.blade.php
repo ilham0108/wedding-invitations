@@ -109,10 +109,43 @@
                 @endif
 
                 <div class="mt-4 border-t border-line pt-4">
-                    <x-ui.button type="button" variant="ghost" class="w-full text-red-600" icon="fa-regular fa-trash-can" wire:click="delete"
-                        data-confirm="{{ __('Delete this account? Its invitations are removed and its subscription ends.') }}">{{ __('Delete account') }}</x-ui.button>
+                    <x-ui.button type="button" variant="ghost" class="w-full text-red-600" icon="fa-regular fa-trash-can"
+                        x-data x-on:click="$dispatch('open-modal', 'confirm-admin-user-deletion')">{{ __('Delete account') }}</x-ui.button>
                 </div>
             </x-ui.card>
+
+            {{-- Same warning as a client deleting their own account (settings page), with this user's real counts. --}}
+            <x-ui.modal name="confirm-admin-user-deletion" :show="$errors->has('confirmPermanent')">
+                <form wire:submit="delete" class="p-6">
+                    <h2 class="text-lg font-semibold text-ink">{{ __('Delete :name permanently?', ['name' => $user->name]) }}</h2>
+                    <p class="mt-1 text-sm text-ink-soft">{{ __('This cannot be undone. The following is deleted right away:') }}</p>
+
+                    <ul class="mt-3 list-disc space-y-1 rounded-lg border border-red-200 bg-red-50 py-3 pl-8 pr-4 text-sm text-red-900">
+                        <li>{{ trans_choice(':count invitation, with its sections, photos, and music|:count invitations, with their sections, photos, and music', $deletion['invitations'], ['count' => Number::format($deletion['invitations'])]) }}</li>
+                        <li>{{ trans_choice(':count guest, with their personal link, RSVP, and wishes|:count guests, with their personal links, RSVPs, and wishes', $deletion['guests'], ['count' => Number::format($deletion['guests'])]) }}</li>
+                        <li>{{ __('Their WhatsApp campaigns, message templates, and connected WhatsApp number') }}</li>
+                    </ul>
+
+                    <p class="mt-3 text-sm text-ink-soft">{{ __('Their invitation links stop working and an active plan ends. Payment records are kept without their name or email, and the email address can sign up again.') }}</p>
+
+                    <div class="mt-5">
+                        <label for="confirm_permanent" class="flex cursor-pointer items-start gap-3 text-sm text-ink">
+                            <input id="confirm_permanent" type="checkbox" wire:model="confirmPermanent" required
+                                class="mt-0.5 size-4 cursor-pointer rounded border-line text-red-600 focus:ring-red-600">
+                            <span>{{ __("I understand that this user's invitations and guest data are deleted permanently and cannot be recovered.") }}</span>
+                        </label>
+                        @error('confirmPermanent')
+                            <p class="mt-1.5 text-xs font-medium text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    {{-- On phones "Cancel" sits on top, so a stray tap lands on the safe choice; 44px targets. --}}
+                    <div class="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">
+                        <x-ui.button variant="secondary" type="button" class="h-11 sm:h-10" x-on:click="$dispatch('close-modal', 'confirm-admin-user-deletion')">{{ __('Cancel') }}</x-ui.button>
+                        <x-ui.button variant="danger" class="h-11 sm:h-10" wire:loading.attr="disabled" wire:target="delete">{{ __('Delete permanently') }}</x-ui.button>
+                    </div>
+                </form>
+            </x-ui.modal>
         @endunless
     </div>
 </div>

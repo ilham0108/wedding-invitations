@@ -2,23 +2,22 @@
 
 namespace App\Services;
 
-use App\Enums\SubscriptionStatus;
 use App\Enums\UserStatus;
-use App\Models\Invitation;
 use App\Models\User;
-use App\Services\Subscription\SubscriptionLimitService;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 /**
  * Admin actions on accounts (rules.md section 64). Suspended owners cannot sign in and their
- * invitations are offline for guests; deleting an account soft-deletes it with its invitations
- * and ends its subscription. Admins cannot act on themselves or on other super admins.
+ * invitations are offline for guests; deleting an account removes its invitations and guest data
+ * for good and frees the email. Admins cannot act on themselves or on other super admins.
  */
 class UserManagementService
 {
-    public function __construct(private AuditLogger $auditLogger) {}
+    public function __construct(
+        private AuditLogger $auditLogger,
+        private AccountDeletionService $accounts,
+    ) {}
 
     /**
      * @throws ValidationException
@@ -43,21 +42,15 @@ class UserManagementService
     }
 
     /**
+     * Same permanent deletion as a client deleting their own account (AccountDeletionService).
+     *
      * @throws ValidationException
      */
     public function delete(User $user, User $admin): void
     {
         $this->guard($user, $admin);
 
-        DB::transaction(function () use ($user): void {
-            $user->invitations()->each(fn (Invitation $invitation) => $invitation->delete());
-            $user->subscriptions()->current()->update(['status' => SubscriptionStatus::Cancelled, 'ends_at' => now()]);
-            $user->delete();
-        });
-
-        app(SubscriptionLimitService::class)->forget($user);
-
-        $this->auditLogger->record('user.deleted', $admin, $user, ['email' => $user->email]);
+        $this->accounts->delete($user, $admin);
     }
 
     /**

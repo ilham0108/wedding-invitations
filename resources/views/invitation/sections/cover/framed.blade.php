@@ -20,6 +20,8 @@
         'inv-frame inv-frame--'.$config['frame_style'].' px-6 py-14 sm:px-10',
         'inv-frame--arch' => $config['frame_shape'] === 'arch',
     ])>
+        @include('invitation.partials.cover-photo', ['alt' => $config['title'] ?: $invitation->title])
+
         @if ($invitation->guestName)
             <p class="mb-6 text-sm">{{ __('Dear') }} <span class="font-semibold">{{ $invitation->guestName }}</span>,</p>
         @endif

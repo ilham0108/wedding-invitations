@@ -48,7 +48,11 @@ class Ornaments
         $originX = $flipX ? 100 - $anchorX : $anchorX;
         $originY = $flipY ? 100 - $anchorY : $anchorY;
 
-        return "left: {$ornament['x']}%; top: {$ornament['y']}%; width: {$ornament['width']}%; translate: -{$anchorX}% -{$anchorY}%; "
+        // "rotate" turns the box around its centre and is applied before the flip's "scale", so the
+        // angle reads the same on screen whether the ornament is mirrored or not.
+        $rotate = ($ornament['rotate'] ?? 0) != 0 ? "rotate: {$ornament['rotate']}deg; " : '';
+
+        return "left: {$ornament['x']}%; top: {$ornament['y']}%; width: {$ornament['width']}%; translate: -{$anchorX}% -{$anchorY}%; {$rotate}"
             ."--inv-ornament-origin: {$originX}% {$originY}%; --inv-ornament-from: ".$this->enterFrom($ornament['enter'], $flipX, $flipY).'; '
             ."--inv-ornament-duration: {$ornament['duration']}s; --inv-ornament-delay: {$ornament['delay']}s; --inv-ornament-phase: ".($phase * -1.3).'s;';
     }
@@ -78,7 +82,7 @@ class Ornaments
     }
 
     /**
-     * @return array<int, array{image: string, x: float, y: float, width: float, anchor: string, flip: bool, flip_y: bool, layer: string, enter: string, duration: float, delay: float, motion: string}>
+     * @return array<int, array{image: string, x: float, y: float, width: float, anchor: string, flip: bool, flip_y: bool, rotate: float, layer: string, enter: string, duration: float, delay: float, motion: string}>
      */
     public function clean(mixed $ornaments): array
     {
@@ -95,6 +99,7 @@ class Ornaments
                 'anchor' => $this->choice($ornament['anchor'] ?? null, $options['anchors'], $defaults['anchor']),
                 'flip' => (bool) ($ornament['flip'] ?? false),
                 'flip_y' => (bool) ($ornament['flip_y'] ?? false),
+                'rotate' => $this->number($ornament['rotate'] ?? null, $defaults['rotate'], -180, 180),
                 'layer' => $this->choice($ornament['layer'] ?? null, $options['layers'], $defaults['layer']),
                 'enter' => $this->choice($ornament['enter'] ?? null, $options['enters'], $defaults['enter']),
                 'duration' => $this->number($ornament['duration'] ?? null, $defaults['duration'], 0.2, 8),

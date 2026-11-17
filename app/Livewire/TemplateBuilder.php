@@ -440,7 +440,7 @@ class TemplateBuilder extends Component
     {
         $index = $this->selectedIndex();
         $ornaments = $this->sections[$index][$this->ornamentList()] ?? [];
-        $editable = ['x', 'y', 'width', 'anchor', 'flip', 'flip_y', 'layer', 'enter', 'duration', 'delay', 'motion'];
+        $editable = ['x', 'y', 'width', 'anchor', 'flip', 'flip_y', 'rotate', 'layer', 'enter', 'duration', 'delay', 'motion'];
 
         if (! isset($ornaments[$ornament]) || ! in_array($key, $editable, true)) {
             return;
