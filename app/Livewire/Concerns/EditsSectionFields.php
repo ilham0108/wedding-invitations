@@ -56,6 +56,22 @@ trait EditsSectionFields
         $this->save();
     }
 
+    /**
+     * The cover photo was dragged in the preview (cover-photo-drag.js): store its new centre,
+     * in percent of the cover, and switch it to free placement.
+     */
+    public function placeCoverPhoto(mixed $x, mixed $y): void
+    {
+        if ($this->type !== 'cover' || ! is_numeric($x) || ! is_numeric($y)) {
+            return;
+        }
+
+        $this->config['photo_placement'] = 'free';
+        $this->config['photo_x'] = round(max(-10, min(110, (float) $x)), 1);
+        $this->config['photo_y'] = round(max(-10, min(110, (float) $y)), 1);
+        $this->save();
+    }
+
     public function addItem(string $path): void
     {
         $field = $this->field($path, 'repeater');

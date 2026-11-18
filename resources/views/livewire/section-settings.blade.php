@@ -1,4 +1,9 @@
 <div class="space-y-5">
+    @if ($type === 'cover')
+        {{-- While the cover is open, a freely placed photo can be dragged in the preview (cover-photo-drag.js). --}}
+        <div hidden data-cover-photo-editor="{{ $sectionUlid }}" x-data
+            x-on:cover-photo-placed.window="$event.detail.section === @js($sectionUlid) && $wire.placeCoverPhoto($event.detail.x, $event.detail.y)"></div>
+    @endif
     <div class="flex items-center justify-between gap-3">
         <h2 class="font-display text-xl text-ink">{{ __($label) }}</h2>
         <span class="text-xs text-muted">

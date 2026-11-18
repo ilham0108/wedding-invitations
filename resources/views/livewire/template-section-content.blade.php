@@ -1,4 +1,9 @@
 <div class="space-y-5">
+    @if ($type === 'cover')
+        {{-- While the cover is open, a freely placed photo can be dragged in the preview (cover-photo-drag.js).
+             Template content is shared by every cover section of the template, so any cover photo answers ("*"). --}}
+        <div hidden data-cover-photo-editor="*" x-data x-on:cover-photo-placed.window="$wire.placeCoverPhoto($event.detail.x, $event.detail.y)"></div>
+    @endif
     <p class="flex items-center justify-between gap-3 text-xs text-muted">
         <span>
             @if ($group === 'default_configuration')

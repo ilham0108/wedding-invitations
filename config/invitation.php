@@ -35,9 +35,19 @@ return [
             ['key' => 'date_text', 'label' => 'Date text', 'type' => 'text'],
             // A photo above the names, in front of the background (invitation.partials.cover-photo). Same shape and
             // frame keys as the couple portraits, so the shared framed-photo partial draws it.
-            ['key' => 'photo', 'label' => 'Photo above the names (e.g. the couple)', 'type' => 'image', 'illustrations' => 'person', 'focus' => true],
+            ['key' => 'photo', 'label' => 'Cover photo (e.g. the couple)', 'type' => 'image', 'illustrations' => 'person', 'focus' => true],
+            // "above" keeps it in the text column; "free" places it anywhere on the cover (photo_x / photo_y, the
+            // photo's centre in % of the cover), and the editors let it be dragged in the preview (cover-photo-drag.js).
+            ['key' => 'photo_placement', 'label' => 'Photo position', 'type' => 'select', 'options' => ['above' => 'Above the names', 'free' => 'Free (drag it in the preview)']],
+            ['key' => 'photo_x', 'label' => 'Photo position: horizontal', 'type' => 'number', 'slider' => true, 'signed' => false, 'min' => -10, 'max' => 110, 'step' => 1, 'shown_when' => ['photo_placement', 'free']],
+            ['key' => 'photo_y', 'label' => 'Photo position: vertical', 'type' => 'number', 'slider' => true, 'signed' => false, 'min' => -10, 'max' => 110, 'step' => 1, 'shown_when' => ['photo_placement', 'free']],
+            ['key' => 'photo_layer', 'label' => 'Photo layer', 'type' => 'select', 'shown_when' => ['photo_placement', 'free'], 'options' => ['back' => 'Behind the text', 'front' => 'In front of the text']],
+            ['key' => 'photo_width', 'label' => 'Photo width', 'type' => 'number', 'slider' => true, 'min' => 10, 'max' => 90, 'step' => 1],
             ['key' => 'photo_shape', 'label' => 'Photo shape', 'type' => 'select', 'hidden_when' => 'photo_frame', 'options' => ['circle' => 'Circle', 'oval' => 'Oval', 'arch' => 'Arch', 'rounded' => 'Rounded rectangle']],
-            ['key' => 'photo_size', 'label' => 'Photo size', 'type' => 'select', 'options' => ['small' => 'Small', 'medium' => 'Medium', 'large' => 'Large']],
+            ['key' => 'photo_tilt', 'label' => 'Photo tilt', 'type' => 'number', 'slider' => true, 'min' => -45, 'max' => 45, 'step' => 1, 'unit' => '°'],
+            ['key' => 'photo_border_width', 'label' => 'Photo border thickness', 'type' => 'number', 'slider' => true, 'min' => 0, 'max' => 12, 'step' => 1, 'unit' => 'px', 'hidden_when' => 'photo_frame'],
+            ['key' => 'photo_border_color', 'label' => 'Photo border color', 'type' => 'color', 'hidden_when' => 'photo_frame'],
+            ['key' => 'photo_shadow', 'label' => 'Photo shadow', 'type' => 'select', 'options' => ['none' => 'None', 'soft' => 'Soft', 'strong' => 'Strong']],
             ['key' => 'photo_frame', 'label' => 'Photo frame (transparent image with an opening in the middle)', 'type' => 'image', 'admin_only' => true, 'illustrations' => 'frame'],
             ['key' => 'photo_frame_inset', 'label' => 'Photo frame: photo margin inside the frame (%)', 'type' => 'number', 'admin_only' => true, 'min' => 0, 'max' => 40],
             ['key' => 'background_image', 'label' => 'Background image', 'type' => 'image', 'illustrations' => 'cover', 'focus' => true],
@@ -285,7 +295,7 @@ return [
             'label' => 'Cover',
             'icon' => 'fa-regular fa-image',
             'variants' => ['centered', 'framed'],
-            'defaults' => ['arabic_text' => '', 'title' => '', 'subtitle' => '', 'date_text' => '', 'photo' => null, 'photo_shape' => 'circle', 'photo_size' => 'medium', 'photo_frame' => null, 'photo_frame_inset' => 12, 'background_image' => null, 'background_motion' => 'none', 'overlay' => true, 'frame_style' => 'blur', 'frame_shape' => 'rectangle', 'alignment' => 'center', 'title_position' => 'design', 'title_offset' => 0, 'button_label' => 'Open Invitation', 'button_display' => 'label', 'button_position' => 'design', 'button_align' => 'text', 'desktop_image' => null, 'desktop_subtitle' => '', 'desktop_title' => '', 'desktop_text' => '', 'desktop_text_position' => 'center'],
+            'defaults' => ['arabic_text' => '', 'title' => '', 'subtitle' => '', 'date_text' => '', 'photo' => null, 'photo_placement' => 'above', 'photo_x' => 50, 'photo_y' => 30, 'photo_layer' => 'back', 'photo_width' => 50, 'photo_shape' => 'circle', 'photo_tilt' => 0, 'photo_border_width' => 0, 'photo_border_color' => '#ffffff', 'photo_shadow' => 'none', 'photo_frame' => null, 'photo_frame_inset' => 12, 'background_image' => null, 'background_motion' => 'none', 'overlay' => true, 'frame_style' => 'blur', 'frame_shape' => 'rectangle', 'alignment' => 'center', 'title_position' => 'design', 'title_offset' => 0, 'button_label' => 'Open Invitation', 'button_display' => 'label', 'button_position' => 'design', 'button_align' => 'text', 'desktop_image' => null, 'desktop_subtitle' => '', 'desktop_title' => '', 'desktop_text' => '', 'desktop_text_position' => 'center'],
         ],
         'greeting' => [
             'label' => 'Greeting',

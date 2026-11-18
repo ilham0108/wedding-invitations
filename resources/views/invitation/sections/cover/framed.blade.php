@@ -11,6 +11,8 @@
         @endif
     @endif
 
+    @include('invitation.partials.cover-photo', ['where' => 'free', 'alt' => $config['title'] ?: $invitation->title])
+
     <div @class([
         'inv-cover__content relative z-10 w-full max-w-xl',
         'text-center' => ($config['alignment'] ?? 'center') !== 'left',

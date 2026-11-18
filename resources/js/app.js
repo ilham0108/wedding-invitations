@@ -3,6 +3,7 @@ import { Livewire } from '../../vendor/livewire/livewire/dist/livewire.esm';
 import { registerNotifications } from './notifications';
 import './preview-frame';
 import './builder-preview';
+import './cover-photo-drag';
 import './marketing-demo';
 
 // Listeners must exist before Livewire starts so early events are not missed.

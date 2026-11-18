@@ -61,15 +61,28 @@
 
         @case('number')
             @if ($field['slider'] ?? false)
-                {{-- Slider with its value beside it; saved shortly after the thumb stops. --}}
+                {{-- Slider with its value beside it; saved shortly after the thumb stops. "unit" defaults to %, and a
+                     range below zero shows a plus sign on positive values unless "signed" is false. --}}
                 <div class="flex items-center gap-3" x-data="{ value: @js((float) ($value ?? 0)) }">
                     <input id="{{ $inputId }}" type="range" min="{{ $field['min'] }}" max="{{ $field['max'] }}" step="{{ $field['step'] ?? 1 }}"
-                        x-model="value" wire:model.live.debounce.200ms="config.{{ $path }}" class="w-full accent-sage">
-                    <output for="{{ $inputId }}" class="w-12 shrink-0 text-right text-xs tabular-nums text-ink-soft" x-text="{{ $field['min'] < 0 ? "(value > 0 ? '+' : '') + " : '' }}value + '%'"></output>
+                        x-model="value" wire:model.live.debounce.200ms="config.{{ $path }}" class="h-11 w-full cursor-pointer accent-sage">
+                    <output for="{{ $inputId }}" class="w-12 shrink-0 text-right text-xs tabular-nums text-ink-soft"
+                        x-text="{{ ($field['signed'] ?? $field['min'] < 0) ? "(value > 0 ? '+' : '') + " : '' }}value + @js($field['unit'] ?? '%')"></output>
                 </div>
             @else
                 <input id="{{ $inputId }}" type="number" step="any" wire:model.live.debounce.700ms="config.{{ $path }}" class="{{ $inputClass }}">
             @endif
+            @break
+
+        @case('color')
+            {{-- Swatch picker and hex text share one value; the text accepts a pasted #RRGGBB. --}}
+            <div class="flex items-center gap-2" x-data="{ hex: @js(is_string($value) && preg_match('/^#[0-9a-fA-F]{6}$/', $value) ? $value : '#ffffff') }">
+                <input type="color" x-model="hex" x-on:change="$wire.set('config.{{ $path }}', hex)" aria-label="{{ __($field['label']) }}"
+                    class="h-11 w-14 shrink-0 cursor-pointer rounded-lg border border-line bg-white p-1">
+                <input id="{{ $inputId }}" type="text" x-model="hex" maxlength="7" spellcheck="false" autocomplete="off"
+                    x-on:change="/^#[0-9a-fA-F]{6}$/.test(hex) ? $wire.set('config.{{ $path }}', hex) : (hex = @js(is_string($value) ? $value : '#ffffff'))"
+                    class="{{ $inputClass }} h-11 font-mono uppercase">
+            </div>
             @break
 
         @case('image')

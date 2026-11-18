@@ -103,8 +103,9 @@ class SectionSettingsTest extends TestCase
         $invitation = $this->createInvitation();
 
         $this->settings($invitation, 'cover')
-            ->assertSee('Photo above the names (e.g. the couple)')
-            ->assertSee('Photo size')
+            ->assertSee('Cover photo (e.g. the couple)')
+            ->assertSee('Photo width')
+            ->assertSee('Photo tilt')
             ->assertDontSee('Photo frame (transparent image with an opening in the middle)')
             ->set('uploads.photo', UploadedFile::fake()->image('couple.jpg', 1200, 1600))
             ->assertHasNoErrors();

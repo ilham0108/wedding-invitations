@@ -293,6 +293,7 @@ class SectionRegistry
                 'number' => $rules[$path] = ['nullable', 'numeric', 'between:'.($field['min'] ?? PHP_INT_MIN).','.($field['max'] ?? PHP_INT_MAX)],
                 'image' => $rules[$path] = ['nullable', 'string', 'max:2048', $mediaPath],
                 'focus' => $rules[$path] = ['nullable', 'string', 'regex:/^(100|\d{1,2})% (100|\d{1,2})%$/'],
+                'color' => $rules[$path] = ['nullable', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
                 default => null,
             };
 

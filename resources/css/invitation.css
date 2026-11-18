@@ -182,18 +182,40 @@
 }
 
 /*
-| Cover photo above the names (cover "photo", invitation.partials.cover-photo).
-| The width follows "photo_size" but never more than a share of the screen height, so the names,
-| date and button still fit on a short phone screen, where some designs pin the cover in place.
+| Cover photo (cover "photo", invitation.partials.cover-photo). "photo_width" is a percent of the
+| text column ("above") or of the cover ("free"). Above the names it never takes more than 30% of the
+| screen height, so the names, date and button still fit on a short phone where some designs pin the
+| cover in place; placed freely it may grow to 60%. Tilt is "rotate", separate from the entrance
+| animations, which use "transform".
 */
 .inv-cover-photo {
-    width: min(var(--inv-cover-photo-width, 11rem), 30svh, 70%);
+    width: min(calc(var(--inv-cover-photo-width, 50) * 1%), 30svh);
     margin: 0 auto 1.25rem;
 }
 
-.inv-cover-photo--small { --inv-cover-photo-width: 7.5rem; }
-.inv-cover-photo--large { --inv-cover-photo-width: 15rem; }
 .inv-cover-photo--start { margin-left: 0; }
+
+.inv-cover-photo--free {
+    position: absolute;
+    z-index: 0;
+    width: min(calc(var(--inv-cover-photo-width, 50) * 1%), 60svh);
+    margin: 0;
+    translate: -50% -50%;
+}
+
+/* Every design's text column sits on z-index 1 to 10; "front" goes over it, "back" stays under it. */
+.inv-cover-photo--front { z-index: 20; }
+
+.inv-cover-photo .inv-photo__image {
+    box-sizing: border-box;
+    border: var(--inv-cover-photo-border, 0 solid transparent);
+}
+
+.inv-cover-photo--shadow-soft .inv-photo__image { box-shadow: 0 8px 24px rgb(0 0 0 / 0.18); }
+.inv-cover-photo--shadow-strong .inv-photo__image { box-shadow: 0 16px 40px rgb(0 0 0 / 0.38); }
+/* A frame image has no box to shadow; follow its painted outline instead. */
+.inv-cover-photo--shadow-soft .inv-photo--framed { filter: drop-shadow(0 8px 16px rgb(0 0 0 / 0.18)); }
+.inv-cover-photo--shadow-strong .inv-photo--framed { filter: drop-shadow(0 14px 28px rgb(0 0 0 / 0.38)); }
 
 /* Oval and arch read as portraits; the circle stays square (.inv-photo--circle). */
 .inv-cover-photo .inv-photo--oval:not(.inv-photo--framed),

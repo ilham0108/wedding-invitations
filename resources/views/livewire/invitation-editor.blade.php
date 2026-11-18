@@ -6,6 +6,7 @@
             window.previewFrame.reload(this.$refs.frame, this.base, section);
         },
     }"
+    x-init="window.coverPhotoDrag.attach($refs.frame)"
     x-on:invitation-updated.window="refresh($event.detail.section)"
     x-on:section-selected.window="window.previewFrame.scrollTo($refs.frame, $event.detail.ulid)"
     class="flex h-[calc(100svh-4rem)] flex-col overflow-clip">

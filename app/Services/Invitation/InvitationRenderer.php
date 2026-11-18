@@ -312,8 +312,16 @@ class InvitationRenderer
                 'photo' => $this->safeUrl($config['photo'] ?? null),
                 'photo_frame' => $this->safeUrl($config['photo_frame'] ?? null),
                 'photo_shape' => in_array($config['photo_shape'] ?? null, ['circle', 'oval', 'arch', 'rounded'], true) ? $config['photo_shape'] : 'circle',
-                'photo_size' => in_array($config['photo_size'] ?? null, ['small', 'medium', 'large'], true) ? $config['photo_size'] : 'medium',
-                'photo_frame_inset' => max(0, min(40, (float) ($config['photo_frame_inset'] ?? 12))),
+                'photo_placement' => ($config['photo_placement'] ?? null) === 'free' ? 'free' : 'above',
+                'photo_x' => $this->clampNumber($config['photo_x'] ?? null, 50, -10, 110),
+                'photo_y' => $this->clampNumber($config['photo_y'] ?? null, 30, -10, 110),
+                'photo_layer' => ($config['photo_layer'] ?? null) === 'front' ? 'front' : 'back',
+                'photo_width' => $this->clampNumber($config['photo_width'] ?? null, 50, 10, 90),
+                'photo_tilt' => $this->clampNumber($config['photo_tilt'] ?? null, 0, -45, 45),
+                'photo_border_width' => $this->clampNumber($config['photo_border_width'] ?? null, 0, 0, 12),
+                'photo_border_color' => is_string($config['photo_border_color'] ?? null) && preg_match('/^#[0-9a-fA-F]{6}$/', $config['photo_border_color']) === 1 ? $config['photo_border_color'] : '#ffffff',
+                'photo_shadow' => in_array($config['photo_shadow'] ?? null, ['none', 'soft', 'strong'], true) ? $config['photo_shadow'] : 'none',
+                'photo_frame_inset' => $this->clampNumber($config['photo_frame_inset'] ?? null, 12, 0, 40),
                 'desktop_text_position' => in_array($config['desktop_text_position'] ?? null, ['top', 'center', 'bottom'], true) ? $config['desktop_text_position'] : 'center',
                 'background_motion' => in_array($config['background_motion'] ?? null, ['none', 'zoom-out', 'drift'], true) ? $config['background_motion'] : 'none',
                 'frame_style' => in_array($config['frame_style'] ?? null, ['blur', 'transparent', 'solid'], true) ? $config['frame_style'] : 'blur',
@@ -452,6 +460,16 @@ class InvitationRenderer
     private function safeUrl(mixed $url): ?string
     {
         return SafeUrl::filter($url);
+    }
+
+    /**
+     * A stored number kept inside [$min, $max]; anything not numeric becomes $default.
+     */
+    private function clampNumber(mixed $value, int|float $default, int|float $min, int|float $max): int|float
+    {
+        $number = is_numeric($value) ? $value + 0 : $default;
+
+        return max($min, min($max, $number));
     }
 
     /**

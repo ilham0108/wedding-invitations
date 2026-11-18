@@ -56,6 +56,7 @@
             @include('invitation.partials.section-style', ['section' => $cover, 'withStyle' => false])
             style="{{ \App\Support\CoverTitle::style($cover['config']['title_offset'] ?? 0) }} {{ $cover['section_style'] }}">
             <div class="mg-photo inv-bg-motion--{{ $cover['config']['background_motion'] }}" @if ($photo) style="background-image: {{ \App\Support\CssUrl::wrap($photo) }}; {{ $photoPosition }}" @endif></div>
+            @include('invitation.partials.cover-photo', ['config' => $cover['config'], 'where' => 'free', 'alt' => $names, 'sectionKey' => $cover['key']])
             @if (filled($cover['config']['subtitle']))
                 <span class="mg-tag" dir="auto" @animate('subtitle')>{{ $cover['config']['subtitle'] }}</span>
             @endif

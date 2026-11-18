@@ -221,8 +221,9 @@
     background: linear-gradient(180deg, rgb(0 0 0 / 0.1) 0%, rgb(0 0 0 / 0.05) 45%, color-mix(in srgb, var(--inv-bg) 85%, #000) 100%);
 }
 
-/* Cover content stays above back-layer ornaments. */
-.mg-cover > :not(.mg-photo):not(.inv-ornaments) {
+/* Cover content stays above back-layer ornaments. A freely placed cover photo keeps its own
+   absolute position and layer (invitation.css "Cover photo"). */
+.mg-cover > :not(.mg-photo):not(.inv-ornaments):not(.inv-cover-photo--free) {
     position: relative;
     z-index: 1;
 }
