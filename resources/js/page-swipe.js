@@ -29,6 +29,13 @@ export function setupPageSwipe() {
         pages.scrollTo({ left: section.getBoundingClientRect().left - pages.getBoundingClientRect().left + pages.scrollLeft, behavior });
     };
 
+    // A cover with its own button already tells guests how to go on, and the hint would sit on top of it and of the
+    // guest's name. Then the hint waits for the second page. It goes for good once the guest swipes past its page.
+    const cover = sections[0]?.dataset.section === 'cover' ? sections[0] : null;
+    const coverHasButton = [...(cover?.querySelectorAll('.inv-cover-button, [data-inv-next]') ?? [])].some((button) => button.getClientRects().length > 0);
+    const hintPage = coverHasButton && sections.length > 1 ? 1 : 0;
+    let hintDone = false;
+
     let current = -1;
 
     const update = () => {
@@ -39,7 +46,8 @@ export function setupPageSwipe() {
         }
 
         current = index;
-        hint?.classList.toggle('is-hidden', index !== 0);
+        hintDone = hintDone || index > hintPage;
+        hint?.classList.toggle('is-hidden', hintDone || index !== hintPage);
         window.dispatchEvent(new CustomEvent('inv-page-change', { detail: { index, section: sections[index] } }));
     };
 

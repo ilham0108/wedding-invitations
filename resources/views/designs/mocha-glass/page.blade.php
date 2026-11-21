@@ -66,14 +66,14 @@
             @php($buttonAtBottom = \App\Support\CoverButton::atBottom($cover['config']['button_position'] ?? null))
             {{-- The guest's name sits right above the open button, in the title block or at the bottom of the screen. --}}
             @unless ($buttonAtBottom)
-                @include('designs.mocha-glass.partials.guest')
+                @include('designs.mocha-glass.partials.guest', ['config' => $cover['config']])
                 @include('designs.mocha-glass.partials.cover-button')
             @endunless
             @if ($cover['variant'] === 'framed')
                 </div>
             @endif
             @if ($buttonAtBottom)
-                @include('designs.mocha-glass.partials.guest')
+                @include('designs.mocha-glass.partials.guest', ['config' => $cover['config']])
                 @include('designs.mocha-glass.partials.cover-button')
             @endif
             @include('invitation.partials.ornaments', ['ornaments' => $cover['ornaments'], 'owner' => $cover['key']])

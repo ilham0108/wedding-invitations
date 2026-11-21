@@ -222,7 +222,8 @@
             @break
 
         @default
-            <input id="{{ $inputId }}" type="text" wire:model.live.debounce.700ms="config.{{ $path }}" class="{{ $inputClass }}">
+            {{-- "placeholder": the text used while the field is empty. --}}
+            <input id="{{ $inputId }}" type="text" wire:model.live.debounce.700ms="config.{{ $path }}" class="{{ $inputClass }}" @isset($field['placeholder']) placeholder="{{ __($field['placeholder']) }}" @endisset>
     @endswitch
 
     @error('config.'.$path)

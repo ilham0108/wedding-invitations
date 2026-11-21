@@ -40,6 +40,21 @@ class CoverGuestTest extends TestCase
         }
     }
 
+    #[DataProvider('designs')]
+    public function test_the_greeting_and_the_name_without_a_guest_can_be_changed_or_turned_off(string $design, string $guest): void
+    {
+        $html = $this->cover($design, ['guest_salutation' => 'Kepada Bapak/Ibu', 'guest_fallback' => 'Keluarga Besar']);
+        $this->assertMatchesRegularExpression('/'.preg_quote($guest, '/').'[^>]*>.*?Kepada Bapak\/Ibu.*?Keluarga Besar/s', $html, "[{$design}]");
+        $this->assertStringNotContainsString(__('Dear Sir/Madam'), $html, "[{$design}]");
+
+        // Blank texts fall back to the defaults.
+        $this->assertStringContainsString(__('Our honored guest'), $this->cover($design, ['guest_salutation' => '  ', 'guest_fallback' => '']), "[{$design}]");
+
+        $html = $this->cover($design, ['guest_greeting' => false]);
+        $this->assertStringNotContainsString(__('Dear Sir/Madam'), $html, "[{$design}]");
+        $this->assertDoesNotMatchRegularExpression('/class="[^"]*\b'.preg_quote($guest, '/').'\b/', $html, "[{$design}]");
+    }
+
     public function test_the_classic_line_takes_the_buttons_side(): void
     {
         $this->assertStringContainsString('inv-cover-guest inv-cover-guest--right', $this->cover('classic', ['button_align' => 'right']));

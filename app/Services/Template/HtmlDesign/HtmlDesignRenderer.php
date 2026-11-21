@@ -4,6 +4,7 @@ namespace App\Services\Template\HtmlDesign;
 
 use App\Services\Invitation\DesignRegistry;
 use App\Services\Invitation\RenderedInvitation;
+use App\Support\CoverGuest;
 use App\Support\CoverTitle;
 use App\Support\SafeUrl;
 
@@ -89,7 +90,7 @@ class HtmlDesignRenderer
             'repeat' => collect(is_array($values[$node['key']] ?? null) ? $values[$node['key']] : [])
                 ->map(fn (mixed $item): string => is_array($item) ? $this->nodes($node['nodes'], $item, $invitation) : '')
                 ->implode(''),
-            'component' => $node['name'] === 'guest' ? e($invitation->guestName ?: __('Our honored guest')) : '',
+            'component' => $node['name'] === 'guest' ? e(CoverGuest::name($values, $invitation->guestName)) : '',
             default => '',
         })->implode('');
     }

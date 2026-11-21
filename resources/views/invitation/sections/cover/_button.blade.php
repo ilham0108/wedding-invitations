@@ -10,7 +10,7 @@
 @if ($iconOnly || filled($config['button_label']))
     <button type="button" @class([\App\Support\CoverButton::classes($config['button_position'] ?? null, $config['button_align'] ?? null, $config['alignment'] ?? 'center'), 'mt-5' => ! $atBottom, 'inv-btn' => ! $iconOnly, 'inv-cue' => $iconOnly, 'inv-cue--on-photo' => $iconOnly && $onPhoto]) @animate('button_label') x-data
         @if ($iconOnly) aria-label="{{ $config['button_label'] ?: __('Open Invitation') }}" @endif
-        x-on:click="$el.closest('section').nextElementSibling?.scrollIntoView({ behavior: 'smooth' })">
+        x-on:click="const next = $el.closest('section').nextElementSibling; if (next) { window.invPages ? window.invPages.go(next) : next.scrollIntoView({ behavior: 'smooth' }) }">
         @if ($iconOnly)
             @include('invitation.partials.cover-cue', ['cue' => $config['button_display']])
         @else

@@ -35,6 +35,15 @@ class DesignCoverageTest extends TestCase
         'show_messages' => ['messages'],
     ];
 
+    /**
+     * Fields a view reads through a support class it calls with the whole configuration.
+     *
+     * @var array<string, string>
+     */
+    private const READ_BY = [
+        'guest_greeting' => 'CoverGuest::', 'guest_salutation' => 'CoverGuest::', 'guest_fallback' => 'CoverGuest::',
+    ];
+
     public function test_design_packs_support_every_layout_of_the_sections_they_override(): void
     {
         $designs = app(DesignRegistry::class);
@@ -97,7 +106,8 @@ class DesignCoverageTest extends TestCase
 
                     foreach ($own as $key) {
                         $names = [$key, ...(self::DERIVED[$key] ?? [])];
-                        $used = collect($names)->contains(fn (string $name): bool => preg_match('/[\'"]'.preg_quote($name, '/').'[\'"]/', $source) === 1);
+                        $used = collect($names)->contains(fn (string $name): bool => preg_match('/[\'"]'.preg_quote($name, '/').'[\'"]/', $source) === 1)
+                            || (isset(self::READ_BY[$key]) && str_contains($source, self::READ_BY[$key]));
 
                         $this->assertTrue($used, "Design [{$design}] ignores the [{$type}.{$key}] field in the [{$variant}] layout.");
                     }

@@ -1749,5 +1749,8 @@
     "Title layout (three lines split the names at the \"&\")": "Tata letak judul (tiga baris memisahkan nama di tanda \"&\")",
     "One line": "Satu baris",
     "Three lines, stacked": "Tiga baris, bertumpuk",
-    "Three lines, staggered": "Tiga baris, bertingkat"
+    "Three lines, staggered": "Tiga baris, bertingkat",
+    "Greet the guest above the button": "Tampilkan sapaan tamu di atas tombol",
+    "Greeting line": "Teks sapaan",
+    "Name shown when the link has no guest": "Nama jika tautan tidak memuat nama tamu"
 }

@@ -472,8 +472,6 @@ body:has(.inv-preview-bar) .bc-topbar { top: 40px; }
 /* Swiping sideways: every page keeps clear of the fixed top bar and the floating menu. */
 body[data-inv-scroll='horizontal'] .bc-section:not(.bc-section--cover) { --inv-page-margin: 72px 24px calc(var(--bc-nav-h) + 32px); }
 
-/* The page hint (invitation.css) replaces the "scroll down" cue. */
-body[data-inv-scroll='horizontal'] .bc-scroll { display: none; }
 
 .bc-cover {
     position: relative;
