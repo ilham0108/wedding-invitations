@@ -373,7 +373,7 @@ return [
         'gallery' => [
             'label' => 'Gallery',
             'icon' => 'fa-regular fa-images',
-            'variants' => ['grid', 'masonry', 'slideshow'],
+            'variants' => ['grid', 'masonry', 'slideshow', 'collage'],
             'defaults' => ['heading' => 'Gallery', 'images' => []],
         ],
         'video' => [

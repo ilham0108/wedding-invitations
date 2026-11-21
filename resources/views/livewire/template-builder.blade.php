@@ -382,7 +382,7 @@
                         $variantIcons = [
                             'centered' => 'fa-solid fa-align-center', 'framed' => 'fa-regular fa-square', 'side-by-side' => 'fa-solid fa-table-columns',
                             'stacked' => 'fa-solid fa-grip-lines', 'photo-beside' => 'fa-regular fa-address-card', 'cards' => 'fa-regular fa-clone',
-                            'list' => 'fa-solid fa-list', 'grid' => 'fa-solid fa-table-cells', 'masonry' => 'fa-solid fa-table-cells-large', 'slideshow' => 'fa-regular fa-images',
+                            'list' => 'fa-solid fa-list', 'grid' => 'fa-solid fa-table-cells', 'masonry' => 'fa-solid fa-table-cells-large', 'slideshow' => 'fa-regular fa-images', 'collage' => 'fa-solid fa-layer-group',
                         ];
                         $selectClass = 'block min-h-11 w-full rounded-lg border-line text-sm focus:border-sage focus:ring-sage';
                         $segmentClass = 'flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border px-2 py-2 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage';

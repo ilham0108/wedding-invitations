@@ -1189,6 +1189,69 @@ body.inv-has-nav .inv-fabs { bottom: calc(80px + env(safe-area-inset-bottom)); }
 }
 
 /*
+| Gallery collage (gallery layout "collage", invitation.partials.gallery-collage), in every design. Photos as instant
+| prints in a frame of the theme surface, two side by side and one across under them, tilted and overlapping a little,
+| like prints laid on a table. The shadow lifts each print off the page and the one under it (R-12). The tilt uses the
+| "rotate" property so the entrance animations, which move "transform", do not undo it. A print that opens the
+| lightbox straightens a little when pointed at or focused.
+*/
+.inv-collage {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 30rem;
+    margin-inline: auto;
+    padding: 0.5rem 0.75rem 1.25rem;
+}
+
+.inv-collage__item {
+    position: relative;
+    display: block;
+    margin: 0;
+    padding: 0.45rem 0.45rem 1.5rem;
+    background: var(--inv-surface);
+    box-shadow: 0 10px 24px rgb(0 0 0 / 0.16), 0 1px 3px rgb(0 0 0 / 0.12);
+    transition: rotate 0.3s ease, scale 0.3s ease;
+}
+
+.inv-collage__item img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+}
+
+.inv-collage__item--0 { z-index: 1; grid-column: 1; margin-right: -0.75rem; rotate: -4deg; }
+.inv-collage__item--1 { z-index: 2; grid-column: 2; margin-top: 2.25rem; margin-left: -0.75rem; rotate: 5deg; }
+.inv-collage__item--1 img { aspect-ratio: 1; }
+
+.inv-collage__item--2,
+.inv-collage__item--alone {
+    z-index: 3;
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 62%;
+    margin-top: -1.75rem;
+    rotate: -2deg;
+}
+
+.inv-collage__item--2 img,
+.inv-collage__item--alone img { aspect-ratio: 4 / 3; }
+
+/* The next set starts a little under the print across. */
+.inv-collage__item--2 + .inv-collage__item--0 { margin-top: 0.75rem; }
+.inv-collage__item--2 + .inv-collage__item--0 + .inv-collage__item--1 { margin-top: 3rem; }
+
+button.inv-collage__item { cursor: pointer; }
+button.inv-collage__item:hover,
+button.inv-collage__item:focus-visible { z-index: 4; rotate: 0deg; scale: 1.03; }
+button.inv-collage__item:active { scale: 0.99; }
+button.inv-collage__item:focus-visible { outline: 2px solid var(--inv-secondary); outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-collage__item { transition: none; }
+}
+
+/*
 | Floating section menu (invitation.partials.nav, resources/js/invitation-nav.js), in every design. It floats over
 | the page a little above the bottom edge, centred on the invitation column (--inv-nav-center, --inv-nav-width),
 | and takes no room: the script hides it while the cover is on screen, where the open button sits. One shadow
