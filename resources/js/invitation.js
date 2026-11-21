@@ -70,6 +70,48 @@ function setupAnimations() {
     // "slide" alternates between entering from the left and from the right.
     elements.forEach((element, index) => (element.dataset.invSide = index % 2 ? 'right' : 'left'));
 
+    // "reveal" hides a block with clip-path, and the browser counts a fully clipped block as never on screen, so an
+    // IntersectionObserver would wait forever. Its box still moves, so check the boxes on every scroll (the page, the
+    // sideways strip and the sections inside it, hence capture) and on every page turn.
+    if (mode === 'reveal') {
+        let waiting = elements;
+        let queued = false;
+
+        const check = () => {
+            queued = false;
+            waiting = waiting.filter((element) => {
+                const box = element.getBoundingClientRect();
+                const onScreen = box.top < window.innerHeight * 0.95 && box.bottom > 0 && box.left < window.innerWidth * 0.9 && box.right > window.innerWidth * 0.1;
+
+                if (onScreen) {
+                    element.classList.add('is-shown');
+                }
+
+                return ! onScreen;
+            });
+
+            if (waiting.length === 0) {
+                window.removeEventListener('scroll', queue, { capture: true });
+                window.removeEventListener('resize', queue);
+                window.removeEventListener('inv-page-change', queue);
+            }
+        };
+
+        const queue = () => {
+            if (! queued) {
+                queued = true;
+                window.requestAnimationFrame(check);
+            }
+        };
+
+        window.addEventListener('scroll', queue, { capture: true, passive: true });
+        window.addEventListener('resize', queue, { passive: true });
+        window.addEventListener('inv-page-change', queue);
+        queue();
+
+        return;
+    }
+
     const observer = new IntersectionObserver((entries) => entries.forEach((entry) => {
         if (entry.isIntersecting) {
             entry.target.classList.add('is-shown');

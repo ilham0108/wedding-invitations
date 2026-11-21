@@ -47,6 +47,24 @@ class InvitationAnimationTest extends TestCase
         $this->assertDoesNotMatchRegularExpression('/data-section="cover"\s+class="[^"]*inv-animate/', $html);
     }
 
+    public function test_the_reveal_effect_can_be_chosen_for_scrolling_and_swiping(): void
+    {
+        $template = InvitationTemplate::factory()->create(['schema' => ['sections' => ['cover', 'event']]]);
+
+        Livewire::actingAs(User::factory()->superAdmin()->create())->test(TemplateBuilder::class, ['template' => $template])
+            ->set('panel', 'theme')
+            ->assertSee('Reveal')
+            ->call('setDecoration', 'animation', 'reveal')
+            ->assertSet('decoration.animation', 'reveal')
+            ->call('setDecoration', 'scroll_direction', 'horizontal')
+            ->call('save');
+
+        $html = $this->get(route('templates.preview', $template->fresh()))->assertOk()->getContent();
+
+        $this->assertStringContainsString('data-inv-animation="reveal"', $html);
+        $this->assertStringContainsString('data-inv-scroll="horizontal"', $html);
+    }
+
     public function test_invitations_keep_the_animation_they_were_created_with(): void
     {
         $template = InvitationTemplate::factory()->create(['decoration' => ['animation' => 'fade-up']]);

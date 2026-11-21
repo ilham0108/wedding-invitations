@@ -599,7 +599,7 @@ return [
         'divider_size' => ['small', 'medium', 'large'],
         'texture' => ['none', 'paper', 'linen', 'grain'],
         // Entrance animation of sections and design blocks (.inv-animate), see resources/css/invitation.css.
-        'animation' => ['none', 'fade', 'fade-up', 'zoom', 'slide'],
+        'animation' => ['none', 'fade', 'fade-up', 'zoom', 'slide', 'reveal'],
         'animation_speed' => ['slow', 'normal', 'fast'],
         // How guests move between sections: scrolling down, or swiping sideways page by page (resources/js/page-swipe.js).
         'scroll_direction' => ['vertical', 'horizontal'],

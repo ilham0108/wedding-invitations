@@ -703,6 +703,7 @@ class TemplateBuilder extends Component
                 'fade-up' => ['Fade up', 'fa-solid fa-arrow-up'],
                 'zoom' => ['Zoom', 'fa-solid fa-magnifying-glass-plus'],
                 'slide' => ['Slide in', 'fa-solid fa-right-left'],
+                'reveal' => ['Reveal', 'fa-solid fa-eye'],
             ],
             'animationSpeeds' => ['slow' => 'Slow', 'normal' => 'Normal', 'fast' => 'Fast'],
             'scrollDirections' => ['vertical' => ['Up and down', 'fa-solid fa-arrows-up-down'], 'horizontal' => ['Sideways', 'fa-solid fa-arrows-left-right']],

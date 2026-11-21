@@ -25,8 +25,14 @@ export function setupPageSwipe() {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const hint = document.querySelector('[data-inv-page-hint]');
 
+    // Every page is exactly one strip wide, so a page's place follows from its number. Measuring the page on screen
+    // would be thrown off while its entrance animation still moves it ("slide" shifts it 48px), leaving the strip
+    // stopped between two pages.
     const go = (section, behavior = reducedMotion ? 'auto' : 'smooth') => {
-        pages.scrollTo({ left: section.getBoundingClientRect().left - pages.getBoundingClientRect().left + pages.scrollLeft, behavior });
+        const index = sections.indexOf(section.closest?.('[data-inv-pages] > section') ?? section);
+        const left = index >= 0 ? index * pages.clientWidth : section.offsetLeft;
+
+        pages.scrollTo({ left, behavior });
     };
 
     // A cover with its own button already tells guests how to go on, and the hint would sit on top of it and of the

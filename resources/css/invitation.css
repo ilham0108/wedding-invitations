@@ -242,7 +242,7 @@
 | animation is chosen; invitation.js adds .is-shown when they scroll into view.
 */
 .inv-animate {
-    transition-property: opacity, transform;
+    transition-property: opacity, transform, clip-path;
     transition-duration: var(--inv-animation-duration, 0.9s);
     transition-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
@@ -272,6 +272,24 @@
 .inv-js [data-inv-animation='slide'] .inv-animate[data-inv-side='right']:not(.is-shown) {
     transform: translateX(48px);
 }
+
+/*
+| "reveal": the block is uncovered like a curtain drawn back, in the direction the guest moves. Scrolling down, it
+| opens upward from its bottom edge while rising a little; swiping sideways, each page opens from the right edge,
+| where it comes in from. clip-path only hides, so nothing moves the layout or the page strip.
+*/
+/* The open edges stay 60px outside the box, so shadows of cards and prints are never cut off. */
+.inv-js [data-inv-animation='reveal'] .inv-animate:not(.is-shown) {
+    clip-path: inset(100% -60px -60px -60px);
+    transform: translateY(24px);
+}
+
+.inv-js [data-inv-animation='reveal'][data-inv-scroll='horizontal'] .inv-animate:not(.is-shown) {
+    clip-path: inset(-60px -60px -60px 100%);
+    transform: none;
+}
+
+[data-inv-animation='reveal'] .inv-animate.is-shown { clip-path: inset(-60px); }
 
 /* Blocks waiting to slide in from the right must not make the page scroll sideways. */
 body[data-inv-scroll='vertical'][data-inv-animation='slide'] [data-inv-pages] {
@@ -352,6 +370,7 @@ body[data-inv-scroll='vertical'] [data-inv-pages]:has([data-inv-anim='fade-left'
     .inv-animate {
         opacity: 1 !important;
         transform: none !important;
+        clip-path: none !important;
         transition: none !important;
     }
 }
