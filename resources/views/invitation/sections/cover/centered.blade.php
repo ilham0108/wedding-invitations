@@ -17,7 +17,7 @@
         'inv-cover__content relative z-10 w-full max-w-xl',
         'text-center' => ($config['alignment'] ?? 'center') !== 'left',
         'text-left' => ($config['alignment'] ?? 'center') === 'left',
-        'text-white' => $hasImage && $config['overlay'],
+        'text-white' => $hasImage && $config['overlay'] && blank($section['colors']['text'] ?? null),
     ])>
         @include('invitation.partials.cover-photo', ['alt' => $config['title'] ?: $invitation->title])
 
@@ -43,7 +43,7 @@
     </div>
 
     @if (\App\Support\CoverButton::atBottom($config['button_position'] ?? null))
-        <div @class(['inv-cover-bar', 'text-white' => $hasImage && $config['overlay']])>
+        <div @class(['inv-cover-bar', 'text-white' => $hasImage && $config['overlay'] && blank($section['colors']['text'] ?? null)])>
             @include('invitation.partials.cover-guest')
             @include('invitation.sections.cover._button', ['onPhoto' => $hasImage])
         </div>

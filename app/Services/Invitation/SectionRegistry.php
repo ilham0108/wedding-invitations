@@ -156,7 +156,7 @@ class SectionRegistry
                     'label' => 'Photo position',
                     'type' => 'focus',
                     'image' => $field['key'],
-                    ...array_intersect_key($field, array_flip(['admin_only', 'feature', 'variants'])),
+                    ...array_intersect_key($field, array_flip(['admin_only', 'feature', 'variants', 'group'])),
                 ];
             }
         }

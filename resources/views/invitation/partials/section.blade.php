@@ -2,6 +2,8 @@
 <section id="section-{{ $section['key'] }}" data-section="{{ $section['type'] }}"
     @include('invitation.partials.backdrop-attributes')
     @include('invitation.partials.section-style')
+    {{-- The cover's dark overlay sits under the ornaments, so they are dimmed to match it (invitation.css "Ornaments"). --}}
+    @if ($section['type'] === 'cover' && ($section['config']['overlay'] ?? false) && filled($section['config']['background_image'] ?? null)) data-inv-dim-ornaments @endif
     @class([
         $sectionClass ?? '',
         'inv-has-ornaments' => ! empty($section['ornaments']),

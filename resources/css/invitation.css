@@ -967,6 +967,13 @@ body [data-inv-heading-color] :is(
     animation-delay: var(--inv-ornament-phase, 0s);
 }
 
+/*
+| A cover with its dark overlay on (data-inv-dim-ornaments): the overlay lies under the ornaments, so they are
+| darkened by the same amount and sit in the photo instead of glowing on top of it. --inv-ornament-dim is the
+| brightness left: 0.55 matches the classic 45% black; designs with a lighter overlay set their own.
+*/
+[data-inv-dim-ornaments] > .inv-ornaments .inv-ornament__img { filter: brightness(var(--inv-ornament-dim, 0.55)); }
+
 @keyframes inv-ornament-sway {
     0%, 100% { transform: rotate(-2.5deg); }
     50% { transform: rotate(2.5deg); }

@@ -29,63 +29,63 @@ return [
     'fields' => [
         'cover' => [
             // A line in Arabic letters above the title (e.g. the Basmala), set in the Arabic font (invitation.css "Cover Arabic line").
-            ['key' => 'arabic_text', 'label' => 'Arabic text above the title (e.g. Bismillah)', 'type' => 'text'],
-            ['key' => 'title', 'label' => 'Title', 'type' => 'text'],
-            ['key' => 'subtitle', 'label' => 'Subtitle', 'type' => 'text'],
-            ['key' => 'date_text', 'label' => 'Date text', 'type' => 'text'],
+            ['key' => 'arabic_text', 'group' => 'text', 'label' => 'Arabic text above the title (e.g. Bismillah)', 'type' => 'text'],
+            ['key' => 'title', 'group' => 'text', 'label' => 'Title', 'type' => 'text'],
+            ['key' => 'subtitle', 'group' => 'text', 'label' => 'Subtitle', 'type' => 'text'],
+            ['key' => 'date_text', 'group' => 'text', 'label' => 'Date text', 'type' => 'text'],
             // A photo above the names, in front of the background (invitation.partials.cover-photo). Same shape and
             // frame keys as the couple portraits, so the shared framed-photo partial draws it.
-            ['key' => 'photo', 'label' => 'Cover photo (e.g. the couple)', 'type' => 'image', 'illustrations' => 'person', 'focus' => true],
+            ['key' => 'photo', 'group' => 'photo', 'label' => 'Cover photo (e.g. the couple)', 'type' => 'image', 'illustrations' => 'person', 'focus' => true],
             // "above" keeps it in the text column; "free" places it anywhere on the cover (photo_x / photo_y, the
             // photo's centre in % of the cover), and the editors let it be dragged in the preview (cover-photo-drag.js).
-            ['key' => 'photo_placement', 'label' => 'Photo placement', 'type' => 'select', 'options' => ['above' => 'Above the names', 'free' => 'Free (drag it in the preview)']],
-            ['key' => 'photo_x', 'label' => 'Distance from the left', 'type' => 'number', 'slider' => true, 'signed' => false, 'min' => -10, 'max' => 110, 'step' => 1, 'shown_when' => ['photo_placement', 'free']],
-            ['key' => 'photo_y', 'label' => 'Distance from the top', 'type' => 'number', 'slider' => true, 'signed' => false, 'min' => -10, 'max' => 110, 'step' => 1, 'shown_when' => ['photo_placement', 'free']],
-            ['key' => 'photo_layer', 'label' => 'Photo layer', 'type' => 'select', 'shown_when' => ['photo_placement', 'free'], 'options' => ['back' => 'Behind the text', 'front' => 'In front of the text']],
-            ['key' => 'photo_width', 'label' => 'Photo width', 'type' => 'number', 'slider' => true, 'min' => 10, 'max' => 90, 'step' => 1],
+            ['key' => 'photo_placement', 'group' => 'photo', 'label' => 'Photo placement', 'type' => 'select', 'options' => ['above' => 'Above the names', 'free' => 'Free (drag it in the preview)']],
+            ['key' => 'photo_x', 'group' => 'photo', 'label' => 'Distance from the left', 'type' => 'number', 'slider' => true, 'signed' => false, 'min' => -10, 'max' => 110, 'step' => 1, 'shown_when' => ['photo_placement', 'free']],
+            ['key' => 'photo_y', 'group' => 'photo', 'label' => 'Distance from the top', 'type' => 'number', 'slider' => true, 'signed' => false, 'min' => -10, 'max' => 110, 'step' => 1, 'shown_when' => ['photo_placement', 'free']],
+            ['key' => 'photo_layer', 'group' => 'photo', 'label' => 'Photo layer', 'type' => 'select', 'shown_when' => ['photo_placement', 'free'], 'options' => ['back' => 'Behind the text', 'front' => 'In front of the text']],
+            ['key' => 'photo_width', 'group' => 'photo', 'label' => 'Photo width', 'type' => 'number', 'slider' => true, 'min' => 10, 'max' => 90, 'step' => 1],
             // "none" keeps the photo whole, at its own proportions, with square corners.
-            ['key' => 'photo_shape', 'label' => 'Photo shape', 'type' => 'select', 'hidden_when' => 'photo_frame', 'options' => ['circle' => 'Circle', 'oval' => 'Oval', 'arch' => 'Arch', 'rounded' => 'Rounded rectangle', 'none' => 'No shape (whole photo)']],
-            ['key' => 'photo_tilt', 'label' => 'Photo tilt', 'type' => 'number', 'slider' => true, 'min' => -180, 'max' => 180, 'step' => 1, 'unit' => '°'],
-            ['key' => 'photo_border_width', 'label' => 'Photo border thickness', 'type' => 'number', 'slider' => true, 'min' => 0, 'max' => 12, 'step' => 1, 'unit' => 'px', 'hidden_when' => 'photo_frame'],
-            ['key' => 'photo_border_color', 'label' => 'Photo border color', 'type' => 'color', 'hidden_when' => 'photo_frame'],
-            ['key' => 'photo_shadow', 'label' => 'Photo shadow', 'type' => 'select', 'options' => ['none' => 'None', 'soft' => 'Soft', 'strong' => 'Strong']],
+            ['key' => 'photo_shape', 'group' => 'photo_style', 'label' => 'Photo shape', 'type' => 'select', 'hidden_when' => 'photo_frame', 'options' => ['circle' => 'Circle', 'oval' => 'Oval', 'arch' => 'Arch', 'rounded' => 'Rounded rectangle', 'none' => 'No shape (whole photo)']],
+            ['key' => 'photo_tilt', 'group' => 'photo', 'label' => 'Photo tilt', 'type' => 'number', 'slider' => true, 'min' => -180, 'max' => 180, 'step' => 1, 'unit' => '°'],
+            ['key' => 'photo_border_width', 'group' => 'photo_style', 'label' => 'Photo border thickness', 'type' => 'number', 'slider' => true, 'min' => 0, 'max' => 12, 'step' => 1, 'unit' => 'px', 'hidden_when' => 'photo_frame'],
+            ['key' => 'photo_border_color', 'group' => 'photo_style', 'label' => 'Photo border color', 'type' => 'color', 'hidden_when' => 'photo_frame'],
+            ['key' => 'photo_shadow', 'group' => 'photo_style', 'label' => 'Photo shadow', 'type' => 'select', 'options' => ['none' => 'None', 'soft' => 'Soft', 'strong' => 'Strong']],
             // Edges that fade to transparent (CSS mask); two neighbouring edges fade that corner.
-            ['key' => 'photo_fade_top', 'label' => 'Fade the top edge', 'type' => 'toggle'],
-            ['key' => 'photo_fade_bottom', 'label' => 'Fade the bottom edge', 'type' => 'toggle'],
-            ['key' => 'photo_fade_left', 'label' => 'Fade the left edge', 'type' => 'toggle'],
-            ['key' => 'photo_fade_right', 'label' => 'Fade the right edge', 'type' => 'toggle'],
-            ['key' => 'photo_fade_size', 'label' => 'Fade length', 'type' => 'number', 'slider' => true, 'min' => 5, 'max' => 80, 'step' => 1],
-            ['key' => 'photo_opacity', 'label' => 'Photo opacity', 'type' => 'number', 'slider' => true, 'min' => 10, 'max' => 100, 'step' => 1],
-            ['key' => 'photo_frame', 'label' => 'Photo frame (transparent image with an opening in the middle)', 'type' => 'image', 'admin_only' => true, 'illustrations' => 'frame'],
-            ['key' => 'photo_frame_inset', 'label' => 'Photo frame: photo margin inside the frame (%)', 'type' => 'number', 'admin_only' => true, 'min' => 0, 'max' => 40],
-            ['key' => 'background_image', 'label' => 'Background image', 'type' => 'image', 'illustrations' => 'cover', 'focus' => true],
-            ['key' => 'background_motion', 'label' => 'Background motion', 'type' => 'select', 'options' => ['none' => 'Still', 'zoom-out' => 'Slow zoom-out on open', 'drift' => 'Slow continuous zoom']],
-            ['key' => 'overlay', 'label' => 'Dark overlay on image', 'type' => 'toggle'],
-            ['key' => 'frame_style', 'label' => 'Frame style', 'type' => 'select', 'variants' => ['framed'], 'options' => ['blur' => 'Blur (frosted glass)', 'transparent' => 'Transparent (outline only)', 'solid' => 'Solid']],
-            ['key' => 'frame_shape', 'label' => 'Frame shape', 'type' => 'select', 'variants' => ['framed'], 'options' => ['rectangle' => 'Rounded rectangle', 'arch' => 'Arch (text centered)']],
-            ['key' => 'alignment', 'label' => 'Alignment', 'type' => 'select', 'options' => ['center' => 'Center', 'left' => 'Left']],
+            ['key' => 'photo_fade_top', 'group' => 'photo_style', 'label' => 'Fade the top edge', 'type' => 'toggle'],
+            ['key' => 'photo_fade_bottom', 'group' => 'photo_style', 'label' => 'Fade the bottom edge', 'type' => 'toggle'],
+            ['key' => 'photo_fade_left', 'group' => 'photo_style', 'label' => 'Fade the left edge', 'type' => 'toggle'],
+            ['key' => 'photo_fade_right', 'group' => 'photo_style', 'label' => 'Fade the right edge', 'type' => 'toggle'],
+            ['key' => 'photo_fade_size', 'group' => 'photo_style', 'label' => 'Fade length', 'type' => 'number', 'slider' => true, 'min' => 5, 'max' => 80, 'step' => 1],
+            ['key' => 'photo_opacity', 'group' => 'photo_style', 'label' => 'Photo opacity', 'type' => 'number', 'slider' => true, 'min' => 10, 'max' => 100, 'step' => 1],
+            ['key' => 'photo_frame', 'group' => 'photo_style', 'label' => 'Photo frame (transparent image with an opening in the middle)', 'type' => 'image', 'admin_only' => true, 'illustrations' => 'frame'],
+            ['key' => 'photo_frame_inset', 'group' => 'photo_style', 'label' => 'Photo frame: photo margin inside the frame (%)', 'type' => 'number', 'admin_only' => true, 'min' => 0, 'max' => 40],
+            ['key' => 'background_image', 'group' => 'background', 'label' => 'Background image', 'type' => 'image', 'illustrations' => 'cover', 'focus' => true],
+            ['key' => 'background_motion', 'group' => 'background', 'label' => 'Background motion', 'type' => 'select', 'options' => ['none' => 'Still', 'zoom-out' => 'Slow zoom-out on open', 'drift' => 'Slow continuous zoom']],
+            ['key' => 'overlay', 'group' => 'background', 'label' => 'Dark overlay on image', 'type' => 'toggle'],
+            ['key' => 'frame_style', 'group' => 'layout', 'label' => 'Frame style', 'type' => 'select', 'variants' => ['framed'], 'options' => ['blur' => 'Blur (frosted glass)', 'transparent' => 'Transparent (outline only)', 'solid' => 'Solid']],
+            ['key' => 'frame_shape', 'group' => 'layout', 'label' => 'Frame shape', 'type' => 'select', 'variants' => ['framed'], 'options' => ['rectangle' => 'Rounded rectangle', 'arch' => 'Arch (text centered)']],
+            ['key' => 'alignment', 'group' => 'layout', 'label' => 'Alignment', 'type' => 'select', 'options' => ['center' => 'Center', 'left' => 'Left']],
             // Vertical place of the cover title in every design (App\Support\CoverTitle, invitation.css "Cover title").
-            ['key' => 'title_position', 'label' => 'Title position (vertical)', 'type' => 'select', 'admin_only' => true, 'options' => ['design' => 'Design default', 'top' => 'Top', 'center' => 'Middle', 'bottom' => 'Bottom']],
-            ['key' => 'title_offset', 'label' => 'Move the title up or down (% of the screen height)', 'type' => 'number', 'slider' => true, 'min' => -30, 'max' => 30, 'step' => 1, 'admin_only' => true],
+            ['key' => 'title_position', 'group' => 'layout', 'label' => 'Title position (vertical)', 'type' => 'select', 'admin_only' => true, 'options' => ['design' => 'Design default', 'top' => 'Top', 'center' => 'Middle', 'bottom' => 'Bottom']],
+            ['key' => 'title_offset', 'group' => 'layout', 'label' => 'Move the title up or down (% of the screen height)', 'type' => 'number', 'slider' => true, 'min' => -30, 'max' => 30, 'step' => 1, 'admin_only' => true],
             // Lines of the cover title (App\Support\CoverTitle::parts, invitation.partials.cover-title). Three lines split it at the "&".
-            ['key' => 'title_layout', 'label' => 'Title layout (three lines split the names at the "&")', 'type' => 'select', 'admin_only' => true, 'options' => ['design' => 'Design default', 'line' => 'One line', 'stacked' => 'Three lines, stacked', 'cascade' => 'Three lines, staggered']],
+            ['key' => 'title_layout', 'group' => 'text', 'label' => 'Title layout (three lines split the names at the "&")', 'type' => 'select', 'admin_only' => true, 'options' => ['design' => 'Design default', 'line' => 'One line', 'stacked' => 'Three lines, stacked', 'cascade' => 'Three lines, staggered']],
             // "Kepada Yth." and the guest's name above the cover button (invitation.partials.cover-guest). Empty texts use the placeholders.
-            ['key' => 'guest_greeting', 'label' => 'Greet the guest above the button', 'type' => 'toggle'],
-            ['key' => 'guest_salutation', 'label' => 'Greeting line', 'type' => 'text', 'placeholder' => 'Dear Sir/Madam', 'shown_when' => ['guest_greeting', true]],
-            ['key' => 'guest_fallback', 'label' => 'Name shown when the link has no guest', 'type' => 'text', 'placeholder' => 'Our honored guest', 'shown_when' => ['guest_greeting', true]],
-            ['key' => 'button_label', 'label' => 'Button label', 'type' => 'text'],
+            ['key' => 'guest_greeting', 'group' => 'guest', 'label' => 'Greet the guest above the button', 'type' => 'toggle'],
+            ['key' => 'guest_salutation', 'group' => 'guest', 'label' => 'Greeting line', 'type' => 'text', 'placeholder' => 'Dear Sir/Madam', 'shown_when' => ['guest_greeting', true]],
+            ['key' => 'guest_fallback', 'group' => 'guest', 'label' => 'Name shown when the link has no guest', 'type' => 'text', 'placeholder' => 'Our honored guest', 'shown_when' => ['guest_greeting', true]],
+            ['key' => 'button_label', 'group' => 'button', 'label' => 'Button label', 'type' => 'text'],
             // With an icon only, the label stays as the button's name for screen readers.
-            ['key' => 'button_display', 'label' => 'Button shape', 'type' => 'select', 'options' => ['label' => 'Button with text', 'scroll' => 'Scroll icon only', 'arrow' => 'Down arrow only']],
+            ['key' => 'button_display', 'group' => 'button', 'label' => 'Button shape', 'type' => 'select', 'options' => ['label' => 'Button with text', 'scroll' => 'Scroll icon only', 'arrow' => 'Down arrow only']],
             // Place of the button (App\Support\CoverButton): below the text, or pinned to the bottom of the screen.
-            ['key' => 'button_position', 'label' => 'Button position', 'type' => 'select', 'admin_only' => true, 'options' => ['design' => 'Design default', 'text' => 'Below the text', 'bottom' => 'Bottom of the screen']],
-            ['key' => 'button_align', 'label' => 'Button alignment', 'type' => 'select', 'admin_only' => true, 'options' => ['text' => 'Follow the text alignment', 'left' => 'Left', 'center' => 'Center', 'right' => 'Right']],
+            ['key' => 'button_position', 'group' => 'button', 'label' => 'Button position', 'type' => 'select', 'admin_only' => true, 'options' => ['design' => 'Design default', 'text' => 'Below the text', 'bottom' => 'Bottom of the screen']],
+            ['key' => 'button_align', 'group' => 'button', 'label' => 'Button alignment', 'type' => 'select', 'admin_only' => true, 'options' => ['text' => 'Follow the text alignment', 'left' => 'Left', 'center' => 'Center', 'right' => 'Right']],
             // Desktop side panel (designs with the "desktop_panel" feature); empty fields reuse the cover's.
             // Admin only (the owner's choice, 2026-10-25): the template sets the panel, clients only fill the cover.
-            ['key' => 'desktop_image', 'label' => 'Desktop panel: background image', 'type' => 'image', 'illustrations' => 'cover', 'admin_only' => true, 'feature' => 'desktop_panel', 'focus' => true],
-            ['key' => 'desktop_subtitle', 'label' => 'Desktop panel: subtitle', 'type' => 'text', 'admin_only' => true, 'feature' => 'desktop_panel'],
-            ['key' => 'desktop_title', 'label' => 'Desktop panel: title', 'type' => 'text', 'admin_only' => true, 'feature' => 'desktop_panel'],
-            ['key' => 'desktop_text', 'label' => 'Desktop panel: text', 'type' => 'textarea', 'admin_only' => true, 'feature' => 'desktop_panel'],
-            ['key' => 'desktop_text_position', 'label' => 'Desktop panel: text position', 'type' => 'select', 'admin_only' => true, 'feature' => 'desktop_panel', 'options' => ['top' => 'Top', 'center' => 'Center', 'bottom' => 'Bottom']],
+            ['key' => 'desktop_image', 'group' => 'desktop', 'label' => 'Desktop panel: background image', 'type' => 'image', 'illustrations' => 'cover', 'admin_only' => true, 'feature' => 'desktop_panel', 'focus' => true],
+            ['key' => 'desktop_subtitle', 'group' => 'desktop', 'label' => 'Desktop panel: subtitle', 'type' => 'text', 'admin_only' => true, 'feature' => 'desktop_panel'],
+            ['key' => 'desktop_title', 'group' => 'desktop', 'label' => 'Desktop panel: title', 'type' => 'text', 'admin_only' => true, 'feature' => 'desktop_panel'],
+            ['key' => 'desktop_text', 'group' => 'desktop', 'label' => 'Desktop panel: text', 'type' => 'textarea', 'admin_only' => true, 'feature' => 'desktop_panel'],
+            ['key' => 'desktop_text_position', 'group' => 'desktop', 'label' => 'Desktop panel: text position', 'type' => 'select', 'admin_only' => true, 'feature' => 'desktop_panel', 'options' => ['top' => 'Top', 'center' => 'Center', 'bottom' => 'Bottom']],
         ],
         // Opening greeting: an ornament, an opening line, the invitation message and the names.
         'greeting' => [
@@ -99,13 +99,13 @@ return [
             ['key' => 'opening', 'label' => 'Opening line (e.g. Bismillah in Arabic)', 'type' => 'text'],
             ['key' => 'intro', 'label' => 'Introduction', 'type' => 'textarea'],
             // Portrait mask and an optional frame image laid over every person's photo (invitation.partials.framed-photo).
-            ['key' => 'photo_shape', 'label' => 'Photo shape', 'type' => 'select', 'admin_only' => true, 'hidden_when' => 'photo_frame', 'options' => ['default' => 'Design default', 'rounded' => 'Rounded rectangle', 'circle' => 'Circle', 'oval' => 'Oval', 'arch' => 'Arch', 'custom' => 'Custom corners']],
-            ['key' => 'photo_radius_top_left', 'label' => 'Top left corner', 'type' => 'number', 'slider' => true, 'min' => 0, 'max' => 50, 'step' => 1, 'admin_only' => true, 'hidden_when' => 'photo_frame', 'shown_when' => ['photo_shape', 'custom']],
-            ['key' => 'photo_radius_top_right', 'label' => 'Top right corner', 'type' => 'number', 'slider' => true, 'min' => 0, 'max' => 50, 'step' => 1, 'admin_only' => true, 'hidden_when' => 'photo_frame', 'shown_when' => ['photo_shape', 'custom']],
-            ['key' => 'photo_radius_bottom_right', 'label' => 'Bottom right corner', 'type' => 'number', 'slider' => true, 'min' => 0, 'max' => 50, 'step' => 1, 'admin_only' => true, 'hidden_when' => 'photo_frame', 'shown_when' => ['photo_shape', 'custom']],
-            ['key' => 'photo_radius_bottom_left', 'label' => 'Bottom left corner', 'type' => 'number', 'slider' => true, 'min' => 0, 'max' => 50, 'step' => 1, 'admin_only' => true, 'hidden_when' => 'photo_frame', 'shown_when' => ['photo_shape', 'custom']],
-            ['key' => 'photo_frame', 'label' => 'Photo frame (transparent image with an opening in the middle)', 'type' => 'image', 'admin_only' => true, 'illustrations' => 'frame'],
-            ['key' => 'photo_frame_inset', 'label' => 'Photo frame: photo margin inside the frame (%)', 'type' => 'number', 'admin_only' => true, 'min' => 0, 'max' => 40],
+            ['key' => 'photo_shape', 'group' => 'portrait', 'label' => 'Photo shape', 'type' => 'select', 'admin_only' => true, 'hidden_when' => 'photo_frame', 'options' => ['default' => 'Design default', 'rounded' => 'Rounded rectangle', 'circle' => 'Circle', 'oval' => 'Oval', 'arch' => 'Arch', 'custom' => 'Custom corners']],
+            ['key' => 'photo_radius_top_left', 'group' => 'portrait', 'label' => 'Top left corner', 'type' => 'number', 'slider' => true, 'min' => 0, 'max' => 50, 'step' => 1, 'admin_only' => true, 'hidden_when' => 'photo_frame', 'shown_when' => ['photo_shape', 'custom']],
+            ['key' => 'photo_radius_top_right', 'group' => 'portrait', 'label' => 'Top right corner', 'type' => 'number', 'slider' => true, 'min' => 0, 'max' => 50, 'step' => 1, 'admin_only' => true, 'hidden_when' => 'photo_frame', 'shown_when' => ['photo_shape', 'custom']],
+            ['key' => 'photo_radius_bottom_right', 'group' => 'portrait', 'label' => 'Bottom right corner', 'type' => 'number', 'slider' => true, 'min' => 0, 'max' => 50, 'step' => 1, 'admin_only' => true, 'hidden_when' => 'photo_frame', 'shown_when' => ['photo_shape', 'custom']],
+            ['key' => 'photo_radius_bottom_left', 'group' => 'portrait', 'label' => 'Bottom left corner', 'type' => 'number', 'slider' => true, 'min' => 0, 'max' => 50, 'step' => 1, 'admin_only' => true, 'hidden_when' => 'photo_frame', 'shown_when' => ['photo_shape', 'custom']],
+            ['key' => 'photo_frame', 'group' => 'portrait', 'label' => 'Photo frame (transparent image with an opening in the middle)', 'type' => 'image', 'admin_only' => true, 'illustrations' => 'frame'],
+            ['key' => 'photo_frame_inset', 'group' => 'portrait', 'label' => 'Photo frame: photo margin inside the frame (%)', 'type' => 'number', 'admin_only' => true, 'min' => 0, 'max' => 40],
             ['key' => 'people', 'label' => 'People', 'type' => 'repeater', 'max' => 6, 'fields' => [
                 ['key' => 'name', 'label' => 'Name', 'type' => 'text'],
                 ['key' => 'role', 'label' => 'Role (e.g. The Groom, 7 years old, Speaker)', 'type' => 'text'],
@@ -265,11 +265,28 @@ return [
     | Fields every section has, appended after its own fields ("except" lists the
     | section types without them). Their default value is null.
     */
+    /*
+    | Groups of editor fields (field key "group"; none means "content"), shown as collapsible parts of a section's
+    | settings by livewire.partials.section-fields, in the order their first field appears. Labels are translated.
+    */
+    'field_groups' => [
+        'content' => ['label' => 'Content', 'icon' => 'fa-regular fa-pen-to-square'],
+        'text' => ['label' => 'Names & text', 'icon' => 'fa-solid fa-font'],
+        'photo' => ['label' => 'Couple photo', 'icon' => 'fa-regular fa-image'],
+        'photo_style' => ['label' => 'Photo style', 'icon' => 'fa-solid fa-sliders'],
+        'portrait' => ['label' => 'Portrait style', 'icon' => 'fa-solid fa-sliders'],
+        'background' => ['label' => 'Background', 'icon' => 'fa-solid fa-mountain-sun'],
+        'layout' => ['label' => 'Layout & position', 'icon' => 'fa-solid fa-table-cells-large'],
+        'guest' => ['label' => 'Guest greeting', 'icon' => 'fa-regular fa-address-card'],
+        'button' => ['label' => 'Open button', 'icon' => 'fa-regular fa-hand-pointer'],
+        'desktop' => ['label' => 'Desktop side panel', 'icon' => 'fa-solid fa-display'],
+    ],
+
     'common_fields' => [
         // Shown behind the page while this section is on screen; see invitation.partials.scroll-backdrop.
-        ['key' => 'background_photo', 'label' => 'Background photo (changes while scrolling)', 'type' => 'image', 'illustrations' => 'cover', 'focus' => true, 'except' => ['cover']],
+        ['key' => 'background_photo', 'group' => 'background', 'label' => 'Background photo (changes while scrolling)', 'type' => 'image', 'illustrations' => 'cover', 'focus' => true, 'except' => ['cover']],
         // How much of the theme color covers that photo; see invitation.partials.backdrop-attributes.
-        ['key' => 'background_overlay', 'label' => 'Background photo: overlay', 'type' => 'select', 'admin_only' => true, 'except' => ['cover'], 'options' => ['strong' => 'Strong (78%)', 'medium' => 'Medium (55%)', 'light' => 'Light (30%)', 'none' => 'None (photo only)']],
+        ['key' => 'background_overlay', 'group' => 'background', 'label' => 'Background photo: overlay', 'type' => 'select', 'admin_only' => true, 'except' => ['cover'], 'options' => ['strong' => 'Strong (78%)', 'medium' => 'Medium (55%)', 'light' => 'Light (30%)', 'none' => 'None (photo only)']],
     ],
 
     /*

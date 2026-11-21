@@ -62,6 +62,7 @@ Dial: ENERGY 1 / RHYTHM 1 / MOTION 1
 - Kartu angka (`x-ui.stat-card`): label kecil di atas angka, datar tanpa ikon dan tanpa bayangan. Dasbor klien baru menampilkannya setelah ada undangan.
 - Badge hanya untuk keadaan yang tidak biasa (ditangguhkan, draf, admin), bukan untuk keadaan normal seperti "Aktif" atau "Terbit".
 - Aksi jarang di kartu (terbitkan, duplikat, ekspor, hapus) masuk menu "Lainnya"; aksi harian tetap terlihat.
+- Pengaturan section (builder dan editor klien) dibagi menjadi kelompok yang bisa dibuka-tutup (`config('invitation.field_groups')`, `livewire.partials.section-fields`). Alasan: sampul punya lebih dari 40 field. Kelompok pertama terbuka, kelompok tanpa field yang berlaku tidak tampil, dan sakelar yang berurutan disusun dua kolom.
 - Tidak ada kontrol mati: kotak cari global dihapus sampai ada fitur pencariannya.
 - Tipografi: DM Sans untuk UI, Playfair Display (`font-display`) untuk judul halaman.
 - Bentuk: radius `xl` 0.875rem, bayangan `shadow-soft` sangat tipis sebagai penanda elevasi kartu.

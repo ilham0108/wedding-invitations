@@ -29,9 +29,7 @@
         <p class="text-xs font-medium text-red-600">{{ $message }}</p>
     @enderror
 
-    @foreach ($fields as $field)
-        @include('livewire.partials.section-field', ['field' => $field, 'path' => $field['key']])
-    @endforeach
+    @include('livewire.partials.section-fields')
 
     @include('livewire.partials.illustration-picker')
 </div>

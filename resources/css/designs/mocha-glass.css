@@ -12,6 +12,8 @@
 */
 
 .inv-design-mocha-glass {
+    /* Cover ornaments under the overlay: its gradient is light at the top and dark at the bottom, so one middle value. */
+    --inv-ornament-dim: 0.75;
     --mg-panel: 430px;
     --mg-serif: 'Cormorant Garamond', 'Amiri', Georgia, serif;
     --mg-arabic: 'Amiri', serif;

@@ -1,25 +1,15 @@
 {{-- Generic editor field. $path is relative to $config (e.g. "people.0.name"). Fields with "variants" only show for those layouts ($variant). --}}
 @php
-    // Fields can depend on the layout ("variants") and on a design feature ("feature", e.g. desktop_panel).
-    $shownForLayout = (! isset($field['variants']) || in_array($variant ?? null, $field['variants'], true))
-        && (! isset($field['feature']) || in_array($field['feature'], $designFeatures ?? [], true));
-    // "hidden_when": a sibling field whose value makes this one irrelevant (the stored value stays).
-    if (isset($field['hidden_when'])) {
-        $shownForLayout = $shownForLayout && blank(data_get($config, preg_replace('/[^.]+$/', $field['hidden_when'], $path)));
-    }
-    // "shown_when": [sibling field, value]; the field only applies while that sibling has that value.
-    if (isset($field['shown_when'])) {
-        $shownForLayout = $shownForLayout && data_get($config, preg_replace('/[^.]+$/', $field['shown_when'][0], $path)) === $field['shown_when'][1];
-    }
+    // Layouts ("variants"), design features, sibling fields and a focal point's photo decide whether it applies.
+    $shownForLayout = \App\Support\FieldVisibility::shown($field, $config, $path, $variant ?? null, $designFeatures ?? []);
 
     $value = data_get($config, $path);
     $inputId = 'field-'.str_replace('.', '-', $path);
     $inputClass = 'block w-full rounded-lg border-line text-sm focus:border-sage focus:ring-sage';
 
-    // A focal point field ("{key}_focus") belongs to the image field next to it and needs that photo.
+    // A focal point field ("{key}_focus") belongs to the image field next to it.
     if ($field['type'] === 'focus') {
         $focusImage = data_get($config, preg_replace('/[^.]+$/', $field['image'], $path));
-        $shownForLayout = $shownForLayout && filled($focusImage);
         $focusPoint = array_map('intval', explode(' ', str_replace('%', '', \App\Support\PhotoStyle::focus($value) ?? '50% 50%')));
     }
 @endphp

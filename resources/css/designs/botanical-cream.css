@@ -5,6 +5,8 @@
 */
 
 .inv-design-botanical-cream {
+    /* Cover ornaments under the "dark overlay" match the photo's dimming (.bc-cover--dim). */
+    --inv-ornament-dim: 0.82;
     --bc-panel: 440px;
     /* Room the floating menu needs at the end of the page and of each sideways page. */
     --bc-nav-h: 64px;

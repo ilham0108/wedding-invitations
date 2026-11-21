@@ -18,7 +18,7 @@
         'text-center' => ($config['alignment'] ?? 'center') !== 'left',
         'text-left' => ($config['alignment'] ?? 'center') === 'left',
         // A solid frame uses the theme surface, so its text keeps the theme text color.
-        'text-white' => $hasImage && $config['overlay'] && $config['frame_style'] !== 'solid',
+        'text-white' => $hasImage && $config['overlay'] && $config['frame_style'] !== 'solid' && blank($section['colors']['text'] ?? null),
         'inv-frame inv-frame--'.$config['frame_style'].' px-6 py-14 sm:px-10',
         'inv-frame--arch' => $config['frame_shape'] === 'arch',
     ])>
@@ -46,7 +46,7 @@
     </div>
 
     @if (\App\Support\CoverButton::atBottom($config['button_position'] ?? null))
-        <div @class(['inv-cover-bar', 'text-white' => $hasImage && $config['overlay']])>
+        <div @class(['inv-cover-bar', 'text-white' => $hasImage && $config['overlay'] && blank($section['colors']['text'] ?? null)])>
             @include('invitation.partials.cover-guest')
             @include('invitation.sections.cover._button', ['onPhoto' => $hasImage])
         </div>

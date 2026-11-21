@@ -43,7 +43,7 @@
     @if ($cover)
         {{-- The cover layer's elements read the cover section (@animate). --}}
         @php($section = $cover)
-        <div class="mg-cover" data-mg-cover {!! \App\Support\CoverTitle::attributes($cover['config']['title_position'] ?? null) !!}
+        <div class="mg-cover" data-mg-cover @if ($cover['config']['overlay']) data-inv-dim-ornaments @endif {!! \App\Support\CoverTitle::attributes($cover['config']['title_position'] ?? null) !!}
             @include('invitation.partials.section-style', ['section' => $cover, 'withStyle' => false])
             style="{{ \App\Support\CoverTitle::style($cover['config']['title_offset'] ?? 0) }} {{ $cover['section_style'] }}">
             <div class="mg-photo inv-bg-motion--{{ $cover['config']['background_motion'] }}" @if ($photo) style="background-image: {{ \App\Support\CssUrl::wrap($photo) }}; {{ $photoPosition }}" @endif></div>
