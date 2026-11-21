@@ -4,6 +4,7 @@ namespace App\Services\Template\HtmlDesign;
 
 use App\Services\Invitation\DesignRegistry;
 use App\Services\Invitation\RenderedInvitation;
+use App\Support\CoverTitle;
 use App\Support\SafeUrl;
 
 /**
@@ -32,7 +33,43 @@ class HtmlDesignRenderer
             default => $config,
         };
 
-        return '<div class="'.e($section['class']).'">'.$this->nodes($section['nodes'], $config, $invitation).'</div>';
+        $html = $this->nodes($section['nodes'], $config, $invitation);
+
+        if ($type === 'cover' && ! $this->hasGuestName($section['nodes'])) {
+            $html = $this->withGuestLine($html, $config, $invitation);
+        }
+
+        return '<div class="'.e($section['class']).'">'.$html.'</div>';
+    }
+
+    /**
+     * Every design greets the guest above the cover button. A cover without <inv-guest-name> gets the shared
+     * "Kepada Yth." lines right before the element marked data-inv-effect="next", else at its end. The markup
+     * here is the importer's, with values escaped, so the last "<" before the mark opens that element.
+     *
+     * @param  array<string, mixed>  $config
+     */
+    private function withGuestLine(string $html, array $config, RenderedInvitation $invitation): string
+    {
+        $guest = view('invitation.partials.cover-guest', ['config' => $config, 'invitation' => $invitation])->render();
+        $mark = strpos($html, ' data-inv-next');
+        $start = $mark === false ? false : strrpos(substr($html, 0, $mark), '<');
+
+        return $start === false ? $html.$guest : substr($html, 0, $start).$guest.substr($html, $start);
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $nodes
+     */
+    private function hasGuestName(array $nodes): bool
+    {
+        foreach ($nodes as $node) {
+            if (($node['kind'] === 'component' && $node['name'] === 'guest') || $this->hasGuestName($node['nodes'] ?? [])) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -43,13 +80,16 @@ class HtmlDesignRenderer
     {
         return collect($nodes)->map(fn (array $node): string => match ($node['kind']) {
             'html' => $node['value'],
-            'text' => $this->text($values[$node['key']] ?? '', $node['lines'] ?? false),
+            // The cover title follows the cover's "title_layout" (only the cover's values carry it).
+            'text' => $node['key'] === 'title' && CoverTitle::layout($values['title_layout'] ?? null) !== null
+                ? view('invitation.partials.cover-title', ['names' => (string) $values['title'], 'layout' => CoverTitle::layout($values['title_layout'])])->render()
+                : $this->text($values[$node['key']] ?? '', $node['lines'] ?? false),
             'url' => e((string) SafeUrl::filter($values[$node['key']] ?? null)),
             'if' => filled($values[$node['key']] ?? null) ? $this->nodes($node['nodes'], $values, $invitation) : '',
             'repeat' => collect(is_array($values[$node['key']] ?? null) ? $values[$node['key']] : [])
                 ->map(fn (mixed $item): string => is_array($item) ? $this->nodes($node['nodes'], $item, $invitation) : '')
                 ->implode(''),
-            'component' => $node['name'] === 'guest' ? e((string) $invitation->guestName) : '',
+            'component' => $node['name'] === 'guest' ? e($invitation->guestName ?: __('Our honored guest')) : '',
             default => '',
         })->implode('');
     }

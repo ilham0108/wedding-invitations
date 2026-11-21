@@ -1,4 +1,5 @@
-// Botanical Cream design: top bar that turns solid on scroll, active bottom menu, full menu, scroll-down arrow.
+// Botanical Cream design: top bar that turns solid on scroll, full menu, scroll-down arrow.
+// The floating menu is resources/js/invitation-nav.js.
 // Entrance animations come from invitation.js (template animation setting); Alpine handles galleries and wishes.
 
 const root = document.querySelector('[data-bc-root]');
@@ -29,42 +30,6 @@ function setupTopbar() {
 
     // Swiping sideways: a solid bar on every page after the first.
     window.addEventListener('inv-page-change', ({ detail }) => topbar.classList.toggle('is-scrolled', detail.index > 0));
-}
-
-function setupBottomMenu() {
-    const links = [...document.querySelectorAll('[data-bc-nav]')];
-    const targets = links.map((link) => document.querySelector(link.getAttribute('href')));
-
-    if (links.length === 0) {
-        return;
-    }
-
-    const update = () => {
-        // Swiping sideways: "inv-page-change" below keeps the menu current.
-        if (window.invPages) {
-            return;
-        }
-
-        const line = window.scrollY + window.innerHeight * 0.4;
-        let current = 0;
-
-        targets.forEach((target, index) => {
-            if (target && target.offsetTop <= line) {
-                current = index;
-            }
-        });
-
-        links.forEach((link, index) => link.classList.toggle('is-active', index === current));
-    };
-
-    window.addEventListener('scroll', update, { passive: true });
-    update();
-
-    window.addEventListener('inv-page-change', ({ detail }) => {
-        const current = targets.reduce((found, target, index) => ([...target.parentElement.children].indexOf(target) <= detail.index ? index : found), 0);
-
-        links.forEach((link, index) => link.classList.toggle('is-active', index === current));
-    });
 }
 
 function setupFullMenu() {
@@ -117,7 +82,6 @@ function setupScrollDown() {
 
 if (root) {
     setupTopbar();
-    setupBottomMenu();
     setupFullMenu();
     setupScrollDown();
 }

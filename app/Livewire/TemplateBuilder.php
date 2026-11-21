@@ -10,6 +10,7 @@ use App\Models\MusicTrack;
 use App\Services\FontRegistry;
 use App\Services\Invitation\DecorationResolver;
 use App\Services\Invitation\DesignRegistry;
+use App\Services\Invitation\NavigationMenu;
 use App\Services\Invitation\Ornaments;
 use App\Services\Invitation\SectionAnimations;
 use App\Services\Invitation\SectionColors;
@@ -67,7 +68,7 @@ class TemplateBuilder extends Component
     #[Locked]
     public string $design = DesignRegistry::DEFAULT;
 
-    /** @var array<string, string> Resolved decoration; changed through setDecoration() only. */
+    /** @var array<string, mixed> Resolved decoration; changed through setDecoration() and the menu methods only. */
     #[Locked]
     public array $decoration = [];
 
@@ -369,6 +370,97 @@ class TemplateBuilder extends Component
     }
 
     /**
+     * Start editing the floating menu from the entries picked automatically, so the list matches what guests see.
+     */
+    public function customizeNav(NavigationMenu $navigation): void
+    {
+        $entries = $navigation->entries([...$this->decoration, 'nav_items' => []], $this->design, $this->sectionTypes());
+
+        $this->persistNavItems($entries !== [] ? $entries : array_map(
+            fn (string $type): array => ['type' => $type, 'label' => '', 'icon' => $navigation->defaultIcon($type)],
+            array_slice($this->sectionTypes(), 0, 2),
+        ));
+    }
+
+    /**
+     * Add an entry for the first section type the menu does not list yet.
+     */
+    public function addNavItem(NavigationMenu $navigation): void
+    {
+        $items = $this->decoration['nav_items'];
+        $type = collect($this->sectionTypes())->first(fn (string $type): bool => ! in_array($type, array_column($items, 'type'), true));
+
+        if ($type === null || count($items) >= config('invitation.navigation.max_items')) {
+            return;
+        }
+
+        $this->persistNavItems([...$items, ['type' => $type, 'label' => '', 'icon' => $navigation->defaultIcon($type)]]);
+    }
+
+    /**
+     * Change an entry's section ("type"), its label or its icon. A section is listed once; an icon still on the
+     * old section's default follows the new section.
+     */
+    public function updateNavItem(int $index, string $field, string $value, NavigationMenu $navigation): void
+    {
+        $items = $this->decoration['nav_items'];
+
+        if (! isset($items[$index]) || ! in_array($field, ['type', 'label', 'icon'], true)) {
+            return;
+        }
+
+        if ($field === 'type') {
+            if (! in_array($value, $this->sectionTypes(), true) || collect($items)->except($index)->contains('type', $value)) {
+                return;
+            }
+
+            if ($items[$index]['icon'] === $navigation->defaultIcon($items[$index]['type'])) {
+                $items[$index]['icon'] = $navigation->defaultIcon($value);
+            }
+        }
+
+        if ($field === 'icon' && ! isset(config('invitation.navigation.icons')[$value])) {
+            return;
+        }
+
+        $items[$index][$field] = $value;
+        $this->persistNavItems($items);
+    }
+
+    public function moveNavItem(int $index, int $direction): void
+    {
+        $items = $this->decoration['nav_items'];
+        $target = $index + ($direction < 0 ? -1 : 1);
+
+        if (! isset($items[$index], $items[$target])) {
+            return;
+        }
+
+        [$items[$index], $items[$target]] = [$items[$target], $items[$index]];
+        $this->persistNavItems($items);
+    }
+
+    /**
+     * Remove an entry. Without entries the menu is picked automatically again.
+     */
+    public function removeNavItem(int $index): void
+    {
+        $items = $this->decoration['nav_items'];
+
+        if (! isset($items[$index])) {
+            return;
+        }
+
+        unset($items[$index]);
+        $this->persistNavItems(array_values($items));
+    }
+
+    public function resetNavItems(): void
+    {
+        $this->persistNavItems([]);
+    }
+
+    /**
      * Use a library ornament under every section heading. Only active "ornament" illustrations,
      * stored by ULID, so no arbitrary image URL ends up on invitations.
      */
@@ -652,6 +744,12 @@ class TemplateBuilder extends Component
             'headingOrnamentIllustrations' => $this->headingOrnamentPicker
                 ? Illustration::query()->active()->where('category', IllustrationCategory::Ornament)->ordered()->get()
                 : collect(),
+            // Floating section menu (Theme tab, "Motion & navigation").
+            'navShown' => app(NavigationMenu::class)->isShown($this->decoration, $this->design),
+            'navEntries' => app(NavigationMenu::class)->entries($this->decoration, $this->design, $this->sectionTypes()),
+            'navTypes' => collect($this->sectionTypes())->mapWithKeys(fn (string $type): array => [$type => __($registry->label($type))])->all(),
+            'navIcons' => config('invitation.navigation.icons'),
+            'navMax' => (int) config('invitation.navigation.max_items'),
             'desktopLayouts' => [
                 'column' => ['Centered column', 'The invitation stays phone-sized in the middle, on a blurred cover photo.', 'fa-solid fa-mobile-screen'],
                 'split' => ['Side panel', 'A cover panel with its own text and ornaments beside the invitation.', 'fa-solid fa-table-columns'],
@@ -701,6 +799,26 @@ class TemplateBuilder extends Component
         $this->theme = app(ThemeResolver::class)->resolve($definition['theme'] ?? []);
         $this->music = $this->musicState($definition['music'] ?? []);
         $this->hasChanges = $draft->hasChanges($template, Auth::user());
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $items
+     */
+    private function persistNavItems(array $items): void
+    {
+        $items = app(DecorationResolver::class)->navItems($items);
+        $this->decoration['nav_items'] = $items;
+        $this->persist(fn (array $definition): array => [...$definition, 'decoration' => [...($definition['decoration'] ?? []), 'nav_items' => $items]]);
+    }
+
+    /**
+     * The section types of the template, in order, each once.
+     *
+     * @return array<int, string>
+     */
+    private function sectionTypes(): array
+    {
+        return collect($this->sections)->pluck('type')->unique()->values()->all();
     }
 
     /**

@@ -6,14 +6,13 @@
 
 .inv-design-botanical-cream {
     --bc-panel: 440px;
+    /* Room the floating menu needs at the end of the page and of each sideways page. */
     --bc-nav-h: 64px;
     --bc-script: 'Great Vibes', 'Amiri', cursive;
     --bc-arabic: 'Amiri', serif;
     --bc-muted: color-mix(in srgb, var(--inv-text) 68%, transparent);
     --bc-line: color-mix(in srgb, var(--inv-text) 16%, transparent);
     --bc-shadow: 0 10px 30px color-mix(in srgb, var(--inv-text) 9%, transparent);
-    /* "Screen height" sections (invitation.css) end above the bottom menu. */
-    --inv-screen-height: calc(100svh - var(--bc-nav-h));
     background: color-mix(in srgb, var(--inv-bg) 82%, var(--inv-text) 18%);
     color: var(--inv-text);
     font-family: var(--inv-font-body);
@@ -339,7 +338,7 @@
 }
 .bc-classic .inv-heading { font-family: var(--inv-font-heading); }
 
-/* ---------------------------------------------------------------- top bar, bottom menu, full menu */
+/* ---------------------------------------------------------------- top bar, floating menu, full menu */
 
 .bc-topbar {
     position: fixed;
@@ -387,36 +386,24 @@ body:has(.inv-preview-bar) .bc-topbar { top: 40px; }
     font-size: 1.1rem;
 }
 
-.bc-nav {
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    z-index: 45;
-    display: grid;
-    grid-auto-columns: 1fr;
-    grid-auto-flow: column;
-    width: var(--bc-panel);
-    height: var(--bc-nav-h);
-    padding-bottom: env(safe-area-inset-bottom);
-    border-top: 1px solid var(--bc-line);
-    background: color-mix(in srgb, var(--inv-surface) 94%, transparent);
-    backdrop-filter: blur(10px);
+/* The shared floating menu (invitation.css "Floating section menu") as a cream pill, like the design's buttons:
+   labelled entries, the current one in the primary color. No blur: the solid cream already keeps it readable. */
+.inv-design-botanical-cream .inv-nav {
+    --inv-nav-center: calc(100% - var(--bc-panel) / 2);
+    --inv-nav-width: var(--bc-panel);
+    border-color: var(--bc-line);
+    border-radius: 9999px;
+    padding: 5px 10px;
+    background: color-mix(in srgb, var(--inv-surface) 96%, transparent);
+    box-shadow: var(--bc-shadow);
+    color: color-mix(in srgb, var(--inv-text) 82%, var(--inv-surface));
 }
 
-.bc-nav a {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    color: var(--bc-muted);
-    font-size: 0.68rem;
-    transition: color 0.3s;
-}
+.inv-design-botanical-cream .inv-nav__link { border-radius: 9999px; }
+.inv-design-botanical-cream .inv-nav__link i { font-size: 1.1rem; }
 
-.bc-nav i { font-size: 1.1rem; }
-
-.bc-nav a.is-active {
+.inv-design-botanical-cream .inv-nav__link.is-active {
+    background: transparent;
     color: var(--inv-primary);
     font-weight: 600;
 }
@@ -482,7 +469,7 @@ body:has(.inv-preview-bar) .bc-topbar { top: 40px; }
 
 .bc-section--cover { padding: 0; }
 
-/* Swiping sideways: every page keeps clear of the fixed top bar and bottom menu. */
+/* Swiping sideways: every page keeps clear of the fixed top bar and the floating menu. */
 body[data-inv-scroll='horizontal'] .bc-section:not(.bc-section--cover) { --inv-page-margin: 72px 24px calc(var(--bc-nav-h) + 32px); }
 
 /* The page hint (invitation.css) replaces the "scroll down" cue. */
@@ -494,7 +481,8 @@ body[data-inv-scroll='horizontal'] .bc-scroll { display: none; }
     flex-direction: column;
     align-items: center;
     min-height: 100svh;
-    padding: 0 24px calc(var(--bc-nav-h) + 24px);
+    /* The floating menu is hidden on the cover, so only the phone's own bottom edge needs room. */
+    padding: 0 24px calc(24px + env(safe-area-inset-bottom));
     overflow: hidden;
 }
 
@@ -574,12 +562,21 @@ body[data-inv-scroll='horizontal'] .bc-scroll { display: none; }
 }
 
 .bc-guest {
-    margin-top: 1rem;
-    color: var(--bc-muted);
+    margin-top: 1.25rem;
+    /* Darker than --bc-muted: small text that has to pass 4.5:1 on the cream page. */
+    color: color-mix(in srgb, var(--inv-text) 82%, var(--inv-bg));
     font-size: 0.9rem;
 }
 
-.bc-guest b { color: var(--inv-text); }
+.bc-guest .inv-cover-guest__name { color: var(--inv-text); }
+
+/* With the scroll button at the bottom of the screen, below the text block. */
+.bc-guest--bottom {
+    position: relative;
+    z-index: 1;
+    align-self: stretch;
+    margin-top: 1.5rem;
+}
 
 .bc-scroll {
     position: relative;

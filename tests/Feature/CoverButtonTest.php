@@ -34,13 +34,14 @@ class CoverButtonTest extends TestCase
     {
         $html = $this->cover('classic', ['button_position' => 'bottom', 'button_align' => 'right']);
 
-        $this->assertMatchesRegularExpression('/<div class="inv-cover-bar">\s*<button type="button" class="inv-cover-button inv-cover-button--right inv-cover-button--bottom/', $html);
+        // The guest's name sits right above the button, on its side.
+        $this->assertMatchesRegularExpression('/<div class="inv-cover-bar">\s*<p class="inv-cover-guest inv-cover-guest--right">.*?<\/p>\s*<button type="button" class="inv-cover-button inv-cover-button--right inv-cover-button--bottom/s', $html);
         $this->assertSame(1, substr_count($html, 'inv-cover-button '));
 
         $html = $this->cover('classic', ['alignment' => 'left']);
 
         $this->assertStringNotContainsString('inv-cover-bar', $html);
-        $this->assertStringContainsString('inv-cover-button inv-cover-button--left mt-10', $html);
+        $this->assertStringContainsString('inv-cover-button inv-cover-button--left mt-5', $html);
     }
 
     public function test_mocha_glass_puts_the_bottom_button_after_the_guest_name(): void

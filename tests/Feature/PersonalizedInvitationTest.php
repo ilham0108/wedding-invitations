@@ -53,9 +53,10 @@ class PersonalizedInvitationTest extends TestCase
         $invitation = $this->publishedInvitation();
         $otherGuest = Guest::factory()->for($this->publishedInvitation())->create(['name' => 'Other Party Guest']);
 
+        // Without a guest the cover greets "our honored guest".
         $this->get('/invitation/'.$invitation->slug.'/'.str_repeat('x', 32))
             ->assertOk()
-            ->assertDontSee('Dear');
+            ->assertSee(__('Our honored guest'));
 
         $this->get('/invitation/'.$invitation->slug.'/'.$otherGuest->token)
             ->assertOk()

@@ -11,13 +11,14 @@ final readonly class RenderedInvitation
 {
     /**
      * @param  array<string, string>  $theme
-     * @param  array<string, string>  $decoration
+     * @param  array<string, mixed>  $decoration
      * @param  string  $design  Design pack key; $pageView is its page frame (null = classic page).
      * @param  array<int, string>  $assets  Extra Vite entries of the design.
      * @param  array<int, array{key: string, type: string, variant: string, view: string, native: bool, background: string, config: array<string, mixed>, ornaments: array<int, array<string, mixed>>}>  $sections
      * @param  array{title: string, description: string, image: ?string, canonical: ?string, indexable: bool}  $meta
      * @param  array{token?: ?string, rsvp?: array<string, mixed>, wishes?: array<string, mixed>}  $interaction  Form context for RSVP and wishes sections.
      * @param  array{url: string, start_at: int, loop: bool}|null  $music  Background music, null when off.
+     * @param  array<int, array{key: string, type: string, label: string, icon: string}>  $nav  Floating section menu (NavigationMenu), empty when off.
      */
     public function __construct(
         public string $title,
@@ -36,6 +37,7 @@ final readonly class RenderedInvitation
         public ?string $guestName = null,
         public array $interaction = [],
         public ?array $music = null,
+        public array $nav = [],
     ) {}
 
     /**

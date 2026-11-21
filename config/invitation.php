@@ -38,16 +38,24 @@ return [
             ['key' => 'photo', 'label' => 'Cover photo (e.g. the couple)', 'type' => 'image', 'illustrations' => 'person', 'focus' => true],
             // "above" keeps it in the text column; "free" places it anywhere on the cover (photo_x / photo_y, the
             // photo's centre in % of the cover), and the editors let it be dragged in the preview (cover-photo-drag.js).
-            ['key' => 'photo_placement', 'label' => 'Photo position', 'type' => 'select', 'options' => ['above' => 'Above the names', 'free' => 'Free (drag it in the preview)']],
-            ['key' => 'photo_x', 'label' => 'Photo position: horizontal', 'type' => 'number', 'slider' => true, 'signed' => false, 'min' => -10, 'max' => 110, 'step' => 1, 'shown_when' => ['photo_placement', 'free']],
-            ['key' => 'photo_y', 'label' => 'Photo position: vertical', 'type' => 'number', 'slider' => true, 'signed' => false, 'min' => -10, 'max' => 110, 'step' => 1, 'shown_when' => ['photo_placement', 'free']],
+            ['key' => 'photo_placement', 'label' => 'Photo placement', 'type' => 'select', 'options' => ['above' => 'Above the names', 'free' => 'Free (drag it in the preview)']],
+            ['key' => 'photo_x', 'label' => 'Distance from the left', 'type' => 'number', 'slider' => true, 'signed' => false, 'min' => -10, 'max' => 110, 'step' => 1, 'shown_when' => ['photo_placement', 'free']],
+            ['key' => 'photo_y', 'label' => 'Distance from the top', 'type' => 'number', 'slider' => true, 'signed' => false, 'min' => -10, 'max' => 110, 'step' => 1, 'shown_when' => ['photo_placement', 'free']],
             ['key' => 'photo_layer', 'label' => 'Photo layer', 'type' => 'select', 'shown_when' => ['photo_placement', 'free'], 'options' => ['back' => 'Behind the text', 'front' => 'In front of the text']],
             ['key' => 'photo_width', 'label' => 'Photo width', 'type' => 'number', 'slider' => true, 'min' => 10, 'max' => 90, 'step' => 1],
-            ['key' => 'photo_shape', 'label' => 'Photo shape', 'type' => 'select', 'hidden_when' => 'photo_frame', 'options' => ['circle' => 'Circle', 'oval' => 'Oval', 'arch' => 'Arch', 'rounded' => 'Rounded rectangle']],
-            ['key' => 'photo_tilt', 'label' => 'Photo tilt', 'type' => 'number', 'slider' => true, 'min' => -45, 'max' => 45, 'step' => 1, 'unit' => '°'],
+            // "none" keeps the photo whole, at its own proportions, with square corners.
+            ['key' => 'photo_shape', 'label' => 'Photo shape', 'type' => 'select', 'hidden_when' => 'photo_frame', 'options' => ['circle' => 'Circle', 'oval' => 'Oval', 'arch' => 'Arch', 'rounded' => 'Rounded rectangle', 'none' => 'No shape (whole photo)']],
+            ['key' => 'photo_tilt', 'label' => 'Photo tilt', 'type' => 'number', 'slider' => true, 'min' => -180, 'max' => 180, 'step' => 1, 'unit' => '°'],
             ['key' => 'photo_border_width', 'label' => 'Photo border thickness', 'type' => 'number', 'slider' => true, 'min' => 0, 'max' => 12, 'step' => 1, 'unit' => 'px', 'hidden_when' => 'photo_frame'],
             ['key' => 'photo_border_color', 'label' => 'Photo border color', 'type' => 'color', 'hidden_when' => 'photo_frame'],
             ['key' => 'photo_shadow', 'label' => 'Photo shadow', 'type' => 'select', 'options' => ['none' => 'None', 'soft' => 'Soft', 'strong' => 'Strong']],
+            // Edges that fade to transparent (CSS mask); two neighbouring edges fade that corner.
+            ['key' => 'photo_fade_top', 'label' => 'Fade the top edge', 'type' => 'toggle'],
+            ['key' => 'photo_fade_bottom', 'label' => 'Fade the bottom edge', 'type' => 'toggle'],
+            ['key' => 'photo_fade_left', 'label' => 'Fade the left edge', 'type' => 'toggle'],
+            ['key' => 'photo_fade_right', 'label' => 'Fade the right edge', 'type' => 'toggle'],
+            ['key' => 'photo_fade_size', 'label' => 'Fade length', 'type' => 'number', 'slider' => true, 'min' => 5, 'max' => 80, 'step' => 1],
+            ['key' => 'photo_opacity', 'label' => 'Photo opacity', 'type' => 'number', 'slider' => true, 'min' => 10, 'max' => 100, 'step' => 1],
             ['key' => 'photo_frame', 'label' => 'Photo frame (transparent image with an opening in the middle)', 'type' => 'image', 'admin_only' => true, 'illustrations' => 'frame'],
             ['key' => 'photo_frame_inset', 'label' => 'Photo frame: photo margin inside the frame (%)', 'type' => 'number', 'admin_only' => true, 'min' => 0, 'max' => 40],
             ['key' => 'background_image', 'label' => 'Background image', 'type' => 'image', 'illustrations' => 'cover', 'focus' => true],
@@ -59,6 +67,8 @@ return [
             // Vertical place of the cover title in every design (App\Support\CoverTitle, invitation.css "Cover title").
             ['key' => 'title_position', 'label' => 'Title position (vertical)', 'type' => 'select', 'admin_only' => true, 'options' => ['design' => 'Design default', 'top' => 'Top', 'center' => 'Middle', 'bottom' => 'Bottom']],
             ['key' => 'title_offset', 'label' => 'Move the title up or down (% of the screen height)', 'type' => 'number', 'slider' => true, 'min' => -30, 'max' => 30, 'step' => 1, 'admin_only' => true],
+            // Lines of the cover title (App\Support\CoverTitle::parts, invitation.partials.cover-title). Three lines split it at the "&".
+            ['key' => 'title_layout', 'label' => 'Title layout (three lines split the names at the "&")', 'type' => 'select', 'admin_only' => true, 'options' => ['design' => 'Design default', 'line' => 'One line', 'stacked' => 'Three lines, stacked', 'cascade' => 'Three lines, staggered']],
             ['key' => 'button_label', 'label' => 'Button label', 'type' => 'text'],
             // With an icon only, the label stays as the button's name for screen readers.
             ['key' => 'button_display', 'label' => 'Button shape', 'type' => 'select', 'options' => ['label' => 'Button with text', 'scroll' => 'Scroll icon only', 'arrow' => 'Down arrow only']],
@@ -295,7 +305,7 @@ return [
             'label' => 'Cover',
             'icon' => 'fa-regular fa-image',
             'variants' => ['centered', 'framed'],
-            'defaults' => ['arabic_text' => '', 'title' => '', 'subtitle' => '', 'date_text' => '', 'photo' => null, 'photo_placement' => 'above', 'photo_x' => 50, 'photo_y' => 30, 'photo_layer' => 'back', 'photo_width' => 50, 'photo_shape' => 'circle', 'photo_tilt' => 0, 'photo_border_width' => 0, 'photo_border_color' => '#ffffff', 'photo_shadow' => 'none', 'photo_frame' => null, 'photo_frame_inset' => 12, 'background_image' => null, 'background_motion' => 'none', 'overlay' => true, 'frame_style' => 'blur', 'frame_shape' => 'rectangle', 'alignment' => 'center', 'title_position' => 'design', 'title_offset' => 0, 'button_label' => 'Open Invitation', 'button_display' => 'label', 'button_position' => 'design', 'button_align' => 'text', 'desktop_image' => null, 'desktop_subtitle' => '', 'desktop_title' => '', 'desktop_text' => '', 'desktop_text_position' => 'center'],
+            'defaults' => ['arabic_text' => '', 'title' => '', 'subtitle' => '', 'date_text' => '', 'photo' => null, 'photo_placement' => 'above', 'photo_x' => 50, 'photo_y' => 30, 'photo_layer' => 'back', 'photo_width' => 50, 'photo_shape' => 'circle', 'photo_tilt' => 0, 'photo_border_width' => 0, 'photo_border_color' => '#ffffff', 'photo_shadow' => 'none', 'photo_fade_top' => false, 'photo_fade_bottom' => false, 'photo_fade_left' => false, 'photo_fade_right' => false, 'photo_fade_size' => 35, 'photo_opacity' => 100, 'photo_frame' => null, 'photo_frame_inset' => 12, 'background_image' => null, 'background_motion' => 'none', 'overlay' => true, 'frame_style' => 'blur', 'frame_shape' => 'rectangle', 'alignment' => 'center', 'title_position' => 'design', 'title_offset' => 0, 'title_layout' => 'design', 'button_label' => 'Open Invitation', 'button_display' => 'label', 'button_position' => 'design', 'button_align' => 'text', 'desktop_image' => null, 'desktop_subtitle' => '', 'desktop_title' => '', 'desktop_text' => '', 'desktop_text_position' => 'center'],
         ],
         'greeting' => [
             'label' => 'Greeting',
@@ -535,6 +545,8 @@ return [
             'fonts' => ['Amiri'],
             'assets' => [],
             'features' => [],
+            // Floating section menu when decoration "nav_display" is "design": shown or not, and the section types it lists.
+            'nav' => ['show' => false, 'auto' => ['cover', 'couple', 'event', 'gallery', 'wishes']],
         ],
         'mocha-glass' => [
             'label' => 'Mocha Glass',
@@ -543,6 +555,7 @@ return [
             'assets' => ['resources/css/designs/mocha-glass.css', 'resources/js/designs/mocha-glass.js'],
             // A photo panel beside the invitation on wide screens, with its own content and ornaments.
             'features' => ['desktop_panel'],
+            'nav' => ['show' => true, 'auto' => ['cover', 'couple', 'event', 'gallery', 'gift', 'wishes']],
         ],
         'botanical-cream' => [
             'label' => 'Botanical Cream',
@@ -550,6 +563,7 @@ return [
             'fonts' => ['Cormorant Garamond', 'Great Vibes', 'Amiri'],
             'assets' => ['resources/css/designs/botanical-cream.css', 'resources/js/designs/botanical-cream.js'],
             'features' => ['desktop_panel'],
+            'nav' => ['show' => true, 'auto' => ['cover', 'couple', 'event', 'gallery', 'wishes']],
         ],
     ],
 
@@ -579,6 +593,9 @@ return [
         // Base size of section headings and of section text (resources/css/invitation.css, "Font sizes").
         'heading_scale' => ['small', 'normal', 'large', 'xlarge'],
         'text_scale' => ['small', 'normal', 'large', 'xlarge'],
+        // Floating section menu: as the design decides ("design", see designs.*.nav), always, or never.
+        // Its entries are "nav_items", cleaned by DecorationResolver (see "navigation"); empty means picked automatically.
+        'nav_display' => ['design', 'show', 'hide'],
     ],
 
     'default_decoration' => [
@@ -595,6 +612,62 @@ return [
         'animation_speed' => 'normal',
         'scroll_direction' => 'vertical',
         'desktop_layout' => 'column',
+        'nav_display' => 'design',
+        'nav_items' => [],
+    ],
+
+    /*
+    | Floating section menu (invitation.partials.nav, App\Services\Invitation\NavigationMenu). An entry links to the
+    | first section of its type; an entry whose section is not on the page is left out. Icons are stored by name,
+    | never as a class. Each type has a default icon and label (English, translated when shown).
+    */
+    'navigation' => [
+        'max_items' => 5,
+        'label_max' => 16,
+        // Name => Font Awesome class and a spoken name (English, translated) for the builder's icon picker.
+        'icons' => [
+            'house' => ['class' => 'fa-solid fa-house', 'label' => 'House'],
+            'envelope-open' => ['class' => 'fa-regular fa-envelope-open', 'label' => 'Open envelope'],
+            'heart' => ['class' => 'fa-regular fa-heart', 'label' => 'Heart'],
+            'ring' => ['class' => 'fa-solid fa-ring', 'label' => 'Ring'],
+            'couple' => ['class' => 'fa-solid fa-user-group', 'label' => 'Two people'],
+            'hands' => ['class' => 'fa-solid fa-hands-praying', 'label' => 'Praying hands'],
+            'calendar' => ['class' => 'fa-regular fa-calendar', 'label' => 'Calendar'],
+            'clock' => ['class' => 'fa-regular fa-clock', 'label' => 'Clock'],
+            'book' => ['class' => 'fa-solid fa-book-open', 'label' => 'Open book'],
+            'images' => ['class' => 'fa-regular fa-images', 'label' => 'Photos'],
+            'camera' => ['class' => 'fa-solid fa-camera-retro', 'label' => 'Camera'],
+            'film' => ['class' => 'fa-solid fa-film', 'label' => 'Film'],
+            'check' => ['class' => 'fa-regular fa-circle-check', 'label' => 'Check mark'],
+            'comment' => ['class' => 'fa-regular fa-comment-dots', 'label' => 'Speech bubble'],
+            'envelope' => ['class' => 'fa-regular fa-envelope', 'label' => 'Envelope'],
+            'gift' => ['class' => 'fa-solid fa-gift', 'label' => 'Gift'],
+            'location' => ['class' => 'fa-solid fa-location-dot', 'label' => 'Map pin'],
+            'shirt' => ['class' => 'fa-solid fa-shirt', 'label' => 'Shirt'],
+            'phone' => ['class' => 'fa-solid fa-phone', 'label' => 'Phone'],
+            'quote' => ['class' => 'fa-solid fa-quote-left', 'label' => 'Quote mark'],
+            'shield' => ['class' => 'fa-solid fa-shield-heart', 'label' => 'Shield'],
+        ],
+        'defaults' => [
+            'cover' => ['icon' => 'house', 'label' => 'Home'],
+            'greeting' => ['icon' => 'hands', 'label' => 'Greeting'],
+            'couple' => ['icon' => 'couple', 'label' => 'Couple'],
+            'quote' => ['icon' => 'quote', 'label' => 'Quote'],
+            'countdown' => ['icon' => 'clock', 'label' => 'Countdown'],
+            'event' => ['icon' => 'calendar', 'label' => 'Event'],
+            'story' => ['icon' => 'heart', 'label' => 'Love Story'],
+            'timeline' => ['icon' => 'book', 'label' => 'Timeline'],
+            'gallery' => ['icon' => 'images', 'label' => 'Gallery'],
+            'video' => ['icon' => 'film', 'label' => 'Video'],
+            'rsvp' => ['icon' => 'check', 'label' => 'RSVP'],
+            'wishes' => ['icon' => 'comment', 'label' => 'Wishes'],
+            'gift' => ['icon' => 'gift', 'label' => 'Gift'],
+            'maps' => ['icon' => 'location', 'label' => 'Location'],
+            'dress_code' => ['icon' => 'shirt', 'label' => 'Dress Code'],
+            'contact' => ['icon' => 'phone', 'label' => 'Contact'],
+            'closing' => ['icon' => 'envelope', 'label' => 'Closing'],
+            'health_protocol' => ['icon' => 'shield', 'label' => 'Health'],
+        ],
     ],
 
     /*

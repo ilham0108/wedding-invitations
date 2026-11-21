@@ -1,5 +1,6 @@
 // Public invitation bundle: Alpine only, no Livewire, kept small for fast mobile loads.
 import Alpine from 'alpinejs';
+import { setupNav } from './invitation-nav';
 import { setupPageSwipe } from './page-swipe';
 import { setupPhotoFrames } from './photo-frame';
 
@@ -80,6 +81,7 @@ function setupAnimations() {
 }
 
 setupPageSwipe();
+setupNav();
 
 // Imported designs: data-inv-effect="next" moves to the following section.
 document.addEventListener('click', (event) => {

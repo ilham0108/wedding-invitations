@@ -12,8 +12,10 @@ use Illuminate\Support\Str;
 class DecorationResolver
 {
     /**
+     * Every value is a string, except "nav_items" (see navItems()).
+     *
      * @param  array<string, mixed>  ...$layers
-     * @return array<string, string>
+     * @return array<string, mixed>
      */
     public function resolve(array ...$layers): array
     {
@@ -21,13 +23,42 @@ class DecorationResolver
 
         foreach ($layers as $layer) {
             foreach (array_intersect_key($layer, $decoration) as $key => $value) {
-                if ($this->isValid($key, $value)) {
+                if ($key === 'nav_items') {
+                    $decoration[$key] = $this->navItems($value);
+                } elseif ($this->isValid($key, $value)) {
                     $decoration[$key] = $value;
                 }
             }
         }
 
         return $decoration;
+    }
+
+    /**
+     * The entries of the floating menu, as stored: at most "max_items", one per known section type, with an icon
+     * from config('invitation.navigation.icons') and a label of at most "label_max" characters ("" = the type's own).
+     * Anything else is dropped.
+     *
+     * @return array<int, array{type: string, label: string, icon: string}>
+     */
+    public function navItems(mixed $items): array
+    {
+        $options = config('invitation.navigation');
+        $sections = app(SectionRegistry::class);
+
+        return collect(is_array($items) ? array_values($items) : [])
+            ->filter(fn (mixed $item): bool => is_array($item) && is_string($item['type'] ?? null) && $sections->has($item['type']))
+            ->map(fn (array $item): array => [
+                'type' => $item['type'],
+                'label' => is_string($item['label'] ?? null) ? Str::limit(Str::squish($item['label']), $options['label_max'], '') : '',
+                'icon' => is_string($item['icon'] ?? null) && isset($options['icons'][$item['icon']])
+                    ? $item['icon']
+                    : ($options['defaults'][$item['type']]['icon'] ?? array_key_first($options['icons'])),
+            ])
+            ->unique('type')
+            ->take($options['max_items'])
+            ->values()
+            ->all();
     }
 
     public function isValid(string $key, mixed $value): bool

@@ -80,11 +80,12 @@ class CoverPhotoTest extends TestCase
 
         $odd = $this->publishedWithPhoto('classic', config: [
             'photo_shape' => 'star', 'photo_width' => 999, 'photo_tilt' => -300, 'photo_border_width' => 4, 'photo_border_color' => 'red;}body{display:none',
-            'photo_shadow' => 'glow', 'photo_placement' => 'floating', 'photo_layer' => 'top',
+            'photo_shadow' => 'glow', 'photo_placement' => 'floating', 'photo_layer' => 'top', 'photo_opacity' => 0, 'photo_fade_size' => 500,
         ]);
         $this->get(route('invitations.public', $odd->slug))->assertOk()
-            ->assertSee('style="--inv-cover-photo-width: 90; rotate: -45deg; --inv-cover-photo-border: 4px solid #ffffff;"', false)
+            ->assertSee('style="--inv-cover-photo-width: 90; rotate: -180deg; --inv-cover-photo-border: 4px solid #ffffff; --inv-cover-photo-opacity: 0.1;"', false)
             ->assertSee('inv-photo--circle', false)
+            ->assertDontSee('inv-cover-photo--faded', false)
             ->assertDontSee('inv-cover-photo--shadow', false)
             ->assertDontSee('data-inv-cover-photo-free', false)
             ->assertDontSee('display:none', false);
@@ -124,9 +125,33 @@ class CoverPhotoTest extends TestCase
         $this->assertSame('free', $config['photo_placement']);
         $this->assertEquals([110, 33.3], [$config['photo_x'], $config['photo_y']]);
 
+        // The resize and rotate handles send the width and tilt along; both are kept in range.
+        $settings()->call('placeCoverPhoto', 40, 60, 120.4, -200);
+        $config = $cover->fresh()->configuration;
+        $this->assertEquals([40, 60, 90, -180], [$config['photo_x'], $config['photo_y'], $config['photo_width'], $config['photo_tilt']]);
+
         // Other sections have no cover photo: the call does nothing there.
         $settings('closing')->assertDontSee('data-cover-photo-editor', false)->call('placeCoverPhoto', 10, 10);
         $this->assertArrayNotHasKey('photo_x', $invitation->sections()->where('type', 'closing')->first()->configuration ?? []);
+    }
+
+    public function test_the_photo_can_keep_its_own_shape_and_fade_out_at_chosen_edges(): void
+    {
+        foreach ($this->layouts() as $design => $variant) {
+            $invitation = $this->publishedWithPhoto(trim($design), $variant, [
+                'photo_shape' => 'none', 'photo_fade_top' => true, 'photo_fade_left' => true, 'photo_fade_size' => 40, 'photo_opacity' => 60,
+            ]);
+
+            $html = $this->get(route('invitations.public', $invitation->slug))->assertOk()->getContent();
+
+            $this->assertStringContainsString('inv-photo--none', $html, "[{$design}] ignores the shapeless photo.");
+            $this->assertStringContainsString('inv-cover-photo--faded', $html, "[{$design}] ignores the fade.");
+            $this->assertStringContainsString(
+                '--inv-cover-photo-opacity: 0.6; --inv-cover-photo-mask: linear-gradient(to bottom, transparent, #000 40%), linear-gradient(to right, transparent, #000 40%);',
+                $html,
+                "[{$design}] fades the wrong edges.",
+            );
+        }
     }
 
     public function test_the_border_color_must_be_a_hex_color(): void

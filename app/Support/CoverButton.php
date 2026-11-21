@@ -26,8 +26,14 @@ final class CoverButton
      */
     public static function classes(mixed $position, mixed $align, mixed $coverAlignment, bool $designBottom = false): string
     {
-        $side = in_array($align, self::ALIGNS, true) && $align !== 'text' ? $align : ($coverAlignment === 'left' ? 'left' : 'center');
+        return 'inv-cover-button inv-cover-button--'.self::side($align, $coverAlignment).(self::atBottom($position, $designBottom) ? ' inv-cover-button--bottom' : '');
+    }
 
-        return 'inv-cover-button inv-cover-button--'.$side.(self::atBottom($position, $designBottom) ? ' inv-cover-button--bottom' : '');
+    /**
+     * The button's side: left, center or right. The guest's name above it (invitation.partials.cover-guest) follows it.
+     */
+    public static function side(mixed $align, mixed $coverAlignment): string
+    {
+        return in_array($align, self::ALIGNS, true) && $align !== 'text' ? $align : ($coverAlignment === 'left' ? 'left' : 'center');
     }
 }

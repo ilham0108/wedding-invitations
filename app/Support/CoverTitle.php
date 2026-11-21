@@ -12,6 +12,29 @@ final class CoverTitle
 
     public const MAX_OFFSET = 30;
 
+    /** Cover field title_layout, besides "design" (each design's own way of setting the names). */
+    public const LAYOUTS = ['line', 'stacked', 'cascade'];
+
+    /**
+     * The layout to apply, or null to keep the design's own.
+     */
+    public static function layout(mixed $layout): ?string
+    {
+        return in_array($layout, self::LAYOUTS, true) ? $layout : null;
+    }
+
+    /**
+     * The two names around the first "&" ("Raka & Sinta"), or null when the title has no such split.
+     *
+     * @return array{0: string, 1: string}|null
+     */
+    public static function parts(mixed $title): ?array
+    {
+        $parts = preg_split('/\s*&\s*/u', trim((string) $title), 2);
+
+        return count($parts) === 2 && $parts[0] !== '' && $parts[1] !== '' ? [$parts[0], $parts[1]] : null;
+    }
+
     /**
      * The position to apply, or null to keep the design's own.
      */

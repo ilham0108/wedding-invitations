@@ -1,13 +1,13 @@
 {{--
     Botanical Cream page frame (from the "Ilham & Aisyah" mockup).
-    Phones: one scrolling column with a monogram top bar, a labelled bottom menu and a full menu.
+    Phones: one scrolling column with a monogram top bar, the floating menu (invitation.partials.nav) and a full menu.
     Desktop: photo panel on the left (cover fields desktop_*), the invitation column on the right.
 --}}
 @php
     $sections = collect($invitation->sections);
     $cover = $sections->firstWhere('type', 'cover');
     $names = $cover ? ($cover['config']['title'] ?: $invitation->title) : $invitation->title;
-    // Section types that get a menu entry: icon and short label.
+    // Full menu (top bar button): the admin's menu entries when set, else every section type below with its icon and label.
     $menuIcons = [
         'cover' => ['fa-solid fa-house', __('Home')],
         'couple' => ['fa-solid fa-user-group', __('Couple')],
@@ -20,8 +20,10 @@
         'wishes' => ['fa-regular fa-envelope', __('Wishes')],
         'maps' => ['fa-solid fa-location-dot', __('Location')],
     ];
-    $menuItems = $sections->filter(fn (array $section): bool => isset($menuIcons[$section['type']]))->unique('type')->values();
-    $navItems = $menuItems->filter(fn (array $section): bool => in_array($section['type'], ['cover', 'couple', 'event', 'gallery', 'wishes'], true))->take(5)->values();
+    $menuItems = $invitation->nav === [] ? collect() : (filled($invitation->decoration['nav_items'] ?? [])
+        ? collect($invitation->nav)
+        : $sections->filter(fn (array $section): bool => isset($menuIcons[$section['type']]))->unique('type')->values()
+            ->map(fn (array $section): array => ['key' => $section['key'], 'icon' => $menuIcons[$section['type']][0], 'label' => $menuIcons[$section['type']][1]]));
     // Desktop side panel: its own content when set, otherwise the cover's.
     $panel = $cover['config'] ?? [];
     $photo = $panel['background_image'] ?? null;
@@ -90,16 +92,7 @@
             @endif
         </main>
 
-        @if ($navItems->count() > 1)
-            <nav class="bc-nav" aria-label="{{ __('Invitation menu') }}">
-                @foreach ($navItems as $item)
-                    <a href="#section-{{ $item['key'] }}" data-bc-nav @class(['is-active' => $loop->first])>
-                        <i class="{{ $menuIcons[$item['type']][0] }}" aria-hidden="true"></i>
-                        <span>{{ $menuIcons[$item['type']][1] }}</span>
-                    </a>
-                @endforeach
-            </nav>
-        @endif
+        @include('invitation.partials.nav')
     </div>
 
     @if ($menuItems->count() > 1)
@@ -110,7 +103,7 @@
                     @foreach ($menuItems as $item)
                         <li>
                             <a href="#section-{{ $item['key'] }}" data-bc-menu-link>
-                                <i class="{{ $menuIcons[$item['type']][0] }}" aria-hidden="true"></i>{{ $menuIcons[$item['type']][1] }}
+                                <i class="{{ $item['icon'] }}" aria-hidden="true"></i>{{ $item['label'] }}
                             </a>
                         </li>
                     @endforeach

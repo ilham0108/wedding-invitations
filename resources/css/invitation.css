@@ -213,6 +213,21 @@
 
 .inv-cover-photo--shadow-soft .inv-photo__image { box-shadow: 0 8px 24px rgb(0 0 0 / 0.18); }
 .inv-cover-photo--shadow-strong .inv-photo__image { box-shadow: 0 16px 40px rgb(0 0 0 / 0.38); }
+/* Opacity and edge fades sit on the photo box, not the outer element, whose opacity the entrance animations use. */
+.inv-cover-photo .inv-photo { opacity: var(--inv-cover-photo-opacity, 1); }
+
+.inv-cover-photo--faded .inv-photo {
+    -webkit-mask-image: var(--inv-cover-photo-mask);
+    mask-image: var(--inv-cover-photo-mask);
+    /* Several faded edges: keep only what every gradient keeps, so each edge (and a corner) fades. */
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+}
+
+/* "No shape": the whole photo at its own proportions, square corners, nothing cropped. */
+.inv-photo--none:not(.inv-photo--framed) { aspect-ratio: auto; }
+.inv-photo--none .inv-photo__image { position: static; display: block; height: auto; }
+
 /* A frame image has no box to shadow; follow its painted outline instead. */
 .inv-cover-photo--shadow-soft .inv-photo--framed { filter: drop-shadow(0 8px 16px rgb(0 0 0 / 0.18)); }
 .inv-cover-photo--shadow-strong .inv-photo--framed { filter: drop-shadow(0 14px 28px rgb(0 0 0 / 0.38)); }
@@ -524,7 +539,7 @@ body[data-inv-scroll='vertical'] [data-inv-pages]:has([data-inv-anim='fade-left'
 
 /*
 | Section height "screen-*" (Builder > Section height): at least one screen tall, the content at the top,
-| middle or bottom. Designs with a fixed bottom menu lower --inv-screen-height so the content stays clear of it.
+| middle or bottom. A design with a bar that takes room can lower --inv-screen-height; the floating menu does not.
 */
 .inv-section--screen {
     display: flex;
@@ -656,7 +671,7 @@ body[data-inv-scroll='horizontal'] [data-inv-pages] > section > .inv-ornaments {
 
 body[data-inv-scroll='horizontal'] [data-inv-pages] > section.inv-section { --inv-page-margin: var(--inv-spacing) 0; }
 
-/* Above the fixed bottom menus of the design packs, and readable over any cover photo. */
+/* Above where the floating menu sits, and readable over any cover photo. */
 .inv-page-hint {
     position: fixed;
     bottom: 80px;
@@ -822,7 +837,54 @@ body [data-inv-heading-color] :is(
     padding-inline: 1.5rem;
 }
 
-.inv-cover:has(> .inv-cover-bar) { padding-bottom: 8rem; }
+.inv-cover:has(> .inv-cover-bar) { padding-bottom: 12rem; }
+
+/*
+| "Kepada Yth." and the guest's name right above the cover button (invitation.partials.cover-guest), on the
+| button's side. The name is the larger line: it is what the guest looks for. Mocha Glass has its own guest line.
+*/
+.inv-cover-guest {
+    margin-top: 2.25rem;
+    font-size: 0.875rem;
+    line-height: 1.45;
+}
+
+.inv-cover-guest > span { display: block; }
+
+.inv-cover-guest__name {
+    margin-top: 0.15rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+/*
+| Cover title on three lines (cover field "title_layout", invitation.partials.cover-title), in every design.
+| "stacked": the names and the "&" one under the other, following the cover's alignment. "cascade": the lines step
+| from left to right like a printed card ("Raka / & / Sinta"); --inv-title-step is how far each line moves over.
+| The "&" is smaller so the names stay the focus.
+*/
+.inv-title-lines { display: block; }
+.inv-title-line { display: block; overflow-wrap: anywhere; }
+.inv-title-amp { font-size: 0.62em; line-height: 1.3; }
+.inv-title-amp.bc-names__amp { margin-right: 0; }
+
+.inv-title-lines--cascade {
+    --inv-title-step: 1.1em;
+    display: inline-flex;
+    flex-direction: column;
+    max-width: 100%;
+    vertical-align: top;
+}
+
+.inv-title-lines--cascade > :nth-child(1) { align-self: flex-start; padding-inline-end: var(--inv-title-step); text-align: left; }
+.inv-title-lines--cascade > :nth-child(2) { align-self: center; }
+.inv-title-lines--cascade > :nth-child(3) { align-self: flex-end; padding-inline-start: var(--inv-title-step); text-align: right; }
+
+.inv-cover-guest--left { text-align: left; }
+.inv-cover-guest--center { text-align: center; }
+.inv-cover-guest--right { text-align: right; }
+.inv-cover-bar .inv-cover-guest { margin: 0 0 1rem; }
 
 .mg-cover > .mg-btn-open.inv-cover-button--bottom {
     order: 1;
@@ -1101,8 +1163,9 @@ body [data-inv-heading-color] :is(
 .inv-music__toggle[aria-pressed='false'] { opacity: 0.75; }
 .inv-music__toggle[aria-pressed='true'] i { animation: inv-music-spin 3s linear infinite; }
 
-/* Mocha Glass keeps its bottom menu in that corner. */
-[data-inv-desktop='design'] .inv-fabs { bottom: 84px; }
+/* While the floating menu shows, the buttons sit above it. */
+.inv-fabs { transition: bottom 0.35s ease; }
+body.inv-has-nav .inv-fabs { bottom: calc(80px + env(safe-area-inset-bottom)); }
 
 @media (min-width: 1024px) {
     /* 230px = half of --inv-column, which is scoped to .inv-page. */
@@ -1115,6 +1178,92 @@ body [data-inv-heading-color] :is(
 
 @media (prefers-reduced-motion: reduce) {
     .inv-music__toggle[aria-pressed='true'] i { animation: none; }
+    .inv-fabs { transition: none; }
+}
+
+/*
+| Floating section menu (invitation.partials.nav, resources/js/invitation-nav.js), in every design. It floats over
+| the page a little above the bottom edge, centred on the invitation column (--inv-nav-center, --inv-nav-width),
+| and takes no room: the script hides it while the cover is on screen, where the open button sits. One shadow
+| marks it as lying above the content (R-12). Mocha Glass and Botanical Cream restyle it in their own stylesheets.
+*/
+.inv-nav {
+    --inv-nav-center: 50%;
+    position: fixed;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    left: var(--inv-nav-center);
+    z-index: 55;
+    display: flex;
+    gap: 2px;
+    width: max-content;
+    max-width: calc(var(--inv-nav-width, 100%) - 24px);
+    padding: 5px;
+    border: 1px solid color-mix(in srgb, var(--inv-text) 12%, transparent);
+    border-radius: 18px;
+    background: var(--inv-surface);
+    color: var(--inv-text);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.16);
+    transform: translateX(-50%);
+    transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s;
+}
+
+.inv-nav.is-hidden {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 16px);
+}
+
+.inv-nav__link {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-width: 52px;
+    min-height: 48px;
+    padding: 4px 8px;
+    border-radius: 13px;
+    color: inherit;
+    font-size: 0.68rem;
+    line-height: 1.15;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.25s ease, color 0.25s ease, transform 0.15s ease;
+}
+
+.inv-nav__link i { font-size: 1.05rem; }
+
+.inv-nav__label {
+    max-width: 5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.inv-nav__link:hover { background: color-mix(in srgb, var(--inv-text) 8%, transparent); }
+.inv-nav__link:active { transform: scale(0.95); }
+.inv-nav__link:focus-visible { outline: 2px solid var(--inv-secondary); outline-offset: 2px; }
+
+.inv-nav__link.is-active {
+    background: var(--inv-primary);
+    color: var(--inv-on-primary);
+}
+
+@media (min-width: 1024px) {
+    /* 460px = --inv-column, which is scoped to .inv-page (the menu sits beside it). */
+    [data-inv-desktop='column'] .inv-nav { --inv-nav-width: 460px; }
+    [data-inv-desktop='split'] .inv-nav { --inv-nav-center: calc(100% - 230px); --inv-nav-width: 460px; }
+}
+
+/* The end of the page, and each sideways page, leaves room so the menu never covers the last lines. */
+body:has([data-inv-nav]):not([data-inv-scroll='horizontal']) .inv-page [data-inv-pages] { padding-bottom: 72px; }
+body[data-inv-scroll='horizontal']:has([data-inv-nav]) .inv-page [data-inv-pages] > section:not([data-section='cover']) { padding-bottom: 84px; }
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-nav,
+    .inv-nav__link { transition: none; }
 }
 
 /*

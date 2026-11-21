@@ -14,7 +14,23 @@
         preview: null,
     }"
     {{-- Look-only changes are patched into the preview (resources/js/builder-preview.js); ornaments of the edited section can be dragged there. --}}
-    x-init="preview = window.builderPreview.attach($refs.frame, $el, (index, x, y, width) => $wire.placeOrnament(index, x, y, width)); window.coverPhotoDrag.attach($refs.frame)"
+    x-init="preview = window.builderPreview.attach($refs.frame, $el, {
+            place: (index, x, y, width) => $wire.placeOrnament(index, x, y, width),
+            update: (index, key, value) => $wire.updateOrnament(index, key, value),
+            duplicate: (index) => $wire.duplicateOrnament(index),
+            remove: (index) => $wire.removeOrnament(index),
+        }, @js([
+            'toolbar' => __('Ornament'),
+            'rotateLeft' => __('Turn left 15°'),
+            'rotateRight' => __('Turn right 15°'),
+            'flip' => __('Flip horizontally'),
+            'flipY' => __('Flip vertically'),
+            'layerToBack' => __('Move behind the content'),
+            'layerToFront' => __('Move in front of the content'),
+            'duplicate' => __('Duplicate'),
+            'remove' => __('Remove'),
+        ]));
+        window.coverPhotoDrag.attach($refs.frame)"
     data-ornament-owner="{{ $ornamentOwner }}" data-ornament-list="{{ $ornamentList }}"
     {{-- Events come from TemplateBuilder ($wire.$watch does not fire for $set() changes in Livewire 4). --}}
     x-on:template-preview-patch.window="$event.detail.patch.group && $event.detail.patch.group !== $wire.content ? refresh() : preview.apply($event.detail.patch)"
@@ -352,6 +368,7 @@
                                 <p class="mt-2 text-xs text-muted">{{ __('Each section becomes a page. A section longer than the screen scrolls down inside its page.') }}</p>
                             @endif
                         </div>
+                        @include('livewire.partials.nav-panel')
                     </x-builder.group>
                     </div>
                 @elseif ($panel === 'music')

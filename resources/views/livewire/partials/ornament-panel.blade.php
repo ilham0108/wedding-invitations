@@ -121,7 +121,8 @@
                         </label>
                     @endforeach
                     {{-- Rotation around the ornament's centre; saved when the slider is released (or a key press ends). --}}
-                    <div class="col-span-6" x-data="{ angle: {{ $ornament['rotate'] ?? 0 }} }">
+                    {{-- Keyed by the value: a turn made in the preview (builder-preview.js) re-creates this, so the slider shows it. --}}
+                    <div class="col-span-6" wire:key="ornament-rotate-{{ $index }}-{{ $ornament['rotate'] ?? 0 }}" x-data="{ angle: {{ $ornament['rotate'] ?? 0 }} }">
                         <div class="flex items-center justify-between">
                             <label for="ornament-rotate-{{ $index }}">{{ __('Rotation') }}</label>
                             <span class="flex items-center gap-1">
@@ -136,7 +137,7 @@
                     </div>
 
                     @foreach (['flip' => __('Flip horizontally'), 'flip_y' => __('Flip vertically')] as $key => $label)
-                        <label class="col-span-3 flex items-center gap-1.5 text-ink-soft">
+                        <label class="col-span-3 flex items-center gap-1.5 text-ink-soft" wire:key="ornament-{{ $key }}-{{ $index }}-{{ ($ornament[$key] ?? false) ? 1 : 0 }}">
                             <input type="checkbox" @checked($ornament[$key] ?? false) wire:change="updateOrnament({{ $index }}, '{{ $key }}', $event.target.checked ? '1' : '0')" class="rounded border-line text-sage focus:ring-sage">
                             {{ $label }}
                         </label>

@@ -43,6 +43,7 @@ class InvitationRenderer
         private SectionAnimations $sectionAnimations,
         private PreviewGuestbook $previewGuestbook,
         private OgImageService $ogImages,
+        private NavigationMenu $navigation,
     ) {}
 
     public function forInvitation(Invitation $invitation, bool $isPreview = false, ?Guest $guest = null): RenderedInvitation
@@ -83,6 +84,7 @@ class InvitationRenderer
 
         // Theme and decoration come from the copy taken at creation, never from the live template.
         $theme = $this->themes->resolve($settings?->template_theme ?? [], $settings?->theme ?? []);
+        $decoration = $this->decorations->forPage($settings?->decoration ?? []);
         $cover = $this->firstConfig($sections, 'cover');
 
         return new RenderedInvitation(
@@ -91,7 +93,7 @@ class InvitationRenderer
             theme: $theme,
             cssVariables: $this->themes->cssVariables($theme),
             fontStylesheetUrl: $this->themes->fontStylesheetUrl($theme, [...$this->designs->fonts($design), ...$this->sectionFonts->families($sections)]),
-            decoration: $this->decorations->forPage($settings?->decoration ?? []),
+            decoration: $decoration,
             design: $design,
             pageView: $this->designs->pageView($design),
             assets: $this->designs->assets($design),
@@ -111,6 +113,7 @@ class InvitationRenderer
             guestName: $guest?->name,
             interaction: $this->interaction($invitation, $sections, $isPreview, $guest),
             music: $this->music->forPage($invitation),
+            nav: $this->navigation->items($sections, $decoration, $design),
         );
     }
 
@@ -209,6 +212,7 @@ class InvitationRenderer
             ->all();
 
         $theme = $this->themes->resolve($template->theme ?? []);
+        $decoration = $this->decorations->forPage($template->decoration ?? []);
         $title = $this->firstConfig($sections, 'cover')['title'] ?? $template->name;
 
         return new RenderedInvitation(
@@ -217,7 +221,7 @@ class InvitationRenderer
             theme: $theme,
             cssVariables: $this->themes->cssVariables($theme),
             fontStylesheetUrl: $this->themes->fontStylesheetUrl($theme, [...$this->designs->fonts($design), ...$this->sectionFonts->families($sections)]),
-            decoration: $this->decorations->forPage($template->decoration ?? []),
+            decoration: $decoration,
             design: $design,
             pageView: $this->designs->pageView($design),
             assets: $this->designs->assets($design),
@@ -248,6 +252,8 @@ class InvitationRenderer
                         : $this->previewGuestbook->messages(PreviewGuestbook::templateScope($template)),
                 ],
             ],
+            // Template cards show the cover alone, without a menu.
+            nav: $coverOnly ? [] : $this->navigation->items($sections, $decoration, $design),
         );
     }
 
@@ -311,13 +317,19 @@ class InvitationRenderer
                 // The photo above the names (invitation.partials.cover-photo) and its optional frame.
                 'photo' => $this->safeUrl($config['photo'] ?? null),
                 'photo_frame' => $this->safeUrl($config['photo_frame'] ?? null),
-                'photo_shape' => in_array($config['photo_shape'] ?? null, ['circle', 'oval', 'arch', 'rounded'], true) ? $config['photo_shape'] : 'circle',
+                'photo_shape' => in_array($config['photo_shape'] ?? null, ['circle', 'oval', 'arch', 'rounded', 'none'], true) ? $config['photo_shape'] : 'circle',
+                'photo_fade_top' => (bool) ($config['photo_fade_top'] ?? false),
+                'photo_fade_bottom' => (bool) ($config['photo_fade_bottom'] ?? false),
+                'photo_fade_left' => (bool) ($config['photo_fade_left'] ?? false),
+                'photo_fade_right' => (bool) ($config['photo_fade_right'] ?? false),
+                'photo_fade_size' => $this->clampNumber($config['photo_fade_size'] ?? null, 35, 5, 80),
+                'photo_opacity' => $this->clampNumber($config['photo_opacity'] ?? null, 100, 10, 100),
                 'photo_placement' => ($config['photo_placement'] ?? null) === 'free' ? 'free' : 'above',
                 'photo_x' => $this->clampNumber($config['photo_x'] ?? null, 50, -10, 110),
                 'photo_y' => $this->clampNumber($config['photo_y'] ?? null, 30, -10, 110),
                 'photo_layer' => ($config['photo_layer'] ?? null) === 'front' ? 'front' : 'back',
                 'photo_width' => $this->clampNumber($config['photo_width'] ?? null, 50, 10, 90),
-                'photo_tilt' => $this->clampNumber($config['photo_tilt'] ?? null, 0, -45, 45),
+                'photo_tilt' => $this->clampNumber($config['photo_tilt'] ?? null, 0, -180, 180),
                 'photo_border_width' => $this->clampNumber($config['photo_border_width'] ?? null, 0, 0, 12),
                 'photo_border_color' => is_string($config['photo_border_color'] ?? null) && preg_match('/^#[0-9a-fA-F]{6}$/', $config['photo_border_color']) === 1 ? $config['photo_border_color'] : '#ffffff',
                 'photo_shadow' => in_array($config['photo_shadow'] ?? null, ['none', 'soft', 'strong'], true) ? $config['photo_shadow'] : 'none',

@@ -30,20 +30,19 @@
         @if (filled($config['subtitle']))
             <p class="bc-eyebrow" dir="auto" @animate('subtitle')>{{ $config['subtitle'] }}</p>
         @endif
-        <h1 class="bc-names" dir="auto" @animate('title')>@include('designs.botanical-cream.partials.names', ['names' => $config['title'] ?: $invitation->title])</h1>
+        <h1 class="bc-names" dir="auto" @animate('title')>@include('designs.botanical-cream.partials.names', ['names' => $config['title'] ?: $invitation->title, 'layout' => $config['title_layout'] ?? null])</h1>
         @if (filled($config['date_text']))
             <p class="bc-pill" dir="auto" @animate('date_text')>{{ $config['date_text'] }}</p>
         @endif
-        @if ($invitation->guestName)
-            <p class="bc-guest">{{ __('To:') }} <b>{{ $invitation->guestName }}</b></p>
-        @endif
         @unless (\App\Support\CoverButton::atBottom($config['button_position'] ?? null, designBottom: true))
+            @include('invitation.partials.cover-guest', ['class' => 'bc-guest'])
             @include('designs.botanical-cream.partials.cover-scroll')
         @endunless
     </div>
 
-    {{-- The design's own place is the bottom of the screen, below the text block. --}}
+    {{-- The design's own place is the bottom of the screen, below the text block; the guest's name goes with it. --}}
     @if (\App\Support\CoverButton::atBottom($config['button_position'] ?? null, designBottom: true))
+        @include('invitation.partials.cover-guest', ['class' => 'bc-guest bc-guest--bottom'])
         @include('designs.botanical-cream.partials.cover-scroll')
     @endif
 </div>

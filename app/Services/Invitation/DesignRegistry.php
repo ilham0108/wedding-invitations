@@ -180,4 +180,17 @@ class DesignRegistry
     {
         return $this->all()[$this->resolve($design)]['assets'];
     }
+
+    /**
+     * The floating menu a design starts with (decoration "nav_display" = design). Designs imported from HTML
+     * share the page of the classic design, so they start like it.
+     *
+     * @return array{show: bool, auto: array<int, string>}
+     */
+    public function nav(?string $design): array
+    {
+        $classic = config('invitation.designs.'.self::DEFAULT.'.nav');
+
+        return config('invitation.designs.'.$this->resolve($design).'.nav') ?? $classic;
+    }
 }

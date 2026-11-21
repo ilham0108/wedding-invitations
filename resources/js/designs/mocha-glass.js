@@ -1,4 +1,4 @@
-// Mocha Glass design: cover that slides away, active bottom menu, sparkles.
+// Mocha Glass design: cover that slides away, sparkles. The floating menu is resources/js/invitation-nav.js.
 // Entrance animations come from invitation.js (template animation setting).
 // Plain DOM code; Alpine (from invitation.js) handles the gallery and modals.
 
@@ -99,42 +99,6 @@ function setupCover() {
     });
 }
 
-function setupMenu() {
-    const links = [...document.querySelectorAll('[data-mg-nav]')];
-    const targets = links.map((link) => document.querySelector(link.getAttribute('href')));
-
-    if (links.length === 0) {
-        return;
-    }
-
-    const update = () => {
-        // Swiping sideways: "inv-page-change" below keeps the menu current.
-        if (window.invPages) {
-            return;
-        }
-
-        const line = window.scrollY + window.innerHeight * 0.4;
-        let current = 0;
-
-        targets.forEach((target, index) => {
-            if (target && target.offsetTop <= line) {
-                current = index;
-            }
-        });
-
-        links.forEach((link, index) => link.classList.toggle('is-active', index === current));
-    };
-
-    window.addEventListener('scroll', update, { passive: true });
-    update();
-
-    window.addEventListener('inv-page-change', ({ detail }) => {
-        const current = targets.reduce((found, target, index) => ([...target.parentElement.children].indexOf(target) <= detail.index ? index : found), 0);
-
-        links.forEach((link, index) => link.classList.toggle('is-active', index === current));
-    });
-}
-
 function setupParticles() {
     const canvas = document.querySelector('[data-mg-particles]');
 
@@ -199,6 +163,5 @@ function setupParticles() {
 
 if (root) {
     setupCover();
-    setupMenu();
     setupParticles();
 }

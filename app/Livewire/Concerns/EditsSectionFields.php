@@ -57,10 +57,10 @@ trait EditsSectionFields
     }
 
     /**
-     * The cover photo was dragged in the preview (cover-photo-drag.js): store its new centre,
-     * in percent of the cover, and switch it to free placement.
+     * The cover photo was moved, resized or turned in the preview (cover-photo-drag.js): store its centre
+     * (percent of the cover), width (percent) and tilt (degrees), and switch it to free placement.
      */
-    public function placeCoverPhoto(mixed $x, mixed $y): void
+    public function placeCoverPhoto(mixed $x, mixed $y, mixed $width = null, mixed $tilt = null): void
     {
         if ($this->type !== 'cover' || ! is_numeric($x) || ! is_numeric($y)) {
             return;
@@ -69,6 +69,15 @@ trait EditsSectionFields
         $this->config['photo_placement'] = 'free';
         $this->config['photo_x'] = round(max(-10, min(110, (float) $x)), 1);
         $this->config['photo_y'] = round(max(-10, min(110, (float) $y)), 1);
+
+        if (is_numeric($width)) {
+            $this->config['photo_width'] = (int) round(max(10, min(90, (float) $width)));
+        }
+
+        if (is_numeric($tilt)) {
+            $this->config['photo_tilt'] = (int) round(max(-180, min(180, (float) $tilt)));
+        }
+
         $this->save();
     }
 

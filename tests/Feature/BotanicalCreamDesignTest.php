@@ -48,8 +48,8 @@ class BotanicalCreamDesignTest extends TestCase
             ->assertSeeInOrder(['bc-monogram', '<span>I</span>', '<span>A</span>'], false)
             ->assertSee('bc-names__amp', false)
             ->assertSee('Sabtu, 12 Desember 2026')
-            // Labelled bottom menu (five types at most) and the full menu with every section that has one.
-            ->assertSeeInOrder(['class="bc-nav"', __('Home'), __('Couple'), __('Event'), __('Gallery'), __('Wishes')], false)
+            // The shared floating menu (five types at most) and the full menu with every section that has one.
+            ->assertSeeInOrder(['data-inv-nav', __('Home'), __('Couple'), __('Event'), __('Gallery'), __('Wishes')], false)
             ->assertSeeInOrder(['id="bc-menu"', __('Love Story'), __('RSVP')], false)
             // No footer of its own: the page ends with the last section, plus the plan branding when it applies.
             ->assertDontSee(__('See you on our happy day'))

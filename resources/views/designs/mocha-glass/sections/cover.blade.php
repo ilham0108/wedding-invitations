@@ -12,7 +12,7 @@
     @if (filled($config['arabic_text'] ?? null))
         <p class="inv-cover-arabic" lang="ar" dir="rtl" @animate('arabic_text')>{{ $config['arabic_text'] }}</p>
     @endif
-    <h2 class="mg-names" dir="auto" @animate('title')>@include('designs.mocha-glass.partials.names', ['names' => $config['title'] ?: $invitation->title])</h2>
+    <h2 class="mg-names" dir="auto" @animate('title')>@include('designs.mocha-glass.partials.names', ['names' => $config['title'] ?: $invitation->title, 'layout' => $config['title_layout'] ?? null])</h2>
     @if (filled($config['date_text']))
         <p class="mg-date" dir="auto" @animate('date_text')>{{ $config['date_text'] }}</p>
     @endif

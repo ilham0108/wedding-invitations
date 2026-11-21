@@ -19,8 +19,6 @@
     --mg-glass-border: color-mix(in srgb, var(--inv-text) 22%, transparent);
     --mg-line: color-mix(in srgb, var(--inv-text) 85%, transparent);
     --mg-ink: var(--inv-bg);
-    /* "Screen height" sections (invitation.css) end above the floating bottom menu (14px + 54px + a gap). */
-    --inv-screen-height: calc(100svh - 84px);
 
     background: color-mix(in srgb, var(--inv-bg) 70%, #000);
     overflow-x: hidden;
@@ -488,17 +486,17 @@
 
 .mg-section--cover { padding-top: 40px; padding-bottom: 40px; }
 
-/* Swiping sideways: every page keeps clear of the fixed bottom menu. */
+/* Swiping sideways: every page keeps clear of the floating menu. */
 body[data-inv-scroll='horizontal'] .mg-section:not(.mg-section--cover) { --inv-page-margin: 56px 24px 110px; }
 body[data-inv-scroll='horizontal'] .mg-section--cover { --inv-page-margin: 40px 24px; }
 
-/* The first screen ends above the fixed bottom menu (.mg-nav: 14px offset + 54px tall + a gap),
-   and the guest line sits at its bottom, so the menu never covers "To: ...". */
+/* The first screen after the cover layer, with the guest line at its bottom. The floating menu stays hidden
+   while this screen is in view (resources/js/invitation-nav.js), so it never covers the guest's name. */
 .mg-home {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: calc(100svh - 40px - 84px);
+    min-height: calc(100svh - 40px);
     text-align: center;
 }
 
@@ -530,7 +528,7 @@ body[data-inv-scroll='horizontal'] .mg-section--cover { --inv-page-margin: 40px 
 }
 
 /* The 40px "Template preview" bar above the page pushes the first screen down. */
-body:has(.inv-preview-bar) .mg-home { min-height: calc(100svh - 40px - 84px - 40px); }
+body:has(.inv-preview-bar) .mg-home { min-height: calc(100svh - 40px - 40px); }
 
 .mg-countdown {
     display: flex;
@@ -1212,45 +1210,49 @@ body:has(.inv-preview-bar) .mg-home { min-height: calc(100svh - 40px - 84px - 40
     border-color: var(--mg-glass-border);
 }
 
-/* ---------------------------------------------------------------- bottom menu + sparkles */
+/* ---------------------------------------------------------------- floating menu + sparkles */
 
-.mg-nav {
-    position: fixed;
-    bottom: 14px;
-    right: calc(var(--mg-panel) / 2);
-    z-index: 40;
-    display: flex;
-    gap: 2px;
+/* The shared floating menu (invitation.css "Floating section menu") keeps this design's look: a cream pill with
+   black icons, the current entry a dark tab that spells out its label. */
+.inv-design-mocha-glass .inv-nav {
+    --inv-nav-center: calc(100% - var(--mg-panel) / 2);
+    --inv-nav-width: var(--mg-panel);
     padding: 6px;
+    border: 0;
     border-radius: 22px;
-    background: var(--inv-surface);
     box-shadow: 0 8px 30px rgb(0 0 0 / 0.35);
-    opacity: 0;
-    pointer-events: none;
-    transform: translateX(50%);
-    transition: opacity 0.6s 0.6s;
 }
 
-.mg-is-open .mg-nav {
-    opacity: 1;
-    pointer-events: auto;
+/* Phones: the invitation is the whole page. 100vw would count a desktop scrollbar, the middle of the page does not. */
+@media (max-width: 900px) {
+    .inv-design-mocha-glass .inv-nav { --inv-nav-center: 50%; --inv-nav-width: 100%; }
 }
 
-.mg-nav a {
-    display: grid;
-    place-items: center;
+.inv-design-mocha-glass .inv-nav__link {
+    flex: 0 0 auto;
+    flex-direction: row;
+    gap: 7px;
     min-width: 46px;
-    height: 42px;
     padding: 0 14px;
     border-radius: 16px;
-    color: #000 !important;
-    transition: background 0.35s, color 0.35s, min-width 0.35s;
+    color: #000;
+    font-size: 0.78rem;
 }
 
-.mg-nav a.is-active {
-    min-width: 72px;
+.inv-design-mocha-glass .inv-nav__link:hover { background: rgb(0 0 0 / 0.07); }
+
+/* Away from the current entry the label is read out, not shown. */
+.inv-design-mocha-glass .inv-nav__link:not(.is-active) .inv-nav__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+}
+
+.inv-design-mocha-glass .inv-nav__link.is-active {
     background: var(--inv-primary);
-    color: var(--inv-on-primary) !important;
+    color: var(--inv-on-primary);
 }
 
 .mg-particles {

@@ -167,6 +167,23 @@ class HtmlDesignImportTest extends TestCase
         $this->assertStringContainsString('data-inv-next', $html);
     }
 
+    public function test_the_cover_greets_the_guest_once(): void
+    {
+        // The package marks the guest's name itself, so nothing is added; without a guest it names "our honored guest".
+        $html = $this->get(route('templates.preview', $this->publish($this->import())))->assertOk()->getContent();
+
+        $this->assertStringContainsString('Kepada: '.__('Our honored guest'), $html);
+        $this->assertStringNotContainsString('inv-cover-guest', $html);
+
+        // Without it, the shared lines go right above the "next" element.
+        $this->zip(['index.html' => str_replace('<p>Kepada: <inv-guest-name></inv-guest-name></p>', '', self::HTML)]);
+        $template = app(HtmlDesignImporter::class)->import($this->path, 'Melati', TemplateCategory::factory()->create()->id, User::factory()->superAdmin()->create());
+        $html = $this->get(route('templates.preview', $this->publish($template)))->assertOk()->getContent();
+
+        $this->assertMatchesRegularExpression('/<p class="inv-cover-guest inv-cover-guest--center">.*?'.preg_quote(__('Dear Sir/Madam'), '/').'.*?<\/p>\s*<a href="#" data-inv-next>/s', $html);
+        $this->assertSame(1, substr_count($html, 'class="inv-cover-guest '));
+    }
+
     public function test_design_wording_becomes_default_content_but_personal_details_stay_samples(): void
     {
         $template = $this->import();
@@ -233,6 +250,13 @@ class HtmlDesignImportTest extends TestCase
     private function inspect(array $overrides = []): array
     {
         return app(HtmlDesignInspector::class)->inspect($this->zip($overrides), 'html-test');
+    }
+
+    private function publish(InvitationTemplate $template): InvitationTemplate
+    {
+        $template->update(['status' => TemplateStatus::Published]);
+
+        return $template;
     }
 
     private function import(): InvitationTemplate

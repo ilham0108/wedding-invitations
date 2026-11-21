@@ -42,6 +42,8 @@
                 @endif
             </div>
         </div>
+
+        @include('invitation.partials.nav')
     @endif
 
     @if ($invitation->music || isset($story))

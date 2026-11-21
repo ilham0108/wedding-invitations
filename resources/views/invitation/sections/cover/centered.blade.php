@@ -21,10 +21,6 @@
     ])>
         @include('invitation.partials.cover-photo', ['alt' => $config['title'] ?: $invitation->title])
 
-        @if ($invitation->guestName)
-            <p class="mb-6 text-sm">{{ __('Dear') }} <span class="font-semibold">{{ $invitation->guestName }}</span>,</p>
-        @endif
-
         @if (filled($config['arabic_text'] ?? null))
             <p class="inv-cover-arabic" lang="ar" dir="rtl" @animate('arabic_text')>{{ $config['arabic_text'] }}</p>
         @endif
@@ -33,7 +29,7 @@
             <p dir="auto" class="text-xs uppercase tracking-[0.35em] inv-muted" @animate('subtitle')>{{ $config['subtitle'] }}</p>
         @endif
 
-        <h1 dir="auto" class="inv-heading mt-5 text-5xl sm:text-6xl" @animate('title')>{{ $config['title'] ?: $invitation->title }}</h1>
+        <h1 dir="auto" class="inv-heading mt-5 text-5xl sm:text-6xl" @animate('title')>@include('invitation.partials.cover-title', ['names' => $config['title'] ?: $invitation->title, 'layout' => \App\Support\CoverTitle::layout($config['title_layout'] ?? null) ?? 'line'])</h1>
 
         @if (filled($config['date_text']))
             <div class="inv-divider"></div>
@@ -41,12 +37,14 @@
         @endif
 
         @unless (\App\Support\CoverButton::atBottom($config['button_position'] ?? null))
+            @include('invitation.partials.cover-guest')
             @include('invitation.sections.cover._button', ['onPhoto' => $hasImage])
         @endunless
     </div>
 
     @if (\App\Support\CoverButton::atBottom($config['button_position'] ?? null))
-        <div class="inv-cover-bar">
+        <div @class(['inv-cover-bar', 'text-white' => $hasImage && $config['overlay']])>
+            @include('invitation.partials.cover-guest')
             @include('invitation.sections.cover._button', ['onPhoto' => $hasImage])
         </div>
     @endif

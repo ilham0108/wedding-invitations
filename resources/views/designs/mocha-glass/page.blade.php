@@ -8,14 +8,6 @@
     $cover = $sections->firstWhere('type', 'cover');
     $photo = $cover['config']['background_image'] ?? null;
     $names = $cover ? ($cover['config']['title'] ?: $invitation->title) : $invitation->title;
-    $navIcons = [
-        'cover' => ['fa-regular fa-envelope-open', __('Home')],
-        'couple' => ['fa-regular fa-heart', __('Couple / Host')],
-        'event' => ['fa-regular fa-calendar', __('Event')],
-        'gallery' => ['fa-regular fa-images', __('Gallery')],
-        'gift' => ['fa-solid fa-gift', __('Digital Gift')],
-        'wishes' => ['fa-regular fa-comment-dots', __('Wishes')],
-    ];
     // Desktop side panel: its own content when set, otherwise the cover's.
     $panel = $cover['config'] ?? [];
     $panelPhoto = ($panel['desktop_image'] ?? null) ?: $photo;
@@ -24,7 +16,6 @@
     $panelPosition = filled($panel['desktop_image'] ?? null) ? \App\Support\PhotoStyle::background($panel['desktop_image_focus'] ?? null) : $photoPosition;
     $panelSubtitle = filled($panel['desktop_subtitle'] ?? null) ? $panel['desktop_subtitle'] : ($panel['subtitle'] ?? '');
     $panelTitle = filled($panel['desktop_title'] ?? null) ? $panel['desktop_title'] : $names;
-    $navItems = $sections->filter(fn (array $section): bool => isset($navIcons[$section['type']]))->unique('type')->take(5);
 @endphp
 
 <div data-mg-root @if ($cover) data-mg-locked @endif
@@ -68,20 +59,21 @@
             @if (filled($cover['config']['arabic_text'] ?? null))
                 <p class="inv-cover-arabic" lang="ar" dir="rtl" @animate('arabic_text')>{{ $cover['config']['arabic_text'] }}</p>
             @endif
-            <h1 class="mg-names" dir="auto" @animate('title')>@include('designs.mocha-glass.partials.names', ['names' => $names])</h1>
+            <h1 class="mg-names" dir="auto" @animate('title')>@include('designs.mocha-glass.partials.names', ['names' => $names, 'layout' => $cover['config']['title_layout'] ?? null])</h1>
             @if (filled($cover['config']['date_text']))
                 <p class="mg-date" dir="auto" @animate('date_text')>{{ $cover['config']['date_text'] }}</p>
             @endif
             @php($buttonAtBottom = \App\Support\CoverButton::atBottom($cover['config']['button_position'] ?? null))
+            {{-- The guest's name sits right above the open button, in the title block or at the bottom of the screen. --}}
             @unless ($buttonAtBottom)
+                @include('designs.mocha-glass.partials.guest')
                 @include('designs.mocha-glass.partials.cover-button')
             @endunless
             @if ($cover['variant'] === 'framed')
                 </div>
             @endif
-            @include('designs.mocha-glass.partials.guest')
-            {{-- At the bottom of the screen the button comes after the guest's name, outside the title block. --}}
             @if ($buttonAtBottom)
+                @include('designs.mocha-glass.partials.guest')
                 @include('designs.mocha-glass.partials.cover-button')
             @endif
             @include('invitation.partials.ornaments', ['ornaments' => $cover['ornaments'], 'owner' => $cover['key']])
@@ -120,15 +112,7 @@
         </div>
     </main>
 
-    @if ($navItems->count() > 1)
-        <nav class="mg-nav" aria-label="{{ __('Invitation menu') }}">
-            @foreach ($navItems as $item)
-                <a href="#section-{{ $item['key'] }}" data-mg-nav aria-label="{{ $navIcons[$item['type']][1] }}" @class(['is-active' => $loop->first])>
-                    <i class="{{ $navIcons[$item['type']][0] }}" aria-hidden="true"></i>
-                </a>
-            @endforeach
-        </nav>
-    @endif
+    @include('invitation.partials.nav')
 
     <canvas class="mg-particles" data-mg-particles aria-hidden="true"></canvas>
 </div>
