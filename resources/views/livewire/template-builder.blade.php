@@ -1,6 +1,12 @@
 <div x-data="{
         device: 'mobile',
         mobilePanel: 'preview',
+        {{-- Ruler over the preview, kept on across visits on this browser. --}}
+        ruler: localStorage.getItem('builder.ruler') === '1',
+        toggleRuler() {
+            this.ruler = ! this.ruler;
+            localStorage.setItem('builder.ruler', this.ruler ? '1' : '0');
+        },
         base: @js($previewUrl),
         {{-- Preview sections have the id section-preview-{position}. --}}
         selectedAnchor() {
@@ -140,15 +146,46 @@
         {{-- Center: live preview of the draft --}}
         <div class="relative flex min-h-0 flex-col items-center gap-3 overflow-auto bg-[#e9e7e1] p-4 lg:p-6"
             x-bind:class="{ 'max-lg:hidden': mobilePanel !== 'preview' }">
-            <div class="flex rounded-lg border border-line bg-white p-0.5 text-xs" role="group" aria-label="{{ __('Preview content') }}">
-                @foreach (['default_configuration' => __('Default content'), 'sample_content' => __('Sample content')] as $group => $groupLabel)
-                    <button type="button" wire:click="$set('content', '{{ $group }}')"
-                        @class(['rounded-md px-3 py-1.5', 'bg-ink text-white' => $content === $group, 'text-ink-soft hover:bg-paper' => $content !== $group])>{{ $groupLabel }}</button>
-                @endforeach
+            <div class="flex flex-wrap items-center justify-center gap-2">
+                <div class="flex rounded-lg border border-line bg-white p-0.5 text-xs" role="group" aria-label="{{ __('Preview content') }}">
+                    @foreach (['default_configuration' => __('Default content'), 'sample_content' => __('Sample content')] as $group => $groupLabel)
+                        <button type="button" wire:click="$set('content', '{{ $group }}')"
+                            @class(['rounded-md px-3 py-1.5', 'bg-ink text-white' => $content === $group, 'text-ink-soft hover:bg-paper' => $content !== $group])>{{ $groupLabel }}</button>
+                    @endforeach
+                </div>
+                <button type="button" x-on:click="toggleRuler()" x-bind:aria-pressed="ruler ? 'true' : 'false'"
+                    class="flex items-center gap-1.5 rounded-lg border border-line px-3 py-2 text-xs"
+                    x-bind:class="ruler ? 'border-ink bg-ink text-white' : 'bg-white text-ink-soft hover:bg-paper'">
+                    <i class="fa-solid fa-ruler-combined" aria-hidden="true"></i>{{ __('Ruler') }}
+                </button>
             </div>
-            <div class="w-full flex-1 overflow-hidden rounded-2xl border border-line bg-white shadow-soft transition-all"
+            <div class="relative w-full flex-1 overflow-hidden rounded-2xl border border-line bg-white shadow-soft transition-all"
                 x-bind:style="{ maxWidth: { mobile: '400px', tablet: '780px', desktop: '100%' }[device] }">
                 <iframe x-ref="frame" src="{{ $previewUrl }}?content={{ $content }}" wire:ignore title="{{ __('Live preview') }}" class="h-full min-h-[60svh] w-full"></iframe>
+
+                {{--
+                    Ruler: percent of the preview screen along the top and left edge (ticks every 5%, numbers every 25%;
+                    it matches an ornament's Horizontal/Vertical % when the section fills the screen), and the two center lines. It lies over the
+                    frame without catching the mouse, so ornaments can still be dragged. The white halo keeps the
+                    accent lines visible over dark photos.
+                --}}
+                <div x-show="ruler" x-cloak class="pointer-events-none absolute inset-0" aria-hidden="true">
+                    <div class="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-accent shadow-[0_0_0_1px_rgb(255_255_255/0.7)]"></div>
+                    <div class="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-accent shadow-[0_0_0_1px_rgb(255_255_255/0.7)]"></div>
+
+                    <div class="absolute inset-x-0 top-0 h-4 border-b border-line bg-white/90"
+                        style="background-image: linear-gradient(to right, #1f2d2a 1px, transparent 1px), linear-gradient(to right, #5e6d67 1px, transparent 1px); background-size: 10% 6px, 5% 3px; background-position: left bottom; background-repeat: repeat-x;">
+                        @foreach ([25, 50, 75] as $mark)
+                            <span class="absolute top-0 -translate-x-1/2 text-[9px] leading-[10px] text-ink" style="left: {{ $mark }}%">{{ $mark }}</span>
+                        @endforeach
+                    </div>
+                    <div class="absolute inset-y-0 left-0 w-5 border-r border-line bg-white/90"
+                        style="background-image: linear-gradient(to bottom, #1f2d2a 1px, transparent 1px), linear-gradient(to bottom, #5e6d67 1px, transparent 1px); background-size: 6px 10%, 3px 5%; background-position: right top; background-repeat: repeat-y;">
+                        @foreach ([25, 50, 75] as $mark)
+                            <span class="absolute left-0 -translate-y-1/2 text-[9px] leading-[10px] text-ink" style="top: {{ $mark }}%">{{ $mark }}</span>
+                        @endforeach
+                    </div>
+                </div>
             </div>
         </div>
 
