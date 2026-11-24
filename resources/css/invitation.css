@@ -291,6 +291,24 @@
 
 [data-inv-animation='reveal'] .inv-animate.is-shown { clip-path: inset(-60px); }
 
+/*
+| In the sideways strip each page is a snap point, and the browser snaps to the page's moved box: a page still
+| waiting to slide or zoom in stopped the strip 48px short, showing a strip of the page before it. The page stays
+| put and its contents (body and ornament layers) move instead.
+*/
+.inv-js [data-inv-scroll='horizontal'] [data-inv-pages] > section.inv-animate:not(.is-shown) { transform: none; }
+
+[data-inv-scroll='horizontal'] [data-inv-pages] > section.inv-animate { overflow-x: hidden; }
+
+[data-inv-scroll='horizontal'] [data-inv-pages] > section.inv-animate > * {
+    transition: transform var(--inv-animation-duration, 0.9s) cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.inv-js [data-inv-animation='fade-up'][data-inv-scroll='horizontal'] [data-inv-pages] > section.inv-animate:not(.is-shown) > * { transform: translateY(32px); }
+.inv-js [data-inv-animation='zoom'][data-inv-scroll='horizontal'] [data-inv-pages] > section.inv-animate:not(.is-shown) > * { transform: scale(0.92); }
+.inv-js [data-inv-animation='slide'][data-inv-scroll='horizontal'] [data-inv-pages] > section.inv-animate:not(.is-shown) > * { transform: translateX(-48px); }
+.inv-js [data-inv-animation='slide'][data-inv-scroll='horizontal'] [data-inv-pages] > section.inv-animate[data-inv-side='right']:not(.is-shown) > * { transform: translateX(48px); }
+
 /* Blocks waiting to slide in from the right must not make the page scroll sideways. */
 body[data-inv-scroll='vertical'][data-inv-animation='slide'] [data-inv-pages] {
     overflow-x: clip;
@@ -689,29 +707,6 @@ body[data-inv-scroll='horizontal'] [data-inv-pages] > section > .inv-ornaments {
 }
 
 body[data-inv-scroll='horizontal'] [data-inv-pages] > section.inv-section { --inv-page-margin: var(--inv-spacing) 0; }
-
-/* Above where the floating menu sits, and readable over any cover photo. */
-.inv-page-hint {
-    position: fixed;
-    bottom: 80px;
-    z-index: 45;
-    display: flex;
-    justify-content: center;
-    pointer-events: none;
-    transition: opacity 0.3s;
-}
-
-.inv-page-hint[hidden] { display: none; }
-.inv-page-hint.is-hidden { opacity: 0; }
-
-/* No box behind the text: a halo in the theme background keeps it readable on any photo. */
-.inv-page-hint span {
-    color: var(--inv-text);
-    font-size: 0.75rem;
-    text-shadow: 0 0 2px var(--inv-bg), 0 0 5px var(--inv-bg), 0 0 9px var(--inv-bg);
-}
-
-body.mg-locked .inv-page-hint { display: none; }
 
 /*
 | Event layout "List" (classic): an icon column beside each event, rows separated by a line in the accent color.
@@ -1346,9 +1341,13 @@ button.inv-collage__item:focus-visible { outline: 2px solid var(--inv-secondary)
     [data-inv-desktop='split'] .inv-nav { --inv-nav-center: calc(100% - 230px); --inv-nav-width: 460px; }
 }
 
-/* The end of the page, and each sideways page, leaves room so the menu never covers the last lines. */
+/*
+| The end of the page, and each sideways page, leaves room so the menu never covers the last lines. On a sideways
+| page the room goes under the text only (--inv-page-margin): the page's background and ornaments still reach the
+| bottom edge and the menu floats over them. Mocha Glass and Botanical Cream set their own bottom margin.
+*/
 body:has([data-inv-nav]):not([data-inv-scroll='horizontal']) .inv-page [data-inv-pages] { padding-bottom: 72px; }
-body[data-inv-scroll='horizontal']:has([data-inv-nav]) .inv-page [data-inv-pages] > section:not([data-section='cover']) { padding-bottom: 84px; }
+body[data-inv-scroll='horizontal']:has([data-inv-nav]) [data-inv-pages] > section.inv-section { --inv-page-margin: var(--inv-spacing) 0 calc(var(--inv-spacing) + 72px); }
 
 @media (prefers-reduced-motion: reduce) {
     .inv-nav,

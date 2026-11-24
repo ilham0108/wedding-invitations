@@ -23,7 +23,6 @@ export function setupPageSwipe() {
     document.querySelectorAll('[data-inv-branding]').forEach((line) => (lastPage?.querySelector(':scope > .inv-section-body') ?? lastPage)?.append(line));
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const hint = document.querySelector('[data-inv-page-hint]');
 
     // Every page is exactly one strip wide, so a page's place follows from its number. Measuring the page on screen
     // would be thrown off while its entrance animation still moves it ("slide" shifts it 48px), leaving the strip
@@ -35,13 +34,6 @@ export function setupPageSwipe() {
         pages.scrollTo({ left, behavior });
     };
 
-    // A cover with its own button already tells guests how to go on, and the hint would sit on top of it and of the
-    // guest's name. Then the hint waits for the second page. It goes for good once the guest swipes past its page.
-    const cover = sections[0]?.dataset.section === 'cover' ? sections[0] : null;
-    const coverHasButton = [...(cover?.querySelectorAll('.inv-cover-button, [data-inv-next]') ?? [])].some((button) => button.getClientRects().length > 0);
-    const hintPage = coverHasButton && sections.length > 1 ? 1 : 0;
-    let hintDone = false;
-
     let current = -1;
 
     const update = () => {
@@ -52,8 +44,6 @@ export function setupPageSwipe() {
         }
 
         current = index;
-        hintDone = hintDone || index > hintPage;
-        hint?.classList.toggle('is-hidden', hintDone || index !== hintPage);
         window.dispatchEvent(new CustomEvent('inv-page-change', { detail: { index, section: sections[index] } }));
     };
 
@@ -148,22 +138,7 @@ export function setupPageSwipe() {
         step(event.key === 'ArrowRight' ? 1 : -1);
     });
 
-    // The hint stays over the invitation, which is a narrow column on wide screens.
-    const placeHint = () => {
-        if (hint) {
-            const box = pages.getBoundingClientRect();
-            hint.style.left = `${box.left}px`;
-            hint.style.width = `${box.width}px`;
-        }
-    };
-
-    window.addEventListener('resize', placeHint);
     window.invPages = { pages, go };
 
-    if (hint) {
-        hint.hidden = false;
-    }
-
-    placeHint();
     update();
 }

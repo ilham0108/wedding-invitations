@@ -73,11 +73,6 @@
     ], 'filled'))
     @if ($ornamentImages !== []) style="{{ collect($ornamentImages)->map(fn (string $url, string $name): string => $name.': '.\App\Support\CssUrl::wrap($url))->implode('; ') }}" @endif>
     {{ $slot }}
-
-    @if (! $static && ($invitation->decoration['scroll_direction'] ?? 'vertical') === 'horizontal')
-        {{-- Tells guests how to move on; resources/js/page-swipe.js places it and hides it after the first page. --}}
-        <p class="inv-page-hint" data-inv-page-hint hidden><span>{{ __('Swipe or scroll to continue') }}</span></p>
-    @endif
 </body>
 
 </html>

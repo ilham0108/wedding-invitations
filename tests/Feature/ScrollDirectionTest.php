@@ -25,18 +25,17 @@ class ScrollDirectionTest extends TestCase
             $html = $this->page($design, []);
 
             $this->assertStringContainsString('data-inv-scroll="vertical"', $html, "[{$design}]");
-            $this->assertStringNotContainsString('data-inv-page-hint', $html, "[{$design}]");
         }
     }
 
-    public function test_every_design_marks_its_page_strip_and_shows_the_hint_when_swiping(): void
+    public function test_every_design_marks_its_page_strip_without_a_swipe_hint(): void
     {
         foreach (self::DESIGNS as $design) {
             $html = $this->page($design, ['scroll_direction' => 'horizontal']);
 
             $this->assertStringContainsString('data-inv-scroll="horizontal"', $html, "[{$design}]");
             $this->assertStringContainsString('data-inv-pages', $html, "[{$design}]");
-            $this->assertStringContainsString('data-inv-page-hint', $html, "[{$design}]");
+            $this->assertStringNotContainsString('data-inv-page-hint', $html, "[{$design}]");
         }
     }
 
@@ -52,7 +51,6 @@ class ScrollDirectionTest extends TestCase
         $html = $this->get(route('templates.card', $template))->assertOk()->getContent();
 
         $this->assertStringContainsString('data-inv-scroll="vertical"', $html);
-        $this->assertStringNotContainsString('data-inv-page-hint', $html);
     }
 
     public function test_the_builder_sets_the_direction_and_invitations_keep_it(): void
